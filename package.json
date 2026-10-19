@@ -1,0 +1,23 @@
+{
+  "name": "psi-zoo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @psi-zoo/web",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "npm run typecheck --workspace @psi-zoo/sim-core && npm run typecheck --workspace @psi-zoo/web",
+    "build": "npm run typecheck && npm run build --workspace @psi-zoo/web"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  }
+}
