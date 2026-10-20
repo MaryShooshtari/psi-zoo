@@ -1,6 +1,7 @@
 export { createPsiGrid, normSquared } from './grid';
 export type { PsiGrid } from './grid';
 export type { Stepper } from './stepper';
+export { CrankNicolsonStepper } from './crankNicolson';
 export {
   innerProduct,
   normalize,
