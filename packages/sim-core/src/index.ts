@@ -19,3 +19,9 @@ export {
   analyticGaussianMomentumExpectation,
   analyticFreeGaussianWidth,
 } from './gaussian';
+export {
+  getHamiltonianCoefficients,
+  applyHamiltonian,
+  energyExpectation,
+  type HamiltonianCoefficients,
+} from './hamiltonian';
