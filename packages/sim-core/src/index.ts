@@ -25,3 +25,7 @@ export {
   energyExpectation,
   type HamiltonianCoefficients,
 } from './hamiltonian';
+export {
+  solveTridiagonal,
+  type TridiagonalSolution,
+} from './tridiagonal';
