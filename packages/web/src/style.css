@@ -8,3 +8,12 @@ p { color: #9aacc6; max-width: 650px; line-height: 1.6; }
 .terrarium { width: 100%; height: 340px; display: block; border-radius: 18px; border: 1px solid #263d54; margin-top: 35px; }
 footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 13px; color: #9ab0c8; margin-top: 15px; }
 footer strong { color: #dae8fb; }
+.controls { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+button { font: inherit; color: #eaf4ff; background: #142941; border: 1px solid #426681; border-radius: 8px; padding: 9px 18px; cursor: pointer; }
+button:hover:not(:disabled) { background: #21415c; }
+button:focus-visible { outline: 2px solid #a8f9fc; outline-offset: 3px; }
+button:disabled { opacity: 0.45; cursor: default; }
+.controls span, .plot-note { color: #9ab0c8; font-size: 13px; }
+.diagnostics { display: flex; flex-wrap: wrap; gap: 12px 28px; margin-top: 20px; font-size: 14px; font-variant-numeric: tabular-nums; }
+.error { color: #ffb6ad; }
+.plot-note { max-width: 100%; }
