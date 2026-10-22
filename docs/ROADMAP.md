@@ -1,20 +1,22 @@
 # Vertical-slice roadmap
 
-## Current: Slice 0 — scaffold (shipped in starter)
-- npm workspaces for `sim-core` and `web`
-- React + Vite + Canvas2D placeholder animated at a fixed physics timestep
-- typed numerical grid and a smoke test, CI workflow, agent instructions
-- IMPORTANT: placeholder animation is NOT quantum physics
+## Completed foundation: Slice 0 — scaffold
+- npm workspaces for `sim-core` and `web`, React + Vite + Canvas2D
+- typed numerical grid, CI workflow, and agent instructions
+- The original placeholder has been replaced by numerical evolution.
 
-## Next: Slice 1 — a Gaussian that lives
-- Add grid/inner-product helpers with discrete norm including `dx`
-- Implement finite-difference Hamiltonian, 1D Dirichlet boundary conditions,
-  Crank–Nicolson solve with complex tridiagonal Thomas algorithm
-- Add discrete norm test over many steps, static-potential energy test,
-  and packet width vs analytic free-Gaussian solution under clearly defined
-  initial-width convention and before boundary reflections
-- Render |psi|^2, and optionally phase, from ACTUAL stepped data
-- Ship with passing tests and a GIF/screenshot in README
+## Current: Slice 1 — a Gaussian that lives
+- Implemented: grid/inner-product helpers with discrete norm including `dx`,
+  finite-difference Hamiltonian, interior Dirichlet Crank–Nicolson evolution,
+  and complex tridiagonal Thomas solve.
+- Validated: probability norm, static-potential energy, free-Gaussian mean and
+  width, and spatial/temporal convergence before boundary reflections.
+  See [measured results](FREE_GAUSSIAN_VALIDATION.md).
+- Browser: actual evolved |psi|^2 and state-derived diagnostics, with tested
+  fixed-step playback controller. No per-step normalization.
+- Still pending: manual browser review and a README GIF/screenshot.
+- [Lab-notebook content](notebook/README.md) now connects the simulation to the
+  completed exact CN proofs. Content is Markdown only; no notebook renderer yet.
 
 ## Slice 2 — touch the world
 Pointer-drag edits `V(x)`; show scattering and potential overlay; tests.
@@ -30,5 +32,10 @@ Qubit, Bloch inspection, mood coupling to V, interactions. Confirm scientific mo
 2D ADI solver (validated); explore genuinely joint entangled states when ready.
 
 ## Parallel Lean lane
-Learn Lean basics. Then finite-dimensional projector lemmas, then a Cayley
-transform unitarity proof. Cross-link only proven Lean code to notebook claims.
+Completed in the [companion repository](https://github.com/MaryShooshtari/psi-zoo-proofs):
+finite weighted norm and inner product, interior Hamiltonian Hermiticity,
+conditional CN conservation, left-matrix invertibility and unique solvability,
+explicit evolution, and Cayley-transform matrix unitarity.
+[Notebook statements and source map](notebook/crank-nicolson.md) cross-link these
+checked results. This is exact mathematics, not formal verification of TypeScript.
+Further projector/measurement and Bloch milestones remain separate work.

@@ -8,6 +8,23 @@ browser review and a demo capture remain. The Canvas plot shows actual
 Crank–Nicolson evolution of a free Gaussian. See [the roadmap](docs/ROADMAP.md)
 and [Gaussian validation results](docs/FREE_GAUSSIAN_VALIDATION.md).
 
+## Explore the project
+
+- **Run the simulation:** [local development](#local-development) and [browser behavior](#browser-simulation).
+- **Understand the physics:** [lab notebook](docs/notebook/README.md), starting with
+  [why the wave packet keeps its probability](docs/notebook/crank-nicolson.md).
+- **Inspect the evidence:** [Gaussian spreading measurements](docs/FREE_GAUSSIAN_VALIDATION.md)
+  and [conservation tests](packages/sim-core/tests/crankNicolson.test.ts).
+- **Read the formal proofs:** [Lean companion repository](https://github.com/MaryShooshtari/psi-zoo-proofs)
+  and [exact theorem-to-source map](docs/notebook/crank-nicolson.md#7-exact-statement-to-source-map).
+
+The completed Lean proof chain establishes exact norm conservation, unique
+solvability, explicit evolution, and matrix unitarity for the finite interior
+Dirichlet model. **The TypeScript implementation is numerically tested, not
+formally verified.** The notebook links the two kinds of evidence and states
+what remains outside their scope. Its content is Markdown only; it is not yet
+rendered inside the browser app.
+
 ## Browser simulation
 
 Starts paused. Use **Play**, **Pause**, and **Reset** to evolve or reconstruct the
@@ -62,7 +79,11 @@ npm run build
 - `packages/web`: React + Vite + Canvas renderer
 - `docs/PROJECT_SPEC.md`: initial project handover
 - `docs/ROADMAP.md`: vertical slices
+- `docs/notebook/`: Markdown explanations, derivations, and links to checked Lean statements
+- `docs/FREE_GAUSSIAN_VALIDATION.md`: measured numerical results and tolerance rationale
 - `AGENTS.md` and `.pi/prompts/`: coding agent guardrails and shortcuts
 
-The separate companion repository `psi-zoo-proofs` will formalize selected
-mathematical claims in Lean 4 + Mathlib. No Lean proof is claimed yet.
+The separate [companion repository `psi-zoo-proofs`](https://github.com/MaryShooshtari/psi-zoo-proofs)
+contains the completed Crank–Nicolson matrix proof chain in Lean 4 + Mathlib.
+See its [proof index and build instructions](https://github.com/MaryShooshtari/psi-zoo-proofs#completed-cranknicolson-proof-chain)
+and the [lab-notebook explanation](docs/notebook/crank-nicolson.md).

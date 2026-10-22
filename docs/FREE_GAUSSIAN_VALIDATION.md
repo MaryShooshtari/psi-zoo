@@ -3,6 +3,13 @@
 Validated by `packages/sim-core/tests/freeGaussianEvolution.test.ts`.
 No solver changes or per-step normalization are used.
 
+For the physics explanation and checked exact-matrix theorems, see the
+[Crank–Nicolson lab-notebook entry](notebook/crank-nicolson.md). Its
+[conservation measurements](notebook/crank-nicolson.md#8-what-the-numerical-experiments-say)
+also record the separate 1,000-step nonuniform-potential test. The results here
+are numerical validation, not formal verification of TypeScript or a formal
+continuum convergence proof.
+
 ## Conventions and setup
 
 - hbar = m = 1; V = 0; x_i = -20 + i*dx on [-20,20], including both endpoints.
