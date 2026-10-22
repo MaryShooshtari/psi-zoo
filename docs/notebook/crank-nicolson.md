@@ -67,7 +67,7 @@ $$\langle\phi,\psi\rangle_{\Delta x}
 transpose. Here the coefficients are real and symmetric, so this holds. It
 implies $\langle\phi,H\psi\rangle_{\Delta x}
 =\langle H\phi,\psi\rangle_{\Delta x}$ and
-$\operatorname{Im}\langle\psi,H\psi\rangle_{\Delta x}=0$: the energy form is real.
+$\mathop{\mathrm{Im}}\langle\psi,H\psi\rangle_{\Delta x}=0$: the energy form is real.
 
 Definitions and proofs: [GridHamiltonian.lean][hamiltonian],
 [GridInnerProduct.lean][inner], and [GridNormalization.lean][norm].
@@ -107,14 +107,14 @@ The Lean-to-TypeScript correspondence is editorial, not mechanically proved.
 
 Set $s=\psi_++\psi_-$ and $d=\psi_+-\psi_-$. Polarization gives
 
-$$P(\psi_+)-P(\psi_-)=\operatorname{Re}\langle s,d\rangle_{\Delta x}.$$
+$$P(\psi_+)-P(\psi_-)=\mathop{\mathrm{Re}}\langle s,d\rangle_{\Delta x}.$$
 
 The mixed terms cancel in the real part by conjugate symmetry. Substitute the
 step equation and use linearity in the second argument:
 
 $$
-\operatorname{Re}\langle s,d\rangle_{\Delta x}
-=\operatorname{Re}\left[-i(\Delta t/2)\langle s,Hs\rangle_{\Delta x}\right]=0.
+\mathop{\mathrm{Re}}\langle s,d\rangle_{\Delta x}
+=\mathop{\mathrm{Re}}\left[-i(\Delta t/2)\langle s,Hs\rangle_{\Delta x}\right]=0.
 $$
 
 The last equality holds because the energy form is real, so multiplication by
@@ -179,12 +179,12 @@ states. Some algebraic identities have weaker hypotheses in their source.
 | Exact mathematical statement | Lean declaration and source |
 | --- | --- |
 | $H^{\mathrm H}=H$ | `gridHamiltonianMatrix_isHermitian` — [Hamiltonian][hamiltonian] |
-| $\operatorname{Im}\langle\psi,H\psi\rangle_{dx}=0$ | `gridHamiltonian_energy_im_eq_zero` — [Hamiltonian][hamiltonian] |
+| $\mathop{\mathrm{Im}}\langle\psi,H\psi\rangle_{dx}=0$ | `gridHamiltonian_energy_im_eq_zero` — [Hamiltonian][hamiltonian] |
 | $A\psi_+=B\psi_-\iff\psi_+-\psi_-=-i(dt/2)H(\psi_++\psi_-)$ | `crankNicolsonStep_iff` — [Conservation][conservation] |
-| $P(\psi_+)-P(\psi_-)=\operatorname{Re}\langle\psi_++\psi_-,\psi_+-\psi_-\rangle_{dx}$ | `weightedSquaredNorm_sub_eq_re_gridInnerProduct` — [Conservation][conservation] |
+| $P(\psi_+)-P(\psi_-)=\mathop{\mathrm{Re}}\langle\psi_++\psi_-,\psi_+-\psi_-\rangle_{dx}$ | `weightedSquaredNorm_sub_eq_re_gridInnerProduct` — [Conservation][conservation] |
 | $A\psi_+=B\psi_-\Rightarrow P(\psi_+)=P(\psi_-)$ | `crankNicolsonStep_weightedSquaredNorm` — [Conservation][conservation] |
 | $A\psi=0\Rightarrow\psi=0$ | `crankNicolsonLeftMatrix_mulVec_eq_zero` — [Invertibility][invertibility] |
-| $\operatorname{IsUnit}(A)$ (matrix invertibility) | `crankNicolsonLeftMatrix_isUnit` — [Invertibility][invertibility] |
+| $\mathop{\mathrm{IsUnit}}(A)$ (matrix invertibility) | `crankNicolsonLeftMatrix_isUnit` — [Invertibility][invertibility] |
 | $\forall\psi_-,\ \exists!\psi_+,\ A\psi_+=B\psi_-$ | `crankNicolsonStep_existsUnique` — [Invertibility][invertibility] |
 | $AU=B$ | `crankNicolsonLeftMatrix_mul_evolution` — [Evolution][evolution] |
 | $A(U\psi)=B\psi$ | `crankNicolsonEvolution_step` — [Evolution][evolution] |
@@ -238,8 +238,8 @@ measured for this documentation milestone using the unchanged public API
 (Node 24.20.0, Windows; no per-step normalization):
 
 - 65 full-grid points, $dx=0.2$, $x_0=-3$, $dt=0.01$.
-- Initial interior components: $\operatorname{Re}\psi_i=\sin(0.31i)$,
-  $\operatorname{Im}\psi_i=\cos(0.17i)$ for $i=1,\ldots,63$; zero endpoints,
+- Initial interior components: $\mathop{\mathrm{Re}}\psi_i=\sin(0.31i)$,
+  $\mathop{\mathrm{Im}}\psi_i=\cos(0.17i)$ for $i=1,\ldots,63$; zero endpoints,
   followed by one `normalize` call.
 - Fixed $V_i=0.02i+\sin(0.2i)$; measure `normSquared` and the real part of
   `energyExpectation` after each step against their initial values.
