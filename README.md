@@ -3,10 +3,13 @@
 A quantum-creature terrarium for learning, playing, and formally exploring
 Schrödinger dynamics.
 
-**Status:** Slice 1 numerical core and browser integration implemented; manual
-browser review and a demo capture remain. The Canvas plot shows actual
-Crank–Nicolson evolution of a free Gaussian. See [the roadmap](docs/ROADMAP.md)
-and [Gaussian validation results](docs/FREE_GAUSSIAN_VALIDATION.md).
+**Status:** Slice 2 Phase 3A implemented: configurable directed Gaussian packets,
+with validated free motion, building on the accepted Phase 2 painting interface
+(user-reported 14/14 manual browser checks). Manual review of the new momentum
+control and a demo capture remain. Quantitative scattering/Phase 3B has not started.
+See [the roadmap](docs/ROADMAP.md), [potential painting guide](docs/POTENTIAL_LANDSCAPES.md),
+[directed packet validation](docs/DIRECTED_GAUSSIAN_VALIDATION.md), and
+[Gaussian spreading validation](docs/FREE_GAUSSIAN_VALIDATION.md).
 
 ## Explore the project
 
@@ -27,31 +30,67 @@ rendered inside the browser app.
 
 ## Browser simulation
 
-Starts paused. Use **Play**, **Pause**, and **Reset** to evolve or reconstruct the
-initial packet. The plot uses fixed axes and displays density computed directly
-from the numerical wavefunction. Time, probability norm, and energy are calculated
-from that same state.
+Starts paused with no terrain and Painting mode off. Use **Play** and **Pause**
+to evolve the packet. Enable **Painting mode**, then press/drag inside the plot
+with mouse, touch, or pen. Horizontal position sets the location; brush controls
+set width sigma (0.3–2 spatial units) and height A (0.1–5 energy units). Defaults
+are sigma=0.6 and A=1. Brush settings are held fixed until the stroke ends.
+Sparse pointer events produce continuous strokes; repeated painting raises
+terrain using max, not accumulation. Painting works paused or running and never
+changes the wavefunction directly. Captured dragging outside clamps to the domain
+edges; cancellation, focus loss, or disabling painting ends the stroke. Touch
+scrolling is disabled over the canvas (scroll elsewhere on the page).
+
+The **Initial momentum p₀** slider selects a value from −1.5 to +1.5; the default
+remains +0.75. Negative launches left, zero spreads without drift, and positive
+launches right in free space. **Selection only applies on Reset**: changing it
+while playing does not kick or replace the live packet.
+
+**Reset** pauses and regenerates the initial packet with the selected momentum at
+t=0, **preserving terrain**. **Clear Terrain** removes barriers without changing
+the packet, time, playback, or selected momentum. To reproduce the original free
+startup, select p₀=0.75, Clear Terrain, then Reset.
+
+The plot displays cyan probability density on the left scale (0–0.5), and dashed
+amber potential V(x) on the independent right scale (0–5). Both scales are fixed;
+density peaks above 0.5 are clipped, not rescaled. Time, probability norm, and
+energy are calculated from the current state and terrain. Norm is conserved up
+to roundoff; energy is conserved only while V is unchanged, **not while painting
+or clearing terrain**. The overlay updates immediately, even while paused.
 
 Defaults: x in [-20,20], 401 points, dx=0.1, dt=0.01, hbar=m=1,
 V=0, center=-5, density standard deviation=1, momentum k0=0.75.
 Dirichlet endpoints are zeroed before the single initial normalization. There is
-no normalization during evolution. At long times the packet reflects from the walls.
+no normalization during evolution. The momentum control keeps |p₀*dx| ≤ 0.15.
+Continuum carrier velocity p₀ differs from finite-difference group velocity
+sin(p₀*dx)/dx; finite packet width and CN temporal dispersion further affect its
+centroid. See [velocity references and tolerances](docs/DIRECTED_GAUSSIAN_VALIDATION.md).
+At long times the packet reflects from the Dirichlet walls; negative-momentum
+packets start closer to their destination wall.
 
 Playback uses elapsed wall time and fixed numerical steps, normally at one physical
 time unit per wall second. Work is capped at eight steps per frame; excess wall
 time after a stall is discarded rather than changing dt. Background tabs pause.
-React diagnostics refresh at most ten times per second while Canvas draws each
-frame. Unmount cancels playback, and stale callbacks cannot restart a loop.
+React diagnostics refresh at most ten times per second during playback/painting,
+with a trailing update for the final paused edit; explicit buttons refresh
+immediately. Canvas draws each frame and on terrain edits. Unmount cancels
+playback, releases pointer capture, removes listeners, and clears pending UI timers.
+Stale playback callbacks cannot restart a loop.
 
 Vite, TypeScript, and Vitest resolve `@psi-zoo/sim-core` directly to its workspace
 public source entry, avoiding stale installed workspace copies.
 
-The existing Node-based Vitest setup tests the playback controller with a fake
-frame scheduler, including actual numerical acceptance results, diagnostics,
-refresh-rate independence, errors, reset, and StrictMode-style disposal. It does
-not mount React or test Canvas pixels. Manual checks still needed: button and
-keyboard interaction, plot readability on small/high-DPI displays, resize,
-background-tab pause, and development StrictMode/HMR cleanup. No screenshot or
+The Node-based Vitest setup tests playback with a fake frame scheduler, including
+actual numerical acceptance results, diagnostics, refresh-rate independence,
+terrain identity/solver propagation, reset versus clear, and disposal. Pointer
+listeners are tested with an EventTarget/capture test double: CSS coordinate
+mapping, plot edges, mouse/touch/pen strokes, cancellation, and cleanup, including
+integration with the actual playback controller. It does not mount React, test
+Canvas pixels, or emulate a real browser's capture implementation. See the
+[manual browser checklist](docs/POTENTIAL_LANDSCAPES.md#manual-browser-checklist)
+for device input, HiDPI, evolving density, and lifecycle regression checks. The
+[new momentum-control review](docs/DIRECTED_GAUSSIAN_VALIDATION.md#limits-and-browser-review)
+remains manual and has not been run in Phase 3A. No screenshot or
 GIF has been captured yet.
 
 ## Local development

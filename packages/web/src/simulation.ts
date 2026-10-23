@@ -1,7 +1,22 @@
 import {
   CrankNicolsonStepper, createPsiGrid, initializeGaussian, normalize,
-  normSquared, energyExpectation, type PsiGrid,
+  normSquared, energyExpectation, createZeroPotential, stampGaussianPotential,
+  paintGaussianPath, type GaussianBrush, type PsiGrid,
 } from '@psi-zoo/sim-core';
+
+export const DEFAULT_INITIAL_MOMENTUM = 0.75;
+// dx=0.1: carrier |p0*dx| <= 0.15, well below the lattice/Nyquist scale.
+export const INITIAL_MOMENTUM_LIMIT = 1.5;
+export const TERRAIN_MAX_HEIGHT = 5;
+export const BRUSH_LIMITS = { minSigma: 0.3, maxSigma: 2, minAmplitude: 0.1 } as const;
+export const DEFAULT_BRUSH: GaussianBrush = { amplitude: 1, sigma: 0.6 };
+
+function validateBrush(brush: GaussianBrush): void {
+  if (!Number.isFinite(brush.sigma) || brush.sigma < BRUSH_LIMITS.minSigma || brush.sigma > BRUSH_LIMITS.maxSigma
+    || !Number.isFinite(brush.amplitude) || brush.amplitude < BRUSH_LIMITS.minAmplitude || brush.amplitude > TERRAIN_MAX_HEIGHT) {
+    throw new RangeError('Brush must have sigma in [0.3, 2] and amplitude in [0.1, 5]');
+  }
+}
 
 const DT = 0.01;
 const MAX_STEPS_PER_FRAME = 8;
@@ -17,9 +32,9 @@ export interface SimulationSnapshot {
   error: string | null;
 }
 
-function initialState(): PsiGrid {
+function initialState(p0 = DEFAULT_INITIAL_MOMENTUM): PsiGrid {
   const psi = createPsiGrid(401, 0.1, -20);
-  initializeGaussian(psi, -5, 1, 0.75, false);
+  initializeGaussian(psi, -5, 1, p0, false);
   psi.values[0] = psi.values[1] = 0;
   psi.values[2 * (psi.count - 1)] = psi.values[2 * (psi.count - 1) + 1] = 0;
   normalize(psi); // Once only, after imposing the initial Dirichlet endpoints.
@@ -32,8 +47,9 @@ function initialState(): PsiGrid {
  * never replaced by a larger numerical dt. Pause/resume discards fractional time.
  */
 export class SimulationPlayback {
-  private state = initialState();
-  private readonly potential = new Float64Array(401);
+  private selectedMomentum = DEFAULT_INITIAL_MOMENTUM;
+  private state = initialState(this.selectedMomentum);
+  private readonly terrain = createZeroPotential(this.state);
   private readonly stepper = new CrankNicolsonStepper();
   private steps = 0;
   private playing = false;
@@ -48,6 +64,41 @@ export class SimulationPlayback {
 
   /** Read-only grid metadata; values are the actual state used by the renderer. */
   get psi(): PsiGrid { return this.state; }
+
+  /** Pending initial-condition selection; applied only on Reset, never as a kick. */
+  get initialMomentum(): number { return this.selectedMomentum; }
+
+  setInitialMomentum(p0: number): void {
+    if (this.disposed) return;
+    if (!Number.isFinite(p0) || Math.abs(p0) > INITIAL_MOMENTUM_LIMIT) {
+      throw new RangeError('Initial momentum must be finite and in [-1.5, 1.5]');
+    }
+    this.selectedMomentum = p0;
+  }
+
+  /** Renderer view of the owned array. Callers must use editing methods to mutate. */
+  get potential(): Float64Array { return this.terrain; }
+
+  stamp(center: number, brush: GaussianBrush): void {
+    if (this.disposed || this.error) return;
+    validateBrush(brush);
+    stampGaussianPotential(this.state, this.terrain, { ...brush, center }, TERRAIN_MAX_HEIGHT);
+    this.onFrame(this.snapshot());
+  }
+
+  paint(from: number, to: number, brush: GaussianBrush): void {
+    if (this.disposed || this.error) return;
+    validateBrush(brush);
+    paintGaussianPath(this.state, this.terrain, brush, from, to, TERRAIN_MAX_HEIGHT);
+    this.onFrame(this.snapshot());
+  }
+
+  /** Clear only V, without changing state, time, playback, or array identity. */
+  clearTerrain(): void {
+    if (this.disposed) return;
+    this.terrain.fill(0);
+    this.onFrame(this.snapshot());
+  }
 
   snapshot(): SimulationSnapshot {
     if (this.error) return { time: this.steps * DT, norm: NaN, energy: NaN, playing: false, error: this.error };
@@ -76,10 +127,13 @@ export class SimulationPlayback {
     this.accumulator = 0;
   }
 
+  /** Pause and regenerate the initial packet with selected momentum at t=0;
+   * intentionally preserve terrain and its array identity.
+   */
   reset(): void {
     if (this.disposed) return;
     this.pause();
-    this.state = initialState();
+    this.state = initialState(this.selectedMomentum);
     this.steps = 0;
     this.error = null;
   }

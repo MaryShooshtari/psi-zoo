@@ -5,7 +5,17 @@ main { max-width: 1050px; margin: 0 auto; padding: 60px 28px; }
 .eyebrow { font-size: 12px; letter-spacing: 3px; color: #86c1df; font-weight: 700; }
 h1 { font-size: clamp(32px, 5vw, 54px); letter-spacing: -0.04em; margin: 18px 0; }
 p { color: #9aacc6; max-width: 650px; line-height: 1.6; }
-.terrarium { width: 100%; height: 340px; display: block; border-radius: 18px; border: 1px solid #263d54; margin-top: 35px; }
+/* No border/padding: the drawing area and pointer coordinate rect coincide. */
+.terrarium { width: 100%; height: 340px; display: block; border-radius: 18px; box-shadow: 0 0 0 1px #263d54; margin-top: 35px; touch-action: none; user-select: none; }
+.terrarium.painting { cursor: crosshair; }
+.brush-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 28px; margin-top: 20px; padding: 16px; border: 1px solid #426681; border-radius: 8px; }
+.brush-controls legend { color: #ffc477; padding: 0 6px; }
+.brush-controls label { display: flex; flex-direction: column; gap: 8px; font-size: 13px; font-variant-numeric: tabular-nums; }
+.brush-controls .painting-toggle { flex-direction: row; align-items: center; }
+.brush-controls input { accent-color: #ffc477; }
+.brush-controls input[type='range'] { width: 210px; max-width: 100%; }
+.brush-controls input:focus-visible { outline: 2px solid #a8f9fc; outline-offset: 3px; }
+@media (max-width: 480px) { main { padding: 30px 16px; } }
 footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 13px; color: #9ab0c8; margin-top: 15px; }
 footer strong { color: #dae8fb; }
 .controls { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 20px; }

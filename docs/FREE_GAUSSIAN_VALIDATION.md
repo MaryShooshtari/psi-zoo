@@ -113,6 +113,8 @@ times. The discrete dispersion relation differs from E=k^2/2, causing the moving
 packet's mean and width to lag the continuum predictions at finite dx. CN also
 introduces a second-order temporal phase error. Conservation alone does not
 remove either error. Longer runs need renewed domain-size and convergence checks.
-The existing Gaussian initializer's implementation uses the correct /4 density-
-width convention, although some of its pre-existing prose still describes /2;
-this validation follows the implementation and explicitly tests the initial width.
+The initializer's /4 density-width convention is now also stated correctly in
+its API documentation. [Phase 3A directed-packet validation](DIRECTED_GAUSSIAN_VALIDATION.md)
+extends coverage to signed momentum and distinguishes the continuum, lattice
+carrier, finite-width packet, and CN centroid velocities. The baseline values
+and convergence tests recorded above remain unchanged.

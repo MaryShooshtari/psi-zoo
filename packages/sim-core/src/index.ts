@@ -1,6 +1,15 @@
 export { createPsiGrid, normSquared } from './grid';
 export type { PsiGrid } from './grid';
 export type { Stepper } from './stepper';
+export {
+  createZeroPotential,
+  createGaussianBarrier,
+  stampGaussianPotential,
+  paintGaussianPath,
+  type PotentialGrid,
+  type GaussianBrush,
+  type GaussianBarrier,
+} from './potential';
 export { CrankNicolsonStepper } from './crankNicolson';
 export {
   innerProduct,

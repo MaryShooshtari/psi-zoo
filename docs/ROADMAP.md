@@ -5,7 +5,7 @@
 - typed numerical grid, CI workflow, and agent instructions
 - The original placeholder has been replaced by numerical evolution.
 
-## Current: Slice 1 — a Gaussian that lives
+## Slice 1 — a Gaussian that lives
 - Implemented: grid/inner-product helpers with discrete norm including `dx`,
   finite-difference Hamiltonian, interior Dirichlet Crank–Nicolson evolution,
   and complex tridiagonal Thomas solve.
@@ -18,8 +18,20 @@
 - [Lab-notebook content](notebook/README.md) now connects the simulation to the
   completed exact CN proofs. Content is Markdown only; no notebook renderer yet.
 
-## Slice 2 — touch the world
-Pointer-drag edits `V(x)`; show scattering and potential overlay; tests.
+## Current: Slice 2 — touch the world
+- Phase 1 implemented: pure bounded Gaussian barriers, idempotent stamps, exact
+  interpolated path painting, validation and Hamiltonian/stepper tests.
+- Phase 2 accepted: 148 automated tests and user-reported 14/14 manual browser
+  checks; pointer painting while paused/running, explicit brush
+  controls, independently scaled potential overlay, controller-owned terrain,
+  and tested pointer/controller lifecycle. Reset preserves terrain; Clear Terrain
+  removes barriers without resetting the wavefunction or time.
+- See [API, interaction contracts, and manual browser checklist](POTENTIAL_LANDSCAPES.md).
+- Phase 3A implemented: optional core Gaussian momentum, reset-applied browser
+  momentum selection, signed free evolution with finite-difference/CN velocity
+  references, and norm/static-H energy tests. See [directed packet validation](DIRECTED_GAUSSIAN_VALIDATION.md).
+- Pending: manual browser review of the momentum control and demo capture.
+  Phase 3B quantitative scattering/R-T metrics has not started.
 
 ## Slice 3 — observer
 Born probability, sampled finite-resolution localization update, re-spread;

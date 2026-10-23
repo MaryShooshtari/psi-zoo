@@ -5,43 +5,36 @@ import { normalize } from './math';
 /**
  * Initializes a Gaussian wavepacket on the given grid.
  * 
- * The Gaussian is of the form:
- * psi(x) = (1 / (sigma * sqrt(2*pi))) * exp(-(x - xCenter)² / (2 * sigma²)) * exp(i * k0 * x)
- * 
- * Note: sigma is the standard deviation of |psi|², which for a Gaussian
- * wavefunction equals the parameter sigma in the exponent.
+ * psi(x) = N exp(-(x-xCenter)²/(4*sigma²)) exp(i*k0*x).
+ * sigma is the standard deviation of the density |psi|². In the continuum,
+ * this unchirped packet has momentum spread 1/(2*sigma), saturating Δx Δp=1/2.
+ * N is obtained by dx-weighted discrete normalization when requested.
+ *
+ * The legacy exp(i*k0*x) convention is retained: exp(i*k0*(x-xCenter))
+ * differs only by a global phase. k0 is p0 in hbar=1 units; it is not the
+ * finite-difference velocity sin(k0*dx)/dx. Callers impose Dirichlet endpoints
+ * before their final normalization if the state will be passed to the stepper.
  * 
  * @param grid - The grid to initialize
  * @param xCenter - The center position of the Gaussian
  * @param sigma - The standard deviation of |psi|² (must be positive)
- * @param k0 - The initial momentum (wavenumber, with hbar = 1, p = k)
+ * @param k0 - Optional carrier momentum p0 (hbar = 1, p = k), default 0
  * @param normalizeFlag - Whether to normalize the wavefunction (default: true)
  */
 export function initializeGaussian(
   grid: PsiGrid,
   xCenter: number,
   sigma: number,
-  k0: number,
+  k0: number = 0,
   normalizeFlag: boolean = true
 ): void {
   if (!Number.isFinite(sigma) || sigma <= 0) {
     throw new RangeError('sigma must be positive and finite');
   }
 
-  // For a Gaussian where sigma is the standard deviation of |psi|²:
-  // We want |psi|² = exp(-(x-xCenter)²/σ²) / (σ * sqrt(2π))
-  // This means psi(x) = exp(-(x-xCenter)²/(2σ²)) / sqrt(σ * sqrt(2π))
-  // But we'll let the discrete normalization handle the exact normalization
-  //
-  // To get |psi|² with variance σ², we use:
-  // |psi|² ∝ exp(-(x-xCenter)²/σ²)
-  // So psi(x) ∝ exp(-(x-xCenter)²/(2σ²))
-  //
-  // But wait: if |psi|² = exp(-(x-xCenter)²/σ²), then
-  // ∫ x² |psi|² dx / ∫ |psi|² dx = σ²/2, not σ²!
-  //
-  // To get variance σ², we need |psi|² ∝ exp(-(x-xCenter)²/(2σ²))
-  // So psi(x) ∝ exp(-(x-xCenter)²/(4σ²))
+  if (!Number.isFinite(xCenter) || !Number.isFinite(k0)) {
+    throw new RangeError('xCenter and k0 (initial momentum) must be finite');
+  }
   
   for (let i = 0; i < grid.count; i++) {
     const x = grid.x0 + i * grid.dx;
@@ -69,8 +62,8 @@ export function initializeGaussian(
 }
 
 /**
- * Computes the analytic norm of a continuous Gaussian wavefunction.
- * For psi(x) = exp(-x² / (2 * sigma²)), the norm is sigma * sqrt(2*pi).
+ * Computes the squared L2 norm of the unnormalized continuous envelope.
+ * For psi(x) = exp(-x²/(4*sigma²)), integral |psi|² dx = sigma*sqrt(2*pi).
  * 
  * @param sigma - The standard deviation of |psi|²
  * @returns The norm of the continuous Gaussian

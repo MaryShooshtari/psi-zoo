@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createPsiGrid } from '../src/grid';
+import { createPsiGrid, normSquared } from '../src/grid';
 import {
   initializeGaussian,
   analyticGaussianNorm,
@@ -11,6 +11,60 @@ import {
 import { normalize, positionExpectation, positionVariance, momentumExpectation } from '../src/math';
 
 describe('Gaussian wavepacket initialization', () => {
+  it('defaults omitted momentum to zero, preserving explicit and unnormalized calls', () => {
+    const implicit = createPsiGrid(401, 0.1, -20), explicit = createPsiGrid(401, 0.1, -20);
+    initializeGaussian(implicit, -5, 1);
+    initializeGaussian(explicit, -5, 1, 0);
+    expect(implicit.values).toEqual(explicit.values);
+    for (let i = 0; i < implicit.count; i++) expect(Math.abs(implicit.values[2 * i + 1]!)).toBe(0);
+    initializeGaussian(implicit, -5, 1, undefined, false);
+    expect(implicit.values[300]).toBe(1);
+    expect(Math.abs(normSquared(implicit) - Math.sqrt(2 * Math.PI))).toBeLessThan(1e-14);
+  });
+
+  it.each([-1.5, -0.75, 0, 0.75, 1.5])('preserves norm, density width, and phase gradient for p0=%s', p0 => {
+    const psi = createPsiGrid(401, 0.1, -20);
+    initializeGaussian(psi, -5, 1, p0);
+    expect(Math.abs(normSquared(psi) - 1)).toBeLessThan(2e-15);
+    expect(Math.abs(positionExpectation(psi) + 5)).toBeLessThan(1e-12);
+    expect(Math.abs(positionVariance(psi) - 1)).toBeLessThan(1e-12);
+    // Adjacent complex overlap, normalized by magnitudes, measures phase gradient
+    // without relying on branch-sensitive atan2 or an absolute global phase.
+    for (let i = 140; i < 160; i++) {
+      const ar = psi.values[2 * i]!, ai = psi.values[2 * i + 1]!;
+      const br = psi.values[2 * (i + 1)]!, bi = psi.values[2 * (i + 1) + 1]!;
+      const magnitude = Math.hypot(ar, ai) * Math.hypot(br, bi);
+      expect(Math.abs((ar * br + ai * bi) / magnitude - Math.cos(p0 * psi.dx))).toBeLessThan(3e-15);
+      expect(Math.abs((ar * bi - ai * br) / magnitude - Math.sin(p0 * psi.dx))).toBeLessThan(3e-15);
+    }
+    // The central-difference momentum observable is not the continuum p0.
+    const expectedDiscrete = Math.exp(-(psi.dx ** 2) / 8) * Math.sin(p0 * psi.dx) / psi.dx;
+    expect(Math.abs(momentumExpectation(psi) - expectedDiscrete)).toBeLessThan(2e-14);
+  });
+
+  it('keeps the legacy absolute phase and gives conjugate states for opposite momenta', () => {
+    const positive = createPsiGrid(401, 0.1, -20), negative = createPsiGrid(401, 0.1, -20);
+    initializeGaussian(positive, -5, 1, 0.75, false);
+    initializeGaussian(negative, -5, 1, -0.75, false);
+    for (let i = 0; i < positive.count; i++) {
+      const x = positive.x0 + i * positive.dx;
+      const envelope = Math.exp(-((x + 5) ** 2) / 4);
+      expect(positive.values[2 * i]).toBe(envelope * Math.cos(0.75 * x));
+      expect(positive.values[2 * i + 1]).toBe(envelope * Math.sin(0.75 * x));
+      expect(negative.values[2 * i]).toBe(positive.values[2 * i]);
+      expect(negative.values[2 * i + 1]).toBe(-positive.values[2 * i + 1]!);
+    }
+  });
+
+  it.each([NaN, Infinity, -Infinity])('rejects nonfinite momentum/center %s before writing', invalid => {
+    const psi = createPsiGrid(41, 0.1, -2);
+    psi.values.fill(0.25);
+    const before = psi.values.slice();
+    expect(() => initializeGaussian(psi, 0, 1, invalid)).toThrow(RangeError);
+    expect(psi.values).toEqual(before);
+    expect(() => initializeGaussian(psi, invalid, 1, 0)).toThrow(RangeError);
+    expect(psi.values).toEqual(before);
+  });
   it('creates a Gaussian centered at x0 with given sigma', () => {
     const grid = createPsiGrid(100, 0.1, -5);
     const xCenter = 0;
