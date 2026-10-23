@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { CrankNicolsonStepper, createGaussianBarrier, createPsiGrid, initializeGaussian, normalize, energyExpectation, normSquared, positionExpectation, positionVariance } from '@psi-zoo/sim-core';
+import { CrankNicolsonStepper, createGaussianBarrier, createPsiGrid, initializeGaussian, normalize, energyExpectation, normSquared, positionExpectation, positionVariance, probabilityRegions, createScatteringExperiment, runScatteringExperiment } from '@psi-zoo/sim-core';
 import { SimulationPlayback, type FrameScheduler, type SimulationSnapshot } from './simulation';
 
 function harness() {
@@ -221,6 +221,73 @@ describe('browser simulation playback', () => {
     c.setInitialMomentum(-0.75); c.dispose(); c.setInitialMomentum(1);
     c.reset(); expect(c.initialMomentum).toBe(-0.75);
     expect(c.psi.values).toEqual(before);
+  });
+  it('loads the reproducible demo paused, with matching state/terrain and reset/clear semantics', () => {
+    const { controller: c, frame, pending } = harness();
+    c.play(); frame(0); frame(10);
+    const stale = [...pending.values()][0]!;
+    c.loadScatteringDemo(); stale(100);
+    const expected = createScatteringExperiment();
+    expect(c.psi.values).toEqual(expected.psi.values);
+    expect(c.potential).toEqual(expected.potential);
+    expect(c.initialMomentum).toBe(1.5);
+    expect(c.snapshot()).toMatchObject({ mode: 'scattering', time: 0, playing: false, scatteringStatus: 'provisional', reflection: null, transmission: null });
+    expect(c.snapshot().regions!.left).toBeGreaterThan(0.9999999999);
+    expect(pending.size).toBe(0);
+    const terrain = c.potential;
+    c.reset(); expect(c.potential).toBe(terrain); expect(c.psi.values).toEqual(expected.psi.values);
+    c.clearTerrain(); expect(c.potential).toBe(terrain);
+    expect(c.potential.every(x => x === 0)).toBe(true);
+    expect(c.snapshot().scatteringStatus).toBe('modified');
+    c.reset(); expect(c.snapshot().scatteringStatus).toBe('modified');
+    c.loadFreeExploration();
+    expect(c.psi.count).toBe(401); expect(c.psi.x0).toBe(-20);
+    expect(c.initialMomentum).toBe(0.75);
+    expect(c.snapshot()).toMatchObject({ mode: 'exploration', time: 0, playing: false, reflection: null });
+    c.dispose(); c.loadScatteringDemo(); expect(c.psi.count).toBe(401);
+  });
+  it('publishes actual regions but R/T only in the unchanged separated-packet window', () => {
+    const { controller: c, frame } = harness();
+    c.loadScatteringDemo(); c.play(); frame(0);
+    for (let i = 1; i <= 999; i++) frame(i * 40);
+    expect(c.snapshot().time).toBe(39.96);
+    expect(c.snapshot().scatteringStatus).toBe('provisional');
+    frame(40000);
+    expect(c.snapshot().scatteringStatus).toBe('separated');
+    for (let i = 1001; i <= 1100; i++) frame(i * 40);
+    const s = c.snapshot(), p = probabilityRegions(c.psi, -4, 4);
+    expect(s.regions).toEqual(p);
+    expect(Math.abs(p.total - s.norm)).toBeLessThan(5e-14);
+    expect(s.reflection!).toBeGreaterThan(0.79); expect(s.reflection!).toBeLessThan(0.81);
+    expect(s.transmission!).toBeGreaterThan(0.19); expect(s.transmission!).toBeLessThan(0.21);
+    expect(s.regions!.interaction).toBeLessThan(1e-5);
+    expect(c.psi.values).toEqual(runScatteringExperiment().psi.values);
+    // The time gate alone is insufficient: residual interaction/wall mass must
+    // also withhold R/T. Manufacture states only to exercise these safety guards.
+    const actual = c.psi.values.slice();
+    c.psi.values.fill(0); c.psi.values[2400] = 1 / Math.sqrt(c.psi.dx);
+    expect(c.snapshot().scatteringStatus).toBe('provisional');
+    c.psi.values.fill(0); c.psi.values[4780] = 1 / Math.sqrt(c.psi.dx);
+    expect(c.snapshot().transmission).toBeNull();
+    c.psi.values.set(actual);
+    // A pending selection does not invalidate the actual currently evolving run.
+    c.setInitialMomentum(0.75); expect(c.snapshot().scatteringStatus).toBe('separated');
+    frame(44020); expect(c.snapshot().scatteringStatus).toBe('outside-window');
+    expect(c.snapshot().transmission).toBeNull();
+    c.reset(); expect(c.snapshot().scatteringStatus).toBe('modified');
+    c.dispose();
+  }, 30000);
+  it('invalidates quantitative interpretation after painting, even after reset', () => {
+    const { controller: c } = harness();
+    c.loadScatteringDemo(); const before = c.psi.values.slice();
+    c.paint(-2, 2, { amplitude: 2, sigma: 0.6 });
+    expect(c.psi.values).toEqual(before);
+    expect(c.snapshot().scatteringStatus).toBe('modified');
+    c.reset(); expect(c.snapshot().scatteringStatus).toBe('modified');
+    c.loadScatteringDemo(); expect(c.snapshot().scatteringStatus).toBe('provisional');
+    c.stamp(5, { amplitude: 1, sigma: 0.6 });
+    expect(c.snapshot().transmission).toBeNull();
+    c.dispose();
   });
   it('stops and reports numerical errors without scheduling further frames', () => {
     const { controller: c, frame, pending } = harness();

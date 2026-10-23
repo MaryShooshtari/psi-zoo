@@ -145,10 +145,13 @@ convergence checks. CN norm conservation alone does not guarantee accurate phase
 or continuum dynamics. Energy conservation is only expected while V is unchanged.
 
 Phase 2's manual browser acceptance was reported by the user (14/14 checks).
-The new momentum control has **not** been manually browser-tested in this phase.
-Review it by clearing terrain, selecting -1.5/0/+1.5, pressing Reset and then Play:
+The user subsequently accepted Phase 3A's 173 tests and momentum browser checks.
+Retain this regression review: clear terrain in free exploration, select
+-1.5/0/+1.5, press Reset and then Play:
 verify leftward/stationary-centroid/rightward free evolution. Change selection
 while playing and confirm there is no instantaneous kick; Reset must apply it,
 pause at t=0, and preserve previously painted terrain. Repeat the established
-painting/resize/HiDPI/cleanup checks after the added controls. No R/T quantities
-or quantitative scattering claims are implemented; that remains Phase 3B.
+painting/resize/HiDPI/cleanup checks after the added controls. This Phase 3A
+validation does not establish R/T or tunnelling. The subsequent
+[Phase 3B scattering validation](SCATTERING_VALIDATION.md) uses a separately
+resolved wider packet/domain and independently checked scattering observables.

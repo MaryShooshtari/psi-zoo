@@ -1,4 +1,4 @@
-import type { PsiGrid } from '@psi-zoo/sim-core';
+import { SCATTERING_CONFIG, type PsiGrid } from '@psi-zoo/sim-core';
 import { TERRAIN_MAX_HEIGHT } from './simulation';
 
 /** Shared by rendering and hit testing, in logical CSS pixels, not backing pixels. */
@@ -64,5 +64,11 @@ export function drawSimulation(
   }
   context.strokeStyle = '#a8f9fc'; context.lineWidth = 2; context.stroke();
   context.lineTo(right, bottom); context.lineTo(left, bottom); context.closePath();
-  context.fillStyle = 'rgba(86,188,229,0.18)'; context.fill(); context.restore();
+  context.fillStyle = 'rgba(86,188,229,0.18)'; context.fill();
+  context.strokeStyle = '#8394ae'; context.lineWidth = 1; context.setLineDash([2, 4]);
+  for (const cut of [SCATTERING_CONFIG.leftEdge, SCATTERING_CONFIG.rightEdge]) {
+    const x = px((cut - psi.x0) / ((psi.count - 1) * psi.dx));
+    context.beginPath(); context.moveTo(x, top); context.lineTo(x, bottom); context.stroke();
+  }
+  context.restore();
 }

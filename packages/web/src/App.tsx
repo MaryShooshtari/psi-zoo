@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   SimulationPlayback, BRUSH_LIMITS, DEFAULT_BRUSH, TERRAIN_MAX_HEIGHT,
-  DEFAULT_INITIAL_MOMENTUM, INITIAL_MOMENTUM_LIMIT, type SimulationSnapshot,
+  DEFAULT_INITIAL_MOMENTUM, INITIAL_MOMENTUM_LIMIT, type SimulationSnapshot, type SimulationMode,
 } from './simulation';
 import { bindPotentialPainting, type PaintingBinding } from './painting';
 import { drawSimulation } from './plot';
+import { SCATTERING_CONFIG } from '@psi-zoo/sim-core';
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -17,6 +18,7 @@ export default function App() {
   const [brush, setBrush] = useState(DEFAULT_BRUSH);
   const [initialMomentum, setInitialMomentum] = useState(DEFAULT_INITIAL_MOMENTUM);
   const initialMomentumRef = useRef(DEFAULT_INITIAL_MOMENTUM);
+  const modeRef = useRef<SimulationMode>('exploration');
   // Native pointer listeners read current controls without effect reattachment.
   const settingsRef = useRef({ enabled: false, brush: DEFAULT_BRUSH });
 
@@ -59,8 +61,9 @@ export default function App() {
       else if (publishTimer === undefined) publishTimer = setTimeout(publish, delay);
     });
     // Preserve the selected initial condition if a development effect remounts.
+    if (modeRef.current === 'scattering') controller.loadScatteringDemo();
     controller.setInitialMomentum(initialMomentumRef.current);
-    if (controller.initialMomentum !== DEFAULT_INITIAL_MOMENTUM) controller.reset();
+    if (controller.initialMomentum !== DEFAULT_INITIAL_MOMENTUM || modeRef.current === 'scattering') controller.reset();
     playbackRef.current = controller;
     const refresh = () => { draw(); latest = controller.snapshot(); publish(); };
     refreshRef.current = refresh;
@@ -99,12 +102,17 @@ export default function App() {
     };
   }, []);
 
-  const control = (action: 'play' | 'pause' | 'reset' | 'clearTerrain') => {
+  const control = (action: 'play' | 'pause' | 'reset' | 'clearTerrain' | 'loadScatteringDemo' | 'loadFreeExploration') => {
     const controller = playbackRef.current;
     if (!controller) return;
     try {
-      if (action === 'reset' || action === 'clearTerrain') paintingRef.current?.cancelStroke();
+      if (action !== 'play' && action !== 'pause') paintingRef.current?.cancelStroke();
       controller[action]();
+      if (action === 'loadScatteringDemo' || action === 'loadFreeExploration') {
+        settingsRef.current.enabled = false; setPainting(false);
+        modeRef.current = controller.snapshot().mode;
+        initialMomentumRef.current = controller.initialMomentum; setInitialMomentum(controller.initialMomentum);
+      }
       refreshRef.current?.();
     } catch (error) {
       paintingRef.current?.cancelStroke(); controller.pause();
@@ -130,6 +138,18 @@ export default function App() {
     settingsRef.current.brush = next; setBrush(next);
   };
   const error = setupError ?? snapshot?.error;
+  const demo = snapshot?.mode === 'scattering';
+  const extent = demo ? SCATTERING_CONFIG.halfExtent : 20;
+  const status = snapshot?.scatteringStatus;
+  const scatteringMessage = status === 'separated'
+    ? 'Separated packets — R/T estimates in the validated window (absolute numerical budget about 0.0015).'
+    : status === 'modified'
+      ? 'Provisional — edited terrain or changed reset momentum. Reload the demo to restore the validated experiment.'
+      : status === 'outside-window'
+        ? 'Outside the validated t=40–44 window; R/T interpretation is withheld. Later wall reflections can contaminate regions.'
+        : status === 'unavailable' ? 'Region diagnostics unavailable.'
+          : demo ? 'Provisional — incident/interaction masses are not R/T. Wait for separated packets at t=40–44, then Pause.'
+            : 'Provisional — reference-region masses only. Arbitrary painted terrain is not a validated R/T experiment.';
   const number = (value: number | undefined, digits: number) => value !== undefined && Number.isFinite(value) ? value.toFixed(digits) : '—';
 
   return (
@@ -140,7 +160,7 @@ export default function App() {
         <p>Paint a potential landscape and watch a Gaussian wavepacket evolve under Schrödinger dynamics — no scripted motion or per-step normalization.</p>
       </div>
       <canvas className={`terrarium${painting ? ' painting' : ''}`} ref={canvasRef} role="img"
-        aria-label="Numerically evolved probability density and painted potential versus position, x from −20 to 20. Density left axis 0 to 0.5; potential right axis 0 to 5."
+        aria-label={`Numerically evolved density and potential, x from −${extent} to ${extent}. Density left axis 0 to 0.5; potential right axis 0 to 5. Region cuts at −4 and 4.`}
         aria-describedby="painting-help" />
       <div className="controls" aria-label="Simulation controls">
         <button onClick={() => control('play')} disabled={!snapshot || snapshot.playing || !!error}>Play</button>
@@ -149,6 +169,13 @@ export default function App() {
         <button onClick={() => control('clearTerrain')} disabled={!snapshot || !!setupError}>Clear Terrain</button>
         <span role="status">{error ? 'Stopped — numerical or rendering error' : snapshot?.playing ? 'Playing' : 'Paused'}</span>
       </div>
+      <div className="controls" aria-label="Reproducible experiment selection">
+        <button onClick={() => control('loadScatteringDemo')} disabled={!snapshot || !!setupError}>Load tunnelling demo</button>
+        <button onClick={() => control('loadFreeExploration')} disabled={!snapshot || !!setupError}>Load free exploration</button>
+      </div>
+      <p className="plot-note">Loading a mode pauses and replaces packet, terrain, time and momentum selection; Painting mode turns off. {demo
+        ? 'Validated preset reference: x ∈ [−120,120], packet xc=−24, σ=3, p₀=1.5; Gaussian barrier A=1.8, width=0.6, center=0. Initial mean kinetic energy ≈1.137, momentum spread Δp=1/6; its incident over-barrier tail is less than 1% but is not zero. Keep the loaded preset unchanged for quantitative R/T. Reset uses selected momentum and preserves terrain rather than reloading the barrier.'
+        : 'Free exploration: x ∈ [−20,20], packet xc=−5, σ=1, initial p₀=0.75 and no terrain.'}</p>
       <fieldset className="brush-controls" disabled={!snapshot || !!setupError}>
         <legend>Initial wave packet · applies on Reset</legend>
         <label>Initial momentum p₀ = {initialMomentum.toFixed(2)} (ℏ = m = 1)
@@ -178,9 +205,24 @@ export default function App() {
         <span><strong>Probability norm:</strong> {number(snapshot?.norm, 10)}</span>
         <span><strong>Energy ⟨ψ|H|ψ⟩:</strong> {number(snapshot?.energy, 8)}</span>
       </div>
+      <section className="scattering-readout" aria-label="Scattering probability regions">
+        <h2>Probability regions · cuts at x = −4 and +4</h2>
+        <div className="diagnostics">
+          <span><strong>P_left (x &lt; −4):</strong> {number(snapshot?.regions?.left, 6)}</span>
+          <span><strong>P_interaction (−4 ≤ x ≤ 4):</strong> {number(snapshot?.regions?.interaction, 6)}</span>
+          <span><strong>P_right (x &gt; 4):</strong> {number(snapshot?.regions?.right, 6)}</span>
+          <span><strong>Region sum:</strong> {number(snapshot?.regions?.total, 10)}</span>
+        </div>
+        <p className="plot-note" role="status">{scatteringMessage}</p>
+        <div className="diagnostics">
+          <span><strong>R estimate:</strong> {number(snapshot?.reflection ?? undefined, 4)}</span>
+          <span><strong>T estimate:</strong> {number(snapshot?.transmission ?? undefined, 4)}</span>
+        </div>
+        <p className="plot-note">All masses come from the actual wavefunction, with disjoint dx-weighted samples. P_left includes the incident packet before collision; it is not then reflection. Only the unchanged left-incident demo, after separation and before wall returns, supplies R/T estimates. Gray dotted lines mark the reference cuts, not hard walls. The demo's transmitted mass exceeds a conservative incident over-barrier-tail bound; a below-peak mean energy alone would not establish tunnelling.</p>
+      </section>
       <footer>
-        <span><strong>Evolution:</strong> Crank–Nicolson · Δt = 0.01 · ℏ = m = 1</span>
-        <span><strong>Grid:</strong> 401 points · Δx = 0.1 · fixed zero endpoints</span>
+        <span><strong>Evolution:</strong> Crank–Nicolson · Δt = {demo ? SCATTERING_CONFIG.dt : 0.01} · ℏ = m = 1</span>
+        <span><strong>Grid:</strong> {demo ? 2401 : 401} points · Δx = 0.1 · fixed zero endpoints</span>
       </footer>
       <p className="plot-note">Cyan: probability density, left scale 0–0.5. Dashed amber: V(x), right scale 0–5. These are different quantities with independent fixed scales; density peaks above 0.5 are clipped. Norm is conserved up to roundoff; energy is conserved only while V is unchanged, not during painting or clearing. At long times the packet reflects from the Dirichlet walls. Playback pauses in background tabs; long frame stalls slow simulated time rather than skipping physics steps.</p>
     </main>

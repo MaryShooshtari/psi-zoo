@@ -27,3 +27,6 @@ button:disabled { opacity: 0.45; cursor: default; }
 .diagnostics { display: flex; flex-wrap: wrap; gap: 12px 28px; margin-top: 20px; font-size: 14px; font-variant-numeric: tabular-nums; }
 .error { color: #ffb6ad; }
 .plot-note { max-width: 100%; }
+.scattering-readout { margin-top: 24px; padding: 16px; border: 1px solid #426681; border-radius: 8px; }
+.scattering-readout h2 { margin: 0; font-size: 16px; color: #ffc477; }
+.scattering-readout .diagnostics { margin-top: 12px; }

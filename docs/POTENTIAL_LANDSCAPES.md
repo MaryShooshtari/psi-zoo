@@ -97,11 +97,15 @@ continuum accuracy and convergence.
 Neither phase validates a quantitative scattering/tunnelling scenario. When V
 changes between steps, static-H energy conservation is not expected; each step
 with a real fixed V still has the usual CN discrete-norm property. Scattering
-presets and changes to the initial momentum are outside Phase 2.
+presets and changes to the initial momentum are outside Phase 2. Subsequent
+[Phase 3B validation](SCATTERING_VALIDATION.md) adds a specific resolved experiment;
+it does not certify arbitrary painted terrain.
 
 ## Phase 2 browser integration
 
-`SimulationPlayback` owns one terrain array, allocated with `createZeroPotential`.
+`SimulationPlayback` owns one terrain array, initially allocated with `createZeroPotential`.
+Phase 3B's explicit mode loads replace state/terrain when selecting another grid;
+ordinary edits, Reset and Clear Terrain preserve array identity.
 Its `potential` getter is a renderer view, not an invitation to mutate: use
 `stamp(center, brush)`, `paint(from, to, brush)`, and `clearTerrain()`. These call
 the Phase 1 utilities, validate browser brush limits, and publish fresh diagnostics
@@ -116,13 +120,19 @@ terrain. As of [Phase 3A](DIRECTED_GAUSSIAN_VALIDATION.md), it uses the selected
 initial momentum (default k0=0.75); changing the selection alone never kicks the
 live packet. **Clear Terrain** fills the existing array with zeros, preserving
 its identity, current wavefunction/time, playback, and selected momentum. To
-restore the original free-particle start, select p0=0.75, clear, and reset.
+restore the original free-particle start from either mode, use **Load free
+exploration**; within the small mode, select p0=0.75, clear, and reset also works.
+**Load tunnelling demo** replaces both terrain and packet with the resolved large
+experiment. Both explicit loads pause at t=0 and turn Painting mode off. Painting,
+clearing or applying a different reset momentum invalidates that preset's R/T
+interpretation; loading the demo again restores its validated parameters.
 Controller editing methods do nothing after disposal.
 
 Painting mode starts **off**. The default brush has sigma=0.6 (six grid spacings)
 and A=1. Controls/controller restrict sigma to [0.3,2] and A to [0.1,5]. This gives
-at least three grid spacings per sigma and A*dt <= 0.05; these are conservative
-interactive bounds, not a proof of accuracy for every painted landscape.
+at least three grid spacings per sigma. A*dt <= 0.05 in exploration (dt=0.01)
+and <=0.1 in the large demo (dt=0.02); these are interactive limits, not a proof
+of accuracy for every painted landscape.
 
 `painting.ts` attaches native Pointer Event listeners once per canvas lifecycle.
 One primary pointer begins a stroke inside the plot and is captured. Initial
@@ -162,9 +172,11 @@ These Node tests do not mount React or test actual browser capture/Canvas pixels
 
 Phase 2 was accepted with user-reported **14/14 manual browser checks**. The
 grouped checklist below is retained for regression review; those checks were
-not rerun by the coding agent during Phase 3A. See the separate
-[momentum-control review](DIRECTED_GAUSSIAN_VALIDATION.md#limits-and-browser-review)
-for the new, not-yet-manually-verified control.
+not rerun by the coding agent during Phase 3A. The user subsequently accepted
+Phase 3A's momentum browser checks and reported 8/8 Phase 3B browser acceptance
+checks passed. See the
+[Phase 3B acceptance record](SCATTERING_VALIDATION.md#browser-behavior-and-remaining-manual-checks)
+for the demo, region readout and retained regression checklist.
 
 Run `npm run dev` and test the following when reviewing browser changes:
 

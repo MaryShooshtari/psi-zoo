@@ -14,7 +14,8 @@
   See [measured results](FREE_GAUSSIAN_VALIDATION.md).
 - Browser: actual evolved |psi|^2 and state-derived diagnostics, with tested
   fixed-step playback controller. No per-step normalization.
-- Still pending: manual browser review and a README GIF/screenshot.
+- The subsequent Slice 2 browser acceptance and README GIF cover the evolved
+  density display; see the Slice 2 validation record below.
 - [Lab-notebook content](notebook/README.md) now connects the simulation to the
   completed exact CN proofs. Content is Markdown only; no notebook renderer yet.
 
@@ -27,11 +28,23 @@
   and tested pointer/controller lifecycle. Reset preserves terrain; Clear Terrain
   removes barriers without resetting the wavefunction or time.
 - See [API, interaction contracts, and manual browser checklist](POTENTIAL_LANDSCAPES.md).
-- Phase 3A implemented: optional core Gaussian momentum, reset-applied browser
-  momentum selection, signed free evolution with finite-difference/CN velocity
-  references, and norm/static-H energy tests. See [directed packet validation](DIRECTED_GAUSSIAN_VALIDATION.md).
-- Pending: manual browser review of the momentum control and demo capture.
-  Phase 3B quantitative scattering/R-T metrics has not started.
+- Phase 3A accepted: 173 tests and user-reported browser checks; optional core
+  Gaussian momentum, reset-applied browser momentum selection, signed free evolution
+  with finite-difference/CN velocity references, and norm/static-H energy tests.
+  See [directed packet validation](DIRECTED_GAUSSIAN_VALIDATION.md).
+- Phase 3B validated: 193 automated tests, typecheck/build, numerical report, and
+  user-reported 8/8 browser acceptance checks. Pure disjoint probability regions,
+  deterministic free/reflecting/partial Gaussian-barrier experiments, sampled
+  accounting/conservation, spatial and full-state temporal convergence, isolated
+  separated-packet window, Gaussian over-barrier-tail bound, and independent
+  packet-weighted stationary tunnelling benchmark. The browser loads that exact
+  large-domain preset and withholds R/T until separation; edits invalidate the
+  quantitative interpretation without removing painting/free exploration.
+- Authentic [scattering GIF](media/scattering.gif) captured from the running Chrome
+  simulation through t=44, with accelerated presentation only. See
+  [results, limitations, browser acceptance and capture provenance](SCATTERING_VALIDATION.md).
+- Pending: final release review and commit approval. Stop here; Slice 3 has not
+  started.
 
 ## Slice 3 — observer
 Born probability, sampled finite-resolution localization update, re-spread;
