@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { CrankNicolsonStepper, createGaussianBarrier, createPsiGrid, initializeGaussian, normalize, energyExpectation, normSquared, positionExpectation, positionVariance, probabilityRegions, createScatteringExperiment, runScatteringExperiment } from '@psi-zoo/sim-core';
 import { SimulationPlayback, type FrameScheduler, type SimulationSnapshot } from './simulation';
 
-function harness() {
+function harness(seed?: number) {
   let id = 0;
   const pending = new Map<number, (now: number) => void>();
   const scheduler: FrameScheduler = {
@@ -10,7 +10,7 @@ function harness() {
     cancel: key => { pending.delete(key); },
   };
   const published: SimulationSnapshot[] = [];
-  const controller = new SimulationPlayback(scheduler, snapshot => published.push(snapshot));
+  const controller = new SimulationPlayback(scheduler, snapshot => published.push(snapshot), seed);
   function frame(now: number) {
     const callbacks = [...pending.values()]; pending.clear();
     callbacks.forEach(callback => callback(now));
@@ -288,6 +288,127 @@ describe('browser simulation playback', () => {
     c.stamp(5, { amplitude: 1, sigma: 0.6 });
     expect(c.snapshot().transmission).toBeNull();
     c.dispose();
+  });
+  it('observes paused without altering time or terrain, publishes once and replaces only the state', () => {
+    const { controller: c, published, pending } = harness();
+    c.stamp(-5, { amplitude: 2, sigma: 0.6 });
+    const terrain = c.potential, values = terrain.slice(), state = c.psi;
+    const before = published.length;
+    c.observe();
+    const s = c.snapshot();
+    expect(c.psi).not.toBe(state);
+    expect(c.potential).toBe(terrain); expect(terrain).toEqual(values);
+    expect(s).toMatchObject({ time: 0, playing: false, measurementCount: 1, energyDrift: 0 });
+    expect(s.observation).toMatchObject({ time: 0, resolution: 0.4 });
+    expect(s.observation!.position).toBe(c.psi.x0 + s.observation!.index * c.psi.dx);
+    expect(s.energyReference).toBe(s.energy);
+    expect(s.energy).toBe(energyExpectation(c.psi, terrain).real);
+    expect(s.norm).toBeCloseTo(1, 14);
+    expect(published.length - before).toBe(1);
+    expect(published.at(-1)).toEqual(s); expect(pending.size).toBe(0);
+    expect(positionVariance(c.psi)).toBeLessThan(positionVariance(state));
+  });
+  it('observes while playing without rescheduling, then evolves with stable norm/energy and re-spreads', () => {
+    const { controller: c, frame, pending } = harness();
+    c.play(); frame(0); frame(30);
+    const scheduled = [...pending.entries()], time = c.snapshot().time;
+    c.observe();
+    const variance = positionVariance(c.psi), energy = c.snapshot().energy;
+    expect(c.snapshot()).toMatchObject({ time, playing: true, energyDrift: 0 });
+    expect([...pending.entries()]).toEqual(scheduled);
+    for (let i = 1; i <= 100; i++) frame(30 + i * 10);
+    expect(c.snapshot().time).toBe(time + 1);
+    expect(Math.abs(c.snapshot().norm - 1)).toBeLessThan(2e-12);
+    expect(Math.abs(c.snapshot().energy - energy)).toBeLessThan(2e-12);
+    expect(Math.abs(c.snapshot().energyDrift)).toBeLessThan(2e-12);
+    expect(positionVariance(c.psi)).toBeGreaterThan(4 * variance);
+    c.pause(); const pausedTime = c.snapshot().time;
+    c.observe(); expect(c.snapshot()).toMatchObject({ time: pausedTime, playing: false, measurementCount: 2 });
+    c.play(); frame(5000); frame(5010);
+    expect(c.snapshot().time).toBe(pausedTime + 0.01);
+  });
+  it('replays seeded actions, does not sample in snapshots/settings, and rewinds RNG on reset/preset loads', () => {
+    const a = harness(123), b = harness(123), other = harness(456);
+    for (const h of [a, b, other]) {
+      h.controller.setMeasurementResolution(0.5);
+      h.controller.setInitialMomentum(0);
+      h.controller.reset();
+    }
+    const initial = a.controller.psi.values.slice();
+    for (let action = 0; action < 3; action++) {
+      a.controller.snapshot(); a.controller.snapshot(); // reads consume no randomness
+      a.controller.observe(); b.controller.observe(); other.controller.observe();
+      expect(a.controller.lastObservation).toEqual(b.controller.lastObservation);
+      expect(a.controller.psi.values).toEqual(b.controller.psi.values);
+    }
+    expect(a.controller.lastObservation).not.toEqual(other.controller.lastObservation);
+    const replayState = a.controller.psi.values.slice();
+    a.controller.stamp(5, { amplitude: 1, sigma: 0.6 });
+    const terrain = a.controller.potential, painted = terrain.slice();
+    a.controller.reset();
+    expect(a.controller.psi.values).toEqual(initial);
+    expect(a.controller.potential).toBe(terrain); expect(terrain).toEqual(painted);
+    expect(a.controller.snapshot()).toMatchObject({ time: 0, playing: false, observation: null, measurementCount: 0, energyDrift: 0 });
+    expect(a.controller.measurementResolution).toBe(0.5);
+    for (let i = 0; i < 3; i++) a.controller.observe();
+    expect(a.controller.psi.values).toEqual(replayState);
+    a.controller.loadFreeExploration(); a.controller.observe();
+    const loaded = a.controller.lastObservation;
+    a.controller.loadFreeExploration(); a.controller.observe();
+    expect(a.controller.lastObservation).toEqual(loaded);
+  });
+  it('clears already-published separated-packet R/T immediately on observation', () => {
+    const { controller: c, frame } = harness();
+    c.loadScatteringDemo(); c.play(); frame(0);
+    for (let i = 1; i <= 1000; i++) frame(i * 40);
+    expect(c.snapshot().scatteringStatus).toBe('separated');
+    expect(c.snapshot().transmission).not.toBeNull();
+    const terrain = c.potential.slice();
+    c.observe();
+    expect(c.snapshot()).toMatchObject({ time: 40, playing: true, scatteringStatus: 'modified',
+      reflection: null, transmission: null, energyDrift: 0, measurementCount: 1 });
+    expect(c.potential).toEqual(terrain);
+    c.dispose();
+  });
+  it('invalidates scattering after observation and restores pristine interpretation on reset only if terrain is intact', () => {
+    const { controller: c } = harness();
+    c.loadScatteringDemo();
+    const terrain = c.potential, initial = c.psi.values.slice();
+    c.observe();
+    expect(c.snapshot()).toMatchObject({ scatteringStatus: 'modified', reflection: null, transmission: null });
+    c.reset();
+    expect(c.snapshot()).toMatchObject({ scatteringStatus: 'provisional', observation: null, measurementCount: 0, energyDrift: 0 });
+    expect(c.psi.values).toEqual(initial); expect(c.potential).toBe(terrain);
+    c.observe(); c.clearTerrain(); c.reset();
+    expect(c.snapshot().scatteringStatus).toBe('modified');
+    c.loadScatteringDemo();
+    expect(c.snapshot()).toMatchObject({ scatteringStatus: 'provisional', observation: null, energyDrift: 0 });
+  });
+  it('resets energy reference after terrain changes and validates resolution without changing state', () => {
+    const { controller: c, published } = harness();
+    const state = c.psi.values.slice();
+    for (const resolution of [0, -1, NaN, Infinity, 0.19, 2.01]) {
+      expect(() => c.setMeasurementResolution(resolution)).toThrow(RangeError);
+    }
+    expect(c.measurementResolution).toBe(0.4);
+    expect(c.psi.values).toEqual(state); expect(published).toHaveLength(0);
+    for (const resolution of [0.2, 2]) {
+      c.setMeasurementResolution(resolution); c.observe();
+      expect(c.snapshot().norm).toBeCloseTo(1, 14);
+    }
+    c.stamp(-5, { amplitude: 2, sigma: 0.6 });
+    expect(c.snapshot().energyDrift).toBe(0);
+    c.paint(-6, -4, { amplitude: 3, sigma: 0.6 });
+    expect(c.snapshot().energyDrift).toBe(0);
+    c.clearTerrain(); expect(c.snapshot().energyDrift).toBe(0);
+    const before = c.snapshot(); c.dispose(); c.observe(); c.setMeasurementResolution(1);
+    expect(c.snapshot()).toEqual(before); expect(c.measurementResolution).toBe(2);
+  });
+  it('blocks observation in a failed controller until reset', () => {
+    const { controller: c, frame } = harness();
+    c.psi.values[100] = NaN; c.play(); frame(0);
+    c.observe(); expect(c.snapshot().measurementCount).toBe(0);
+    c.reset(); c.observe(); expect(c.snapshot().measurementCount).toBe(1);
   });
   it('stops and reports numerical errors without scheduling further frames', () => {
     const { controller: c, frame, pending } = harness();

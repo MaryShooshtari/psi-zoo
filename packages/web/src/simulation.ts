@@ -1,10 +1,15 @@
 import {
   CrankNicolsonStepper, createPsiGrid, initializeGaussian, normalize,
   normSquared, energyExpectation, createZeroPotential, stampGaussianPotential,
-  paintGaussianPath, probabilityRegions, createScatteringExperiment, SCATTERING_CONFIG,
+  paintGaussianPath, probabilityRegions, createScatteringExperiment, SCATTERING_CONFIG, measurePosition,
   type RegionProbabilities, type GaussianBrush, type PsiGrid,
 } from '@psi-zoo/sim-core';
 
+import { createSeededRandom } from './random';
+
+export const DEFAULT_MEASUREMENT_SEED = 831;
+// dx=0.1: at least two cells per response sigma; default sharper than initial sigma=1.
+export const MEASUREMENT_LIMITS = { min: 0.2, max: 2, default: 0.4 } as const;
 export const DEFAULT_INITIAL_MOMENTUM = 0.75;
 // dx=0.1: carrier |p0*dx| <= 0.15, well below the lattice/Nyquist scale.
 export const INITIAL_MOMENTUM_LIMIT = 1.5;
@@ -27,10 +32,21 @@ export interface FrameScheduler {
 }
 export type SimulationMode = 'exploration' | 'scattering';
 export type ScatteringStatus = 'provisional' | 'separated' | 'modified' | 'outside-window' | 'unavailable';
+export interface Observation {
+  readonly index: number;
+  readonly position: number;
+  readonly resolution: number;
+  readonly probability: number;
+  readonly time: number;
+}
 export interface SimulationSnapshot {
   time: number;
   norm: number;
   energy: number;
+  energyReference: number;
+  energyDrift: number;
+  observation: Observation | null;
+  measurementCount: number;
   playing: boolean;
   error: string | null;
   mode: SimulationMode;
@@ -64,6 +80,12 @@ export class SimulationPlayback {
   private mode: SimulationMode = 'exploration';
   private pristineDemo = false;
   private initialNorm = normSquared(this.state);
+  private energyReference = energyExpectation(this.state, this.terrain).real;
+  private observation: Observation | null = null;
+  private measurementCount = 0;
+  private measuredSinceReset = false;
+  private selectedResolution: number = MEASUREMENT_LIMITS.default;
+  private random: () => number;
   private readonly stepper = new CrankNicolsonStepper();
   private steps = 0;
   private playing = false;
@@ -74,7 +96,54 @@ export class SimulationPlayback {
   private accumulator = 0;
   private generation = 0;
 
-  constructor(private readonly scheduler: FrameScheduler, private readonly onFrame: (snapshot: SimulationSnapshot) => void) {}
+  constructor(
+    private readonly scheduler: FrameScheduler,
+    private readonly onFrame: (snapshot: SimulationSnapshot) => void,
+    private readonly seed = DEFAULT_MEASUREMENT_SEED,
+  ) {
+    this.random = createSeededRandom(seed);
+  }
+
+  get lastObservation(): Observation | null { return this.observation; }
+  get measurementResolution(): number { return this.selectedResolution; }
+
+  setMeasurementResolution(resolution: number): void {
+    if (this.disposed) return;
+    if (!Number.isFinite(resolution) || resolution < MEASUREMENT_LIMITS.min || resolution > MEASUREMENT_LIMITS.max) {
+      throw new RangeError('Measurement resolution must be finite and in [0.2, 2]');
+    }
+    this.selectedResolution = resolution;
+  }
+
+  /** The action has no click-position argument: the Born distribution chooses
+   * the outcome. Preserve terrain, time, pending frame, and pause/play state.
+   */
+  observe(): void {
+    if (this.disposed || this.error) return;
+    const result = measurePosition(this.state, this.selectedResolution, this.random);
+    const energy = energyExpectation(result.state, this.terrain).real;
+    if (!Number.isFinite(energy)) throw new RangeError('Nonfinite post-measurement energy');
+    this.state = result.state;
+    this.energyReference = energy;
+    this.observation = {
+      index: result.index, position: result.position, resolution: result.resolution,
+      probability: result.probability, time: this.steps * this.timeStep,
+    };
+    this.measurementCount++;
+    this.measuredSinceReset = true;
+    this.onFrame(this.snapshot());
+  }
+
+  /** Reset and explicit preset loads rewind the RNG, clear observation history,
+   * and establish energy under the current terrain. Resolution is retained.
+   */
+  private resetObservation(): void {
+    this.random = createSeededRandom(this.seed);
+    this.observation = null;
+    this.measurementCount = 0;
+    this.measuredSinceReset = false;
+    this.energyReference = energyExpectation(this.state, this.terrain).real;
+  }
 
   /** Read-only grid metadata; values are the actual state used by the renderer. */
   get psi(): PsiGrid { return this.state; }
@@ -103,6 +172,7 @@ export class SimulationPlayback {
     this.selectedMomentum = SCATTERING_CONFIG.momentum;
     this.pristineDemo = true; this.steps = 0; this.error = null;
     this.initialNorm = normSquared(this.state);
+    this.resetObservation();
     this.onFrame(this.snapshot());
   }
 
@@ -112,6 +182,7 @@ export class SimulationPlayback {
     this.state = initialState(); this.terrain = createZeroPotential(this.state);
     this.pristineDemo = false; this.steps = 0; this.error = null;
     this.initialNorm = normSquared(this.state);
+    this.resetObservation();
     this.onFrame(this.snapshot());
   }
 
@@ -124,6 +195,7 @@ export class SimulationPlayback {
     if (this.disposed || this.error) return;
     validateBrush(brush);
     stampGaussianPotential(this.state, this.terrain, { ...brush, center }, TERRAIN_MAX_HEIGHT);
+    this.energyReference = energyExpectation(this.state, this.terrain).real;
     this.pristineDemo = false;
     this.onFrame(this.snapshot());
   }
@@ -132,6 +204,7 @@ export class SimulationPlayback {
     if (this.disposed || this.error) return;
     validateBrush(brush);
     paintGaussianPath(this.state, this.terrain, brush, from, to, TERRAIN_MAX_HEIGHT);
+    this.energyReference = energyExpectation(this.state, this.terrain).real;
     this.pristineDemo = false;
     this.onFrame(this.snapshot());
   }
@@ -140,13 +213,16 @@ export class SimulationPlayback {
   clearTerrain(): void {
     if (this.disposed) return;
     this.terrain.fill(0);
+    this.energyReference = energyExpectation(this.state, this.terrain).real;
     this.pristineDemo = false;
     this.onFrame(this.snapshot());
   }
 
   snapshot(): SimulationSnapshot {
     const time = this.steps * this.timeStep;
-    if (this.error) return { time, norm: NaN, energy: NaN, playing: false, error: this.error,
+    if (this.error) return { time, norm: NaN, energy: NaN, energyReference: this.energyReference,
+      energyDrift: NaN, observation: this.observation, measurementCount: this.measurementCount,
+      playing: false, error: this.error,
       mode: this.mode, regions: null, scatteringStatus: 'unavailable', reflection: null, transmission: null };
     const norm = normSquared(this.state);
     const energy = energyExpectation(this.state, this.potential).real;
@@ -156,7 +232,7 @@ export class SimulationPlayback {
     const regions = probabilityRegions(this.state, SCATTERING_CONFIG.leftEdge, SCATTERING_CONFIG.rightEdge);
     let scatteringStatus: ScatteringStatus = 'provisional';
     if (this.mode === 'scattering') {
-      if (!this.pristineDemo) scatteringStatus = 'modified';
+      if (!this.pristineDemo || this.measuredSinceReset) scatteringStatus = 'modified';
       else if (time > SCATTERING_CONFIG.windowEnd) scatteringStatus = 'outside-window';
       else if (time >= SCATTERING_CONFIG.windowStart && regions.interaction / this.initialNorm < SCATTERING_CONFIG.residualLimit) {
         const boundary = probabilityRegions(this.state, this.state.x0 + 5,
@@ -166,7 +242,9 @@ export class SimulationPlayback {
       }
     }
     const separated = scatteringStatus === 'separated';
-    return { time, norm, energy, playing: this.playing, error: this.error, mode: this.mode,
+    return { time, norm, energy, energyReference: this.energyReference, energyDrift: energy - this.energyReference,
+      observation: this.observation, measurementCount: this.measurementCount,
+      playing: this.playing, error: this.error, mode: this.mode,
       regions, scatteringStatus, reflection: separated ? regions.left / this.initialNorm : null,
       transmission: separated ? regions.right / this.initialNorm : null };
   }
@@ -199,6 +277,7 @@ export class SimulationPlayback {
     if (this.selectedMomentum !== SCATTERING_CONFIG.momentum) this.pristineDemo = false;
     this.steps = 0;
     this.error = null;
+    this.resetObservation();
   }
 
   dispose(): void { this.pause(); this.disposed = true; }

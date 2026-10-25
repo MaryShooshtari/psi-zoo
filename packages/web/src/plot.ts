@@ -6,11 +6,22 @@ export function plotBounds(width: number, height: number) {
   return { left: 58, right: width - 58, top: 60, bottom: height - 48 };
 }
 
-/** Fixed independent y scales: density [0,0.5] left, potential [0,5] right.
+/** A normalized grid state has |psi_i|² <= 1/dx. Use that fixed bound
+ * with 5% headroom for roundoff and stroke thickness. Square-root spacing
+ * keeps broad packets legible without autoscaling; labels remain densities.
+ * Geometric screen area is NOT probability on this nonlinear axis.
+ */
+export function densityScaleMaximum(dx: number): number { return 1.05 / dx; }
+export function densityPlotFraction(density: number, dx: number): number {
+  return Math.sqrt(density / densityScaleMaximum(dx));
+}
+
+/** Independent fixed y scales: sqrt-spaced density left, linear V=[0,5] right.
  * Direct array traversal; no copied density/potential buffers per draw.
  */
 export function drawSimulation(
   context: CanvasRenderingContext2D, psi: PsiGrid, potential: Float64Array, width: number, height: number,
+  observedPosition: number | null = null,
 ): void {
   const { left, right, top, bottom } = plotBounds(width, height);
   const plotWidth = right - left, plotHeight = bottom - top;
@@ -31,7 +42,7 @@ export function drawSimulation(
     const y = py(i / 5);
     context.beginPath(); context.moveTo(left, y); context.lineTo(right, y); context.stroke();
     context.textAlign = 'right'; context.fillStyle = '#a8f9fc';
-    context.fillText((i / 10).toFixed(1), left - 8, y + 4);
+    context.fillText((densityScaleMaximum(psi.dx) * (i / 5) ** 2).toFixed(2), left - 8, y + 4);
     context.textAlign = 'left'; context.fillStyle = '#ffc477';
     context.fillText(String(i / 5 * TERRAIN_MAX_HEIGHT), right + 8, y + 4);
   }
@@ -42,7 +53,7 @@ export function drawSimulation(
   context.save(); context.translate(width - 12, (top + bottom) / 2); context.rotate(Math.PI / 2);
   context.fillStyle = '#ffc477'; context.fillText('V(x)', 0, 0); context.restore();
   context.textAlign = 'left'; context.fillStyle = '#a8f9fc';
-  context.fillText('Density |ψ(x,t)|² · left axis', left, 22);
+  context.fillText(`Density |ψ|² · sqrt-spaced axis · 0–${densityScaleMaximum(psi.dx).toFixed(1)}`, left, 22);
   context.fillStyle = '#ffc477'; context.fillText('Potential V(x) · right axis', left, 42);
 
   context.save(); context.beginPath(); context.rect(left, top, plotWidth, plotHeight); context.clip();
@@ -59,7 +70,7 @@ export function drawSimulation(
   context.beginPath();
   for (let i = 0; i < psi.count; i++) {
     const density = psi.values[2 * i]! ** 2 + psi.values[2 * i + 1]! ** 2;
-    const x = px(i / (psi.count - 1)), y = py(density / 0.5);
+    const x = px(i / (psi.count - 1)), y = py(densityPlotFraction(density, psi.dx));
     if (i === 0) context.moveTo(x, y); else context.lineTo(x, y);
   }
   context.strokeStyle = '#a8f9fc'; context.lineWidth = 2; context.stroke();
@@ -69,6 +80,16 @@ export function drawSimulation(
   for (const cut of [SCATTERING_CONFIG.leftEdge, SCATTERING_CONFIG.rightEdge]) {
     const x = px((cut - psi.x0) / ((psi.count - 1) * psi.dx));
     context.beginPath(); context.moveTo(x, top); context.lineTo(x, bottom); context.stroke();
+  }
+  if (observedPosition !== null) {
+    const x = px((observedPosition - psi.x0) / ((psi.count - 1) * psi.dx));
+    // Magenta solid line and diamond distinguish the last observed position
+    // from cyan density, amber terrain and gray dotted region cuts.
+    context.setLineDash([]); context.strokeStyle = '#f49bdf'; context.lineWidth = 2;
+    context.beginPath(); context.moveTo(x, top); context.lineTo(x, bottom); context.stroke();
+    context.fillStyle = '#f49bdf'; context.beginPath();
+    context.moveTo(x, top + 2); context.lineTo(x + 6, top + 9);
+    context.lineTo(x, top + 16); context.lineTo(x - 6, top + 9); context.closePath(); context.fill();
   }
   context.restore();
 }

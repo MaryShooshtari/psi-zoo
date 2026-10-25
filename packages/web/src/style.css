@@ -8,6 +8,7 @@ p { color: #9aacc6; max-width: 650px; line-height: 1.6; }
 /* No border/padding: the drawing area and pointer coordinate rect coincide. */
 .terrarium { width: 100%; height: 340px; display: block; border-radius: 18px; box-shadow: 0 0 0 1px #263d54; margin-top: 35px; touch-action: none; user-select: none; }
 .terrarium.painting { cursor: crosshair; }
+.terrarium.observing { cursor: pointer; }
 .brush-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 28px; margin-top: 20px; padding: 16px; border: 1px solid #426681; border-radius: 8px; }
 .brush-controls legend { color: #ffc477; padding: 0 6px; }
 .brush-controls label { display: flex; flex-direction: column; gap: 8px; font-size: 13px; font-variant-numeric: tabular-nums; }
@@ -30,3 +31,17 @@ button:disabled { opacity: 0.45; cursor: default; }
 .scattering-readout { margin-top: 24px; padding: 16px; border: 1px solid #426681; border-radius: 8px; }
 .scattering-readout h2 { margin: 0; font-size: 16px; color: #ffc477; }
 .scattering-readout .diagnostics { margin-top: 12px; }
+.notebook { width: min(850px, 94vw); max-height: 88vh; overflow: auto; padding: 24px; color: #eaf4ff; background: #0e1930; border: 1px solid #426681; border-radius: 12px; }
+.notebook::backdrop { background: rgba(8,14,27,0.8); }
+.notebook-heading { display: flex; flex-wrap: wrap; align-items: start; justify-content: space-between; gap: 16px; }
+.notebook h2 { flex: 1 1 350px; font-size: 23px; margin: 0; }
+.notebook h3 { font-size: 18px; color: #a8f9fc; }
+.notebook p { max-width: none; }
+.notebook a { color: #a8f9fc; overflow-wrap: anywhere; }
+.notebook details { border-top: 1px solid #426681; padding: 18px 0; }
+.notebook summary { cursor: pointer; color: #ffc477; font-size: 18px; }
+.notebook summary:focus-visible, .notebook a:focus-visible { outline: 2px solid #a8f9fc; outline-offset: 3px; }
+.notebook-equation { overflow-x: auto; padding: 16px 4px; color: #eaf4ff; }
+.notebook math { font-size: 1.15em; }
+.notebook-example { padding: 16px; border-left: 3px solid #f49bdf; background: #142941; }
+.notebook-example p { margin-bottom: 0; }

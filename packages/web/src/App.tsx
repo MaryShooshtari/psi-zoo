@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   SimulationPlayback, BRUSH_LIMITS, DEFAULT_BRUSH, TERRAIN_MAX_HEIGHT,
-  DEFAULT_INITIAL_MOMENTUM, INITIAL_MOMENTUM_LIMIT, type SimulationSnapshot, type SimulationMode,
+  DEFAULT_INITIAL_MOMENTUM, INITIAL_MOMENTUM_LIMIT, MEASUREMENT_LIMITS,
+  type SimulationSnapshot, type SimulationMode,
 } from './simulation';
 import { bindPotentialPainting, type PaintingBinding } from './painting';
 import { drawSimulation } from './plot';
+import { bindObservation } from './observation';
 import { SCATTERING_CONFIG } from '@psi-zoo/sim-core';
+import { Notebook } from './Notebook';
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -14,13 +17,17 @@ export default function App() {
   const refreshRef = useRef<(() => void) | null>(null);
   const [snapshot, setSnapshot] = useState<SimulationSnapshot | null>(null);
   const [setupError, setSetupError] = useState<string | null>(null);
-  const [painting, setPainting] = useState(false);
+  const [notebookOpen, setNotebookOpen] = useState(false);
+  const notebookTrigger = useRef<HTMLButtonElement | null>(null);
+  const [interactionMode, setInteractionMode] = useState<'paint' | 'observe'>('paint');
+  const [resolution, setResolution] = useState<number>(MEASUREMENT_LIMITS.default);
+  const resolutionRef = useRef<number>(MEASUREMENT_LIMITS.default);
   const [brush, setBrush] = useState(DEFAULT_BRUSH);
   const [initialMomentum, setInitialMomentum] = useState(DEFAULT_INITIAL_MOMENTUM);
   const initialMomentumRef = useRef(DEFAULT_INITIAL_MOMENTUM);
   const modeRef = useRef<SimulationMode>('exploration');
   // Native pointer listeners read current controls without effect reattachment.
-  const settingsRef = useRef({ enabled: false, brush: DEFAULT_BRUSH });
+  const settingsRef = useRef({ enabled: true, observing: false, brush: DEFAULT_BRUSH });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -45,7 +52,7 @@ export default function App() {
         canvas.width = backingWidth; canvas.height = backingHeight;
       }
       context.setTransform(backingWidth / width, 0, 0, backingHeight / height, 0, 0);
-      drawSimulation(context, controller.psi, controller.potential, width, height);
+      drawSimulation(context, controller.psi, controller.potential, width, height, controller.lastObservation?.position ?? null);
     };
     const controller = new SimulationPlayback({
       request: callback => requestAnimationFrame(callback),
@@ -63,13 +70,14 @@ export default function App() {
     // Preserve the selected initial condition if a development effect remounts.
     if (modeRef.current === 'scattering') controller.loadScatteringDemo();
     controller.setInitialMomentum(initialMomentumRef.current);
+    controller.setMeasurementResolution(resolutionRef.current);
     if (controller.initialMomentum !== DEFAULT_INITIAL_MOMENTUM || modeRef.current === 'scattering') controller.reset();
     playbackRef.current = controller;
     const refresh = () => { draw(); latest = controller.snapshot(); publish(); };
     refreshRef.current = refresh;
     const fail = (error: unknown) => {
-      controller.pause(); settingsRef.current.enabled = false;
-      setPainting(false); setSetupError(error instanceof Error ? error.message : String(error));
+      controller.pause(); settingsRef.current.enabled = false; settingsRef.current.observing = false;
+      setSetupError(error instanceof Error ? error.message : String(error));
       latest = controller.snapshot(); publish();
     };
     const binding = bindPotentialPainting(canvas, {
@@ -80,6 +88,11 @@ export default function App() {
       onError: fail,
     });
     paintingRef.current = binding;
+    const observationBinding = bindObservation(canvas, {
+      enabled: () => settingsRef.current.observing && !latest.error,
+      grid: () => controller.psi, viewport: () => ({ width, height }),
+      observe: () => controller.observe(), onError: fail,
+    });
     const observer = new ResizeObserver(draw);
     observer.observe(canvas); refresh();
     const cancelStroke = () => binding.cancelStroke();
@@ -91,7 +104,7 @@ export default function App() {
     window.addEventListener('resize', draw);
     window.addEventListener('blur', cancelStroke);
     return () => {
-      binding.dispose(); controller.dispose(); observer.disconnect();
+      observationBinding.dispose(); binding.dispose(); controller.dispose(); observer.disconnect();
       if (publishTimer !== undefined) clearTimeout(publishTimer);
       document.removeEventListener('visibilitychange', visibility);
       window.removeEventListener('resize', draw);
@@ -102,23 +115,32 @@ export default function App() {
     };
   }, []);
 
-  const control = (action: 'play' | 'pause' | 'reset' | 'clearTerrain' | 'loadScatteringDemo' | 'loadFreeExploration') => {
+  const control = (action: 'play' | 'pause' | 'reset' | 'clearTerrain' | 'loadScatteringDemo' | 'loadFreeExploration' | 'observe') => {
     const controller = playbackRef.current;
     if (!controller) return;
     try {
       if (action !== 'play' && action !== 'pause') paintingRef.current?.cancelStroke();
       controller[action]();
       if (action === 'loadScatteringDemo' || action === 'loadFreeExploration') {
-        settingsRef.current.enabled = false; setPainting(false);
+        settingsRef.current.enabled = true; settingsRef.current.observing = false; setInteractionMode('paint');
         modeRef.current = controller.snapshot().mode;
         initialMomentumRef.current = controller.initialMomentum; setInitialMomentum(controller.initialMomentum);
       }
       refreshRef.current?.();
     } catch (error) {
       paintingRef.current?.cancelStroke(); controller.pause();
-      settingsRef.current.enabled = false; setPainting(false);
+      settingsRef.current.enabled = false; settingsRef.current.observing = false;
       setSetupError(error instanceof Error ? error.message : String(error));
     }
+  };
+  const openNotebook = () => {
+    paintingRef.current?.cancelStroke();
+    control('pause');
+    setNotebookOpen(true);
+  };
+  const closeNotebook = () => {
+    setNotebookOpen(false);
+    notebookTrigger.current?.focus();
   };
   const changeInitialMomentum = (p0: number) => {
     const controller = playbackRef.current;
@@ -126,9 +148,16 @@ export default function App() {
     controller.setInitialMomentum(p0);
     initialMomentumRef.current = p0; setInitialMomentum(p0);
   };
-  const togglePainting = (enabled: boolean) => {
-    settingsRef.current.enabled = enabled; setPainting(enabled);
-    if (!enabled) paintingRef.current?.cancelStroke();
+  const changeInteractionMode = (mode: 'paint' | 'observe') => {
+    paintingRef.current?.cancelStroke();
+    settingsRef.current.enabled = mode === 'paint';
+    settingsRef.current.observing = mode === 'observe';
+    setInteractionMode(mode);
+  };
+  const changeResolution = (value: number) => {
+    if (!Number.isFinite(value) || value < MEASUREMENT_LIMITS.min || value > MEASUREMENT_LIMITS.max) return;
+    playbackRef.current?.setMeasurementResolution(value);
+    resolutionRef.current = value; setResolution(value);
   };
   const changeBrush = (key: 'sigma' | 'amplitude', value: number) => {
     const min = key === 'sigma' ? BRUSH_LIMITS.minSigma : BRUSH_LIMITS.minAmplitude;
@@ -144,7 +173,7 @@ export default function App() {
   const scatteringMessage = status === 'separated'
     ? 'Separated packets — R/T estimates in the validated window (absolute numerical budget about 0.0015).'
     : status === 'modified'
-      ? 'Provisional — edited terrain or changed reset momentum. Reload the demo to restore the validated experiment.'
+      ? 'Provisional — observation, edited terrain or changed reset momentum invalidates R/T. Reset clears observation history; reload the demo to restore the full validated experiment.'
       : status === 'outside-window'
         ? 'Outside the validated t=40–44 window; R/T interpretation is withheld. Later wall reflections can contaminate regions.'
         : status === 'unavailable' ? 'Region diagnostics unavailable.'
@@ -155,13 +184,13 @@ export default function App() {
   return (
     <main>
       <div className="heading">
-        <div className="eyebrow">PSI ZOO · SLICE 2</div>
+        <div className="eyebrow">PSI ZOO · SLICE 3</div>
         <h1>A little world for wavefunctions.</h1>
-        <p>Paint a potential landscape and watch a Gaussian wavepacket evolve under Schrödinger dynamics — no scripted motion or per-step normalization.</p>
+        <p>Paint a potential landscape or observe the wave packet, then watch it evolve under Schrödinger dynamics — no scripted motion or per-step normalization.</p>
       </div>
-      <canvas className={`terrarium${painting ? ' painting' : ''}`} ref={canvasRef} role="img"
-        aria-label={`Numerically evolved density and potential, x from −${extent} to ${extent}. Density left axis 0 to 0.5; potential right axis 0 to 5. Region cuts at −4 and 4.`}
-        aria-describedby="painting-help" />
+      <canvas className={`terrarium ${interactionMode === 'paint' ? 'painting' : 'observing'}`} ref={canvasRef} role="img"
+        aria-label={`Numerically evolved density and potential, x from −${extent} to ${extent}. Density left axis 0 to 10.5, square-root spaced; potential right axis 0 to 5, linear. Region cuts at −4 and 4.`}
+        aria-describedby="painting-help observation-help" />
       <div className="controls" aria-label="Simulation controls">
         <button onClick={() => control('play')} disabled={!snapshot || snapshot.playing || !!error}>Play</button>
         <button onClick={() => control('pause')} disabled={!snapshot?.playing}>Pause</button>
@@ -173,7 +202,7 @@ export default function App() {
         <button onClick={() => control('loadScatteringDemo')} disabled={!snapshot || !!setupError}>Load tunnelling demo</button>
         <button onClick={() => control('loadFreeExploration')} disabled={!snapshot || !!setupError}>Load free exploration</button>
       </div>
-      <p className="plot-note">Loading a mode pauses and replaces packet, terrain, time and momentum selection; Painting mode turns off. {demo
+      <p className="plot-note">Loading a preset pauses and replaces packet, terrain, time and momentum selection; interaction returns to Paint and the observation RNG rewinds. {demo
         ? 'Validated preset reference: x ∈ [−120,120], packet xc=−24, σ=3, p₀=1.5; Gaussian barrier A=1.8, width=0.6, center=0. Initial mean kinetic energy ≈1.137, momentum spread Δp=1/6; its incident over-barrier tail is less than 1% but is not zero. Keep the loaded preset unchanged for quantitative R/T. Reset uses selected momentum and preserves terrain rather than reloading the barrier.'
         : 'Free exploration: x ∈ [−20,20], packet xc=−5, σ=1, initial p₀=0.75 and no terrain.'}</p>
       <fieldset className="brush-controls" disabled={!snapshot || !!setupError}>
@@ -186,9 +215,30 @@ export default function App() {
         <span id="momentum-help" className="plot-note">Negative: left · zero: spreading without drift · positive: right (free motion). Select, then Reset to apply. Selection does not change the live packet or terrain. Default p₀ = 0.75; |p₀Δx| ≤ 0.15.</span>
       </fieldset>
       <fieldset className="brush-controls" disabled={!snapshot || !!error}>
+        <legend>Interaction mode</legend>
+        <label className="painting-toggle"><input type="radio" name="interaction" checked={interactionMode === 'paint'}
+          onChange={() => changeInteractionMode('paint')} /> Paint</label>
+        <label className="painting-toggle"><input type="radio" name="interaction" checked={interactionMode === 'observe'}
+          onChange={() => changeInteractionMode('observe')} /> Observe</label>
+      </fieldset>
+      <fieldset className="brush-controls" disabled={!snapshot || !!error}>
+        <legend>Position observation</legend>
+        <label>Measurement resolution σ = {resolution.toFixed(1)} (x units)
+          <input type="range" min={MEASUREMENT_LIMITS.min} max={MEASUREMENT_LIMITS.max} step="0.1"
+            value={resolution} aria-describedby="observation-help"
+            onChange={event => changeResolution(event.currentTarget.valueAsNumber)} />
+        </label>
+        <button onClick={() => control('observe')} disabled={interactionMode !== 'observe'}>Observe particle</button>
+        <button ref={notebookTrigger} onClick={openNotebook} aria-haspopup="dialog"
+          aria-controls="observer-notebook" aria-expanded={notebookOpen}>Why did it jump?</button>
+        <span role="status">{snapshot?.observation
+          ? `Observed x = ${snapshot.observation.position.toFixed(2)} at t = ${snapshot.observation.time.toFixed(2)} (σ = ${snapshot.observation.resolution.toFixed(1)}); observation #${snapshot.measurementCount}`
+          : 'No position observed yet.'}</span>
+      </fieldset>
+      {notebookOpen && <Notebook observation={snapshot?.observation ?? null} onClose={closeNotebook} />}
+      <p id="observation-help" className="plot-note">In Observe mode, click anywhere inside the plot or activate Observe particle with the keyboard. The click only triggers measurement: the Born distribution samples the outcome, not the click location. Lower resolution σ means a sharper finite-resolution Gaussian measurement, not exact coordinate projection. The magenta line and diamond mark the last sampled position, not a tracked particle. Observe while paused or playing; Play continues evolution and re-spreading. Reset clears the result and rewinds the seeded random sequence; the selected resolution is retained.</p>
+      <fieldset className="brush-controls" disabled={!snapshot || !!error}>
         <legend>Potential painting</legend>
-        <label className="painting-toggle"><input type="checkbox" checked={painting}
-          onChange={event => togglePainting(event.currentTarget.checked)} /> Painting mode</label>
         <label>Brush width σ = {brush.sigma.toFixed(1)} (x units)
           <input type="range" min={BRUSH_LIMITS.minSigma} max={BRUSH_LIMITS.maxSigma} step="0.1" value={brush.sigma}
             onChange={event => changeBrush('sigma', event.currentTarget.valueAsNumber)} />
@@ -198,12 +248,13 @@ export default function App() {
             onChange={event => changeBrush('amplitude', event.currentTarget.valueAsNumber)} />
         </label>
       </fieldset>
-      <p id="painting-help" className="plot-note">Enable Painting mode, then press and drag inside the plot with mouse, touch, or pen. Horizontal position sets the barrier location; vertical position does not set its height. Painting raises terrain, never adds repeatedly. Brush changes apply to the next stroke. Reset pauses and restores the packet/time using the selected initial momentum, preserving terrain. Clear Terrain removes only the barriers.</p>
+      <p id="painting-help" className="plot-note">Select Paint mode, then press and drag inside the plot with mouse, touch, or pen. Horizontal position sets the barrier location; vertical position does not set its height. Painting raises terrain, never adds repeatedly. Brush changes apply to the next stroke. Reset pauses and restores the packet/time using the selected initial momentum, preserving terrain. Clear Terrain removes only the barriers.</p>
       {error && <p className="error" role="alert">{error} {snapshot?.error && 'Reset to restore the initial state.'}</p>}
       <div className="diagnostics" aria-label="Simulation diagnostics">
         <span><strong>Physical time:</strong> {number(snapshot?.time, 2)}</span>
         <span><strong>Probability norm:</strong> {number(snapshot?.norm, 10)}</span>
         <span><strong>Energy ⟨ψ|H|ψ⟩:</strong> {number(snapshot?.energy, 8)}</span>
+        <span><strong>Energy drift since last update:</strong> {number(snapshot?.energyDrift, 10)}</span>
       </div>
       <section className="scattering-readout" aria-label="Scattering probability regions">
         <h2>Probability regions · cuts at x = −4 and +4</h2>
@@ -224,7 +275,7 @@ export default function App() {
         <span><strong>Evolution:</strong> Crank–Nicolson · Δt = {demo ? SCATTERING_CONFIG.dt : 0.01} · ℏ = m = 1</span>
         <span><strong>Grid:</strong> {demo ? 2401 : 401} points · Δx = 0.1 · fixed zero endpoints</span>
       </footer>
-      <p className="plot-note">Cyan: probability density, left scale 0–0.5. Dashed amber: V(x), right scale 0–5. These are different quantities with independent fixed scales; density peaks above 0.5 are clipped. Norm is conserved up to roundoff; energy is conserved only while V is unchanged, not during painting or clearing. At long times the packet reflects from the Dirichlet walls. Playback pauses in background tabs; long frame stalls slow simulated time rather than skipping physics steps.</p>
+      <p className="plot-note">Cyan: probability density, fixed square-root-spaced left scale 0–10.5 (not linear). Dashed amber: V(x), independent linear right scale 0–5. Density ticks are actual |ψ|² values; screen area under this nonlinear curve is not probability. The fixed density range includes the normalized-grid maximum 1/Δx = 10 with headroom, so sharp measurement peaks remain visible without autoscaling. Norm is conserved up to roundoff; energy is conserved during evolution with fixed V, not during measurement, painting or clearing. The energy-drift reference resets after these updates and Reset. At long times the packet reflects from the Dirichlet walls. Playback pauses in background tabs; long frame stalls slow simulated time rather than skipping physics steps.</p>
     </main>
   );
 }

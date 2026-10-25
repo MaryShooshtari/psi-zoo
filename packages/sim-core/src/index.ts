@@ -1,6 +1,9 @@
 export { createPsiGrid, normSquared } from './grid';
 export type { PsiGrid } from './grid';
 export type { Stepper } from './stepper';
+export {
+  measurePosition, positionMeasurementProbabilities, type PositionMeasurementResult,
+} from './measurement';
 export { probabilityRegions, type RegionProbabilities } from './regions';
 export {
   SCATTERING_CONFIG, createScatteringExperiment, runScatteringExperiment,

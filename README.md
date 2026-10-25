@@ -3,6 +3,14 @@
 A quantum-creature terrarium for learning, playing, and formally exploring
 Schrödinger dynamics.
 
+![Actual browser evolution: the packet evolves, an observation localizes it at a sampled position, and the localized state re-spreads](docs/media/observer.gif)
+
+**Slice 3 — The Observer:** authentic browser recording of initial free evolution,
+a position measurement at t=1.96, and subsequent re-spreading through t=5.94.
+The magenta marker records the sampled x=−3.30, not a moving particle. The roughly
+9-second GIF includes brief paused holds; evolution pacing is otherwise sampled
+from the running app. [Capture provenance](docs/OBSERVER_VALIDATION.md#authentic-observer-gif).
+
 ![Actual Crank–Nicolson evolution: an incident Gaussian packet reflects from and transmits through a potential barrier](docs/media/scattering.gif)
 
 Actual **Crank–Nicolson evolution**, not scripted motion: a Gaussian wave packet
@@ -13,10 +21,12 @@ physical time 0–44 at approximately **2.5× playback speed**, in dimensionless
 the absolute numerical uncertainty budget is about 0.0015, not exact continuum
 accuracy. [Capture provenance and numerical evidence](docs/SCATTERING_VALIDATION.md).
 
-**Status:** Slice 2 release candidate validated: 193 automated tests, TypeScript
-checks, production build, numerical scattering/tunnelling validation, and
-user-reported **8/8 Phase 3B browser acceptance checks**. Authentic demo GIF
-captured; final release review pending. Slice 3 has not started.
+**Status:** Slice 3 is functionally approved: finite-resolution observation,
+deterministic sampling, unclipped density display, and an in-app Born-rule
+notebook. **232 automated tests**, TypeScript checks, production build, and all
+**12 Slice 3 Chrome acceptance items** pass. An authentic observation GIF and
+notebook screenshots are captured; committing and pushing remain manual steps.
+[Slice 3 validation and capture provenance](docs/OBSERVER_VALIDATION.md).
 See [the roadmap](docs/ROADMAP.md), [scattering validation and capture sequence](docs/SCATTERING_VALIDATION.md),
 [potential painting guide](docs/POTENTIAL_LANDSCAPES.md),
 [directed packet validation](docs/DIRECTED_GAUSSIAN_VALIDATION.md), and
@@ -26,6 +36,8 @@ See [the roadmap](docs/ROADMAP.md), [scattering validation and capture sequence]
 
 - **Run the simulation:** [local development](#local-development) and [browser behavior](#browser-simulation).
 - **Understand the physics:** [lab notebook](docs/notebook/README.md), starting with
+  [The Observer — Why does the wavefunction collapse?](packages/web/src/content/notebook/observer.md)
+  (also available in-app through **Why did it jump?**) and
   [why the wave packet keeps its probability](docs/notebook/crank-nicolson.md).
 - **Inspect the evidence:** [scattering/tunnelling experiments](docs/SCATTERING_VALIDATION.md),
   [Gaussian spreading measurements](docs/FREE_GAUSSIAN_VALIDATION.md)
@@ -37,13 +49,14 @@ The completed Lean proof chain establishes exact norm conservation, unique
 solvability, explicit evolution, and matrix unitarity for the finite interior
 Dirichlet model. **The TypeScript implementation is numerically tested, not
 formally verified.** The notebook links the two kinds of evidence and states
-what remains outside their scope. Its content is Markdown only; it is not yet
-rendered inside the browser app.
+what remains outside their scope. The Observer entry is bundled Markdown with
+native MathML equations, rendered in a small browser notebook dialog without
+new dependencies. The older CN entry remains documentation-only.
 
 ## Browser simulation
 
-Starts paused with no terrain and Painting mode off. Use **Play** and **Pause**
-to evolve the packet. Enable **Painting mode**, then press/drag inside the plot
+Starts paused with no terrain and **Paint** selected. Use **Play** and **Pause**
+to evolve the packet. Paint and Observe are mutually exclusive. In **Paint**, press/drag inside the plot
 with mouse, touch, or pen. Horizontal position sets the location; brush controls
 set width sigma (0.3–2 spatial units) and height A (0.1–5 energy units). Defaults
 are sigma=0.6 and A=1. Brush settings are held fixed until the stroke ends.
@@ -66,7 +79,7 @@ initial center/width; it does not reload an edited or cleared barrier.
 **Load tunnelling demo** pauses and replaces packet, terrain, time and momentum
 selection with the validated large-domain setup: x in [-120,120], 2401 points,
 dx=0.1, dt=0.02, center=-24, density sigma=3, p₀=1.5, Gaussian barrier centered at 0
-with height 1.8 and width 0.6. Painting turns off but remains available. **Load
+with height 1.8 and width 0.6. Interaction returns to Paint. **Load
 free exploration** explicitly returns to the original small free scene and
 p₀=0.75. Mode loads replace terrain (and its array when changing grids); ordinary
 painting, Reset and Clear Terrain preserve array identity.
@@ -77,7 +90,8 @@ estimates appear only for the unchanged demo at t=40–44 after separation, with
 negligible interaction/boundary mass. Expect R≈0.8002, T≈0.1998, with about
 0.0015 absolute numerical uncertainty, not precision at all displayed digits.
 Painting/clearing or resetting with another momentum invalidates quantitative
-interpretation until a demo reload. Merely changing the pending selection does
+interpretation until a demo reload. Observation also immediately withholds R/T;
+Reset clears the observation invalidation but does not repair edited terrain. Merely changing the pending selection does
 not alter the current run. Outside the validated window, R/T is withheld.
 
 The default incident mean kinetic energy (~1.137) is below the 1.8 peak, but that
@@ -86,12 +100,17 @@ An incident over-barrier-tail bound <0.009755, convergence tests, and an indepen
 packet-weighted stationary benchmark support substantial sub-barrier transmission.
 See [parameters, measured results, limitations and GIF capture steps](docs/SCATTERING_VALIDATION.md).
 
-The plot displays cyan probability density on the left scale (0–0.5), and dashed
-amber potential V(x) on the independent right scale (0–5). Both scales are fixed;
-density peaks above 0.5 are clipped, not rescaled. Time, probability norm, and
-energy are calculated from the current state and terrain. Norm is conserved up
-to roundoff; energy is conserved only while V is unchanged, **not while painting
-or clearing terrain**. The overlay updates immediately, even while paused.
+The plot displays cyan probability density on a **fixed square-root-spaced left
+axis**, 0–10.5 at dx=0.1, and dashed amber V(x) on an independent **linear** right
+axis, 0–5. Density tick labels are actual |ψ|² values, not square roots. A
+normalized grid state has density at most 1/dx=10, so 5% headroom keeps even a
+single-site peak visible. There is **no autoscaling** as the packet evolves.
+The nonlinear display keeps broad packets legible, but geometric screen area is
+not probability; compare the labeled densities and use the norm diagnostic.
+Time, norm and energy come from the current state/terrain. Norm is conserved up
+to roundoff. Energy is conserved during fixed-H evolution, **not across observation,
+painting or clearing**; the displayed energy-drift reference resets at those
+updates and Reset. The canvas updates immediately even while paused.
 
 Free exploration defaults: x in [-20,20], 401 points, dx=0.1, dt=0.01, hbar=m=1,
 V=0, center=-5, density standard deviation=1, momentum k0=0.75.
@@ -130,6 +149,52 @@ momentum-control review was accepted by the user with Phase 3A. The user reports
 distinguish that acceptance from the coding agent's actual Chrome demo capture;
 the capture does not itself repeat all device/input acceptance checks.
 
+## Observe and learn — Slice 3
+
+![Authentic paused observation in the running app, with sampled-position marker and unclipped localized density](docs/media/observer.png)
+
+Select **Observe** and click anywhere inside the plot, or focus **Observe particle**
+and press Space/Enter. One action samples one outcome using the existing
+finite-resolution Gaussian POVM. **The click triggers measurement; it does not
+choose the position.** The magenta line/diamond and result text record the actual
+sampled position and time, not a tracked particle. Observation works paused or
+playing, preserves time and terrain, and replaces the wavefunction with the
+normalized conditional state. Play then continues the same CN evolution.
+Free packets re-spread; arbitrary painted potentials need not broaden monotonically.
+
+**Measurement resolution σ** is the detector response width in spatial units,
+not necessarily the resulting packet width. Smaller σ means sharper measurement.
+The slider runs from 0.2 to 2.0 (default 0.4; dx=0.1, initial free density width=1).
+The response is normalized separately for each input site over interior outcomes,
+including near boundaries. This is not exact coordinate projection or a detailed
+apparatus model, and arbitrary post-measurement states need not be Gaussian.
+
+**Why did it jump?** opens the notebook next to the observation controls and
+pauses playback for reading. Start with the intuitive explanation; expand the
+detector mathematics, evolution/energy explanation and Lean evidence when ready.
+The last observation supplies a clearly labeled numerical example, including its
+discrete P(j), not a probability density. Close or Escape returns focus to the
+trigger; use Play to resume. Equations use native MathML in modern browsers.
+
+![Authentic notebook screenshot showing rendered detector equations](docs/media/observer-notebook.png)
+
+The controller owns a seeded 32-bit LCG (default seed **831**, configurable through
+its constructor). Only observation actions consume randomness; rendering, reading
+diagnostics and changing sliders do not. Identical initial conditions, seed and
+actions at the same numerical steps reproduce the results. Wall-clock clicking
+on different frames is not a reproducible action schedule. **Reset and preset
+loads rewind the RNG and clear the marker/count/result**; resolution is retained.
+Reset pauses, restores initial time/packet with the selected momentum, and
+preserves terrain, as before.
+
+Measurement remains synchronous O(N²) and can underflow extremely small tails.
+Repeated sharp observations can produce near-grid-scale states: normalization
+and CN stability do not establish continuum accuracy there. Neither the POVM nor
+TypeScript sampling is formally verified. The companion's checked exact
+coordinate-projection theorem is a different operator; see the
+[notebook](packages/web/src/content/notebook/observer.md) and
+[release validation](docs/OBSERVER_VALIDATION.md) for precise scope.
+
 ## Local development
 
 Requires Node >=22.19 and npm.
@@ -158,7 +223,11 @@ node scripts/scattering-report.mjs
 ## Directory structure
 
 - `packages/sim-core`: dependency-free numerical state, observables, and tested Crank–Nicolson solver
-- `packages/web`: React + Vite + Canvas renderer
+- `packages/web`: React + Vite + Canvas renderer and a small Markdown/MathML notebook
+- `packages/web/src/content/notebook/`: browser notebook entries with frontmatter
+- `docs/OBSERVER_VALIDATION.md`: Slice 3 checks, limitations and authentic screenshot provenance
+- `scripts/observer-browser-check.mjs`: dependency-free Chrome acceptance checks and screenshots
+- `scripts/capture-observer-gif.mjs`: authentic browser GIF capture and native-decoder verification
 - `docs/PROJECT_SPEC.md`: initial project handover
 - `docs/ROADMAP.md`: vertical slices
 - `docs/notebook/`: Markdown explanations, derivations, and links to checked Lean statements
