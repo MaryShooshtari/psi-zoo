@@ -27,6 +27,12 @@ button:disabled { opacity: 0.45; cursor: default; }
 .controls span, .plot-note { color: #9ab0c8; font-size: 13px; }
 .diagnostics { display: flex; flex-wrap: wrap; gap: 12px 28px; margin-top: 20px; font-size: 14px; font-variant-numeric: tabular-nums; }
 .error { color: #ffb6ad; }
+.creature-inspector h2 { font-size: 18px; margin-top: 24px; }
+.creature-a { color: #a8f9fc; }
+.creature-b { color: #f49bdf; }
+.bloch-readout { display: flex; align-items: center; gap: 18px; }
+.bloch-readout svg { flex: 0 0 110px; height: 110px; }
+.bloch-readout text { fill: #eaf4ff; font: 12px system-ui; }
 .plot-note { max-width: 100%; }
 .scattering-readout { margin-top: 24px; padding: 16px; border: 1px solid #426681; border-radius: 8px; }
 .scattering-readout h2 { margin: 0; font-size: 16px; color: #ffc477; }

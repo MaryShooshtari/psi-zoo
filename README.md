@@ -3,6 +3,25 @@
 A quantum-creature terrarium for learning, playing, and formally exploring
 Schrödinger dynamics.
 
+**Now starts with two interacting creatures.** Play the numerical mean-field
+simulation, select A or B to inspect its qubit mood, paint shared terrain, and
+observe only the selected creature. Compare attraction, independence, and
+repulsion from identical initial conditions using **Apply coupling & Reset**.
+[Slice 4D controls, validation, and limitations](docs/TWO_CREATURE_BROWSER_VALIDATION.md).
+
+![Actual two-creature browser simulation: separate cyan and rose densities approach under mood-driven mean-field evolution, then A is observed and re-spreads](docs/media/creatures.gif)
+
+**Slice 4 — The Creature:** genuine browser capture of the default g=1.5 scene.
+Both densities evolve; observing A at t=3.46 localizes only A, which then
+re-spreads through t=7.42. White marks the sampled x=−0.20, not a trajectory.
+The 10.52-second recording includes paused holds, with no invented physics frames.
+Opposite mood forces are real but modest and mirror-symmetric; a controlled
+[counterfactual comparison](docs/TWO_CREATURE_BROWSER_VALIDATION.md#mood-dependent-behaviour-acceptance)
+is the evidence for their causal effect, not the GIF alone.
+[Capture provenance](docs/TWO_CREATURE_BROWSER_VALIDATION.md#authentic-slice-4-gif).
+
+The recordings below document the retained single-packet presets.
+
 ![Actual browser evolution: the packet evolves, an observation localizes it at a sampled position, and the localized state re-spreads](docs/media/observer.gif)
 
 **Slice 3 — The Observer:** authentic browser recording of initial free evolution,
@@ -21,12 +40,13 @@ physical time 0–44 at approximately **2.5× playback speed**, in dimensionless
 the absolute numerical uncertainty budget is about 0.0015, not exact continuum
 accuracy. [Capture provenance and numerical evidence](docs/SCATTERING_VALIDATION.md).
 
-**Status:** Slice 3 is functionally approved: finite-resolution observation,
-deterministic sampling, unclipped density display, and an in-app Born-rule
-notebook. **232 automated tests**, TypeScript checks, production build, and all
-**12 Slice 3 Chrome acceptance items** pass. An authentic observation GIF and
-notebook screenshots are captured; committing and pushing remain manual steps.
-[Slice 3 validation and capture provenance](docs/OBSERVER_VALIDATION.md).
+**Status:** Slice 4 final release-readiness checks pass, pending user review. **296 automated
+tests**, TypeScript checks, production build, and strict DOM-free controller/world
+compilation pass. Real Chrome checks passed for the two-creature scene (22 checks)
+and retained Observer scene (14 checks), with no runtime/console errors. This is
+not a claim of exhaustive manual device or accessibility acceptance. No automatic
+commit or push. [Slice 4D validation](docs/TWO_CREATURE_BROWSER_VALIDATION.md).
+[Historical Slice 3 validation and capture provenance](docs/OBSERVER_VALIDATION.md).
 See [the roadmap](docs/ROADMAP.md), [scattering validation and capture sequence](docs/SCATTERING_VALIDATION.md),
 [potential painting guide](docs/POTENTIAL_LANDSCAPES.md),
 [directed packet validation](docs/DIRECTED_GAUSSIAN_VALIDATION.md), and
@@ -55,7 +75,52 @@ new dependencies. The older CN entry remains documentation-only.
 
 ## Browser simulation
 
-Starts paused with no terrain and **Paint** selected. Use **Play** and **Pause**
+### Two-creature demonstration (default)
+
+Starts paused with **Paint** selected, no terrain, and g=1.5. Two normalized
+packets start at x=−1.5/+1.5 with density sigma=0.8 and momenta +0.5/−0.5 on
+[-20,20], dx=0.1, dt=0.01. Opposite initial Bloch rz values and independent
+qubit precession supply modest mood-dependent forces through the Hamiltonian.
+No scripted positions or per-step normalization are used.
+
+- **Play / Pause:** advance both creatures synchronously using fixed steps.
+- **Creature A / B:** select the inspection and observation target. Inspect
+  position expectation, spatial probability norm, mood norm and all three Bloch
+  coordinates; the small diagram is an x–z projection, not a personality dial.
+- **Social coupling:** choose g in [-3,3], then **Apply coupling & Reset**.
+  Negative attracts, zero decouples, positive repels. The slider is pending until
+  Reset; comparisons use identical initial packets and the same current terrain.
+- **Reset:** pause, restore both initial states/time, apply pending coupling,
+  clear both observation histories and rewind the seeded RNG; preserve terrain.
+- **Load two-creature demo:** also clear terrain. **Clear Terrain** does not
+  change either state, time, or play/pause status.
+- **Paint / Observe:** paint barriers shared by both Hamiltonians, or use the
+  existing Gaussian position observation on the selected creature only. The
+  partner and both moods do not collapse. Per-creature result text and the white
+  last-observation marker follow selection. The notebook is still available.
+
+Cyan solid and rose short-dashed curves are **separate** probability densities on
+the same fixed square-root-spaced scale. Faint fills identify the curves, not
+complex phase or extra probability. Overlap is not coherent interference: no
+cross-creature amplitudes are summed. The amber long-dashed curve shows shared
+terrain only, not each creature's total mood/social potential.
+
+Social potentials are g times the other density: a deterministic mean-field
+model, **not entanglement or an exact two-particle wavefunction**. Frozen-density
+feedback is first-order in time. Individual energies need not be conserved;
+combined nonlinear energy is not exactly conserved by the numerical scheme.
+Accordingly, the old static-energy drift and R/T readouts are not shown in this
+mode. Finite grids, walls, strong coupling, sharp measurements, solver phase
+error and safe-copying overhead remain limitations.
+See [browser validation](docs/TWO_CREATURE_BROWSER_VALIDATION.md) and
+[mathematical interaction validation](docs/SOCIAL_INTERACTION_VALIDATION.md).
+
+### Retained single-packet presets
+
+The following controls/readouts describe **Load free exploration** and **Load
+tunnelling demo**, which remain available alongside the new default scene.
+
+Free exploration starts paused with no terrain and **Paint** selected. Use **Play** and **Pause**
 to evolve the packet. Paint and Observe are mutually exclusive. In **Paint**, press/drag inside the plot
 with mouse, touch, or pen. Horizontal position sets the location; brush controls
 set width sigma (0.3–2 spatial units) and height A (0.1–5 energy units). Defaults
@@ -153,6 +218,11 @@ the capture does not itself repeat all device/input acceptance checks.
 
 ![Authentic paused observation in the running app, with sampled-position marker and unclipped localized density](docs/media/observer.png)
 
+In two-creature mode first select A or B; the same detector acts only on that
+creature, with no partner measurement. The white marker follows its selected
+history. The historical screenshots and magenta marker description below refer
+to the retained single-packet mode.
+
 Select **Observe** and click anywhere inside the plot, or focus **Observe particle**
 and press Space/Enter. One action samples one outcome using the existing
 finite-resolution Gaussian POVM. **The click triggers measurement; it does not
@@ -220,8 +290,27 @@ Reproduce the deterministic headless scattering report (existing dev dependencie
 node scripts/scattering-report.mjs
 ```
 
+Run the real Chrome integration checks (uses an installed Chrome, no added packages):
+
+```bash
+node scripts/creature-browser-check.mjs
+node scripts/observer-browser-check.mjs --no-screenshots
+```
+
+Set `CHROME_PATH` if Chrome is not installed at the script's Windows default.
+The new checker can save a temporary genuine screenshot with `--screenshot`;
+legacy `--no-screenshots` preserves existing historical media. Capture the new
+Slice 4 GIF without overwriting historical recordings:
+
+```bash
+node scripts/capture-observer-gif.mjs --creatures
+```
+
 ## Directory structure
 
+- `packages/web/src/world/`: browser-independent Creature and two-creature coordinator
+- `docs/TWO_CREATURE_BROWSER_VALIDATION.md`: controls, browser checks and limitations
+- `scripts/creature-browser-check.mjs`: real Chrome two-creature integration checks
 - `packages/sim-core`: dependency-free numerical state, observables, and tested Crank–Nicolson solver
 - `packages/web`: React + Vite + Canvas renderer and a small Markdown/MathML notebook
 - `packages/web/src/content/notebook/`: browser notebook entries with frontmatter

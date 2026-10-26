@@ -1,5 +1,6 @@
 // Genuine browser recording, not generated simulation frames. No dependencies.
-// Run from repo root: node scripts/capture-observer-gif.mjs
+// Run from repo root: node scripts/capture-observer-gif.mjs [--creatures]
+// --creatures writes Slice 4 media only; historical recordings are preserved.
 // CHROME_PATH can override the Windows default. Ports 5174/9223 must be free.
 import { spawn } from 'node:child_process';
 import { mkdtemp, writeFile, readFile, stat } from 'node:fs/promises';
@@ -7,7 +8,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import assert from 'node:assert/strict';
 
-const temporary = await mkdtemp(join(tmpdir(), 'psi-observer-gif-'));
+const creatures = process.argv.includes('--creatures');
+const output = creatures ? 'docs/media/creatures.gif' : 'docs/media/observer.gif';
+const temporary = await mkdtemp(join(tmpdir(), creatures ? 'psi-creatures-gif-' : 'psi-observer-gif-'));
 const server = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'packages/web', '--host', '127.0.0.1', '--port', '5174', '--strictPort'], { stdio: 'ignore' });
 const chrome = spawn(process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe', [
   '--headless', '--disable-gpu', '--no-first-run', '--no-default-browser-check',
@@ -51,14 +54,25 @@ try {
   await send('Emulation.setDeviceMetricsOverride', { width: 900, height: 1000, deviceScaleFactor: 1, mobile: false });
   await send('Page.navigate', { url: 'http://127.0.0.1:5174' });
   await wait(() => evaluate(`document.querySelector('button') && !document.querySelector('button').disabled`));
+  if (!creatures) {
+    // Keep historical Observer recording on its original single-packet preset.
+    await evaluate(`[...document.querySelectorAll('button')].find(b=>b.textContent==='Load free exploration').click()`);
+    await wait(() => evaluate(`!document.querySelector('.creature-inspector')`));
+  }
   // Presentation-only CSS keeps the real plot, action, result and diagnostics
   // together. No controller hook, physics values, canvas pixels or readouts edited.
-  await evaluate(`window.button = text => [...document.querySelectorAll('button')].find(b=>b.textContent===text);
+  await evaluate(`window.button = text => [...document.querySelectorAll('button')].find(b=>b.textContent.startsWith(text));
     document.querySelectorAll('input[name="interaction"]')[1].click();
     [...document.querySelectorAll('fieldset')].find(f=>f.querySelector('legend').textContent==='Position observation').classList.add('capture-observation');
     const style=document.createElement('style');
     style.textContent='main{padding:16px 24px}.heading h1,.heading p,.brush-controls:not(.capture-observation),main>.plot-note,.scattering-readout,footer,.controls[aria-label="Reproducible experiment selection"]{display:none!important}.terrarium{margin-top:12px}.capture-observation{margin-top:12px}.diagnostics{margin-top:12px}';
     document.head.append(style);`);
+  if (creatures) await evaluate(`(() => {
+    document.querySelector('.creature-inspector').classList.add('capture-inspector');
+    const style=document.createElement('style');
+    style.textContent='.heading .eyebrow{display:block}.capture-inspector .brush-controls,.capture-inspector .bloch-readout,.capture-observation label,.capture-observation button:last-of-type{display:none!important}.capture-inspector h2{margin:12px 0 0}.capture-inspector .diagnostics{margin-top:8px}.terrarium{height:300px}';
+    document.head.append(style);
+  })()`);
   const width = 900;
   // Reserve space for the observation result wrapping onto a new line.
   const height = await evaluate(`Math.ceil(document.querySelector('main>.diagnostics').getBoundingClientRect().bottom+80)`);
@@ -82,7 +96,7 @@ try {
   }
   await capture('initial', 60);
   await evaluate(`button('Play').click()`);
-  await record('initial evolution', 2000);
+  await record(creatures ? 'two-creature mood-driven repulsive encounter' : 'initial evolution', creatures ? 3500 : 2000);
   await evaluate(`button('Observe particle').click()`);
   await capture('measurement and localization', 100);
   const observed = await evaluate(`document.querySelector('.capture-observation [role="status"]').textContent`);
@@ -141,7 +155,7 @@ try {
   }
   parts.push(Buffer.from([0x3b]));
   const gif = Buffer.concat(parts);
-  await writeFile('docs/media/observer.gif', gif);
+  await writeFile(output, gif);
   // Verify every encoded frame with Chrome's native decoder, and export sample
   // decoded frames to the temporary directory for independent visual inspection.
   const decoded = await evaluate(`(async()=>{
@@ -163,7 +177,7 @@ try {
   assert.equal(decoded.count, frames.length); assert.equal(decoded.durationMs, duration);
   for (const sample of decoded.samples) await writeFile(join(temporary, `decoded-${sample.index}.png`), Buffer.from(sample.png, 'base64'));
   const manifest = { browser: (await send('Browser.getVersion')).product, width, height, frameCount: frames.length,
-    bytes: (await stat('docs/media/observer.gif')).size, durationMs: duration, observed, errors,
+    output, bytes: (await stat(output)).size, durationMs: duration, observed, errors,
     decoded: { count: decoded.count, durationMs: decoded.durationMs }, frames };
   await writeFile(join(temporary, 'manifest.json'), JSON.stringify(manifest, null, 2));
   console.log(JSON.stringify({ ...manifest, frames: undefined, temporary }, null, 2));

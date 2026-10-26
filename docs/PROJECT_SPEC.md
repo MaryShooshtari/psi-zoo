@@ -4,6 +4,18 @@
 
 ---
 
+> **Historical design vision, not a statement of current scientific scope.**
+> Slice 4 implements two independent spatial states with deterministic mean-field
+> density coupling and one-way mood-expectation forces. It does **not** implement
+> entanglement or coherent interference between creatures: two independent
+> densities do not interfere simply by overlapping. Its Gaussian observation is
+> a finite-resolution POVM update, not an exact orthogonal projection. CN is
+> unitary for a Hermitian discrete H in exact arithmetic; the TypeScript solver
+> preserves norm only to floating-point error, and frozen-density social feedback
+> is first-order in time, not exactly energy conserving. See the
+> [current model and acceptance evidence](TWO_CREATURE_BROWSER_VALIDATION.md).
+> Aspirational mechanics and simplified claims below must be read in that light.
+
 ## 1. What this project is
 
 **Psi Zoo** is a browser-based interactive world in which the creatures are not *decorated* with physics — they *are* the physics. Each creature is a real wavefunction ψ(x, t), simulated honestly with the Schrödinger equation. It drifts, spreads, interferes, and tunnels through walls. Each creature also has a personality: its "mood" is a genuine two-level quantum system (a qubit on the Bloch sphere) that steers its behaviour. A companion Lean 4 repository proves the mathematical core of the simulation.

@@ -2,6 +2,10 @@ export { createPsiGrid, normSquared } from './grid';
 export type { PsiGrid } from './grid';
 export type { Stepper } from './stepper';
 export {
+  createQubitState, createBasisQubit, validateQubitState, qubitNormSquared,
+  evolveQubit, blochVector, type QubitState, type QubitHamiltonian, type BlochVector,
+} from './qubit';
+export {
   measurePosition, positionMeasurementProbabilities, type PositionMeasurementResult,
 } from './measurement';
 export { probabilityRegions, type RegionProbabilities } from './regions';

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   SimulationPlayback, BRUSH_LIMITS, DEFAULT_BRUSH, TERRAIN_MAX_HEIGHT,
   DEFAULT_INITIAL_MOMENTUM, INITIAL_MOMENTUM_LIMIT, MEASUREMENT_LIMITS,
+  DEFAULT_SOCIAL_COUPLING, SOCIAL_COUPLING_LIMIT,
   type SimulationSnapshot, type SimulationMode,
 } from './simulation';
 import { bindPotentialPainting, type PaintingBinding } from './painting';
@@ -9,6 +10,7 @@ import { drawSimulation } from './plot';
 import { bindObservation } from './observation';
 import { SCATTERING_CONFIG } from '@psi-zoo/sim-core';
 import { Notebook } from './Notebook';
+import { CreatureInspector } from './CreatureInspector';
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -25,7 +27,9 @@ export default function App() {
   const [brush, setBrush] = useState(DEFAULT_BRUSH);
   const [initialMomentum, setInitialMomentum] = useState(DEFAULT_INITIAL_MOMENTUM);
   const initialMomentumRef = useRef(DEFAULT_INITIAL_MOMENTUM);
-  const modeRef = useRef<SimulationMode>('exploration');
+  const modeRef = useRef<SimulationMode>('creatures');
+  const [coupling, setCoupling] = useState(DEFAULT_SOCIAL_COUPLING);
+  const couplingRef = useRef(DEFAULT_SOCIAL_COUPLING);
   // Native pointer listeners read current controls without effect reattachment.
   const settingsRef = useRef({ enabled: true, observing: false, brush: DEFAULT_BRUSH });
 
@@ -52,7 +56,9 @@ export default function App() {
         canvas.width = backingWidth; canvas.height = backingHeight;
       }
       context.setTransform(backingWidth / width, 0, 0, backingHeight / height, 0, 0);
-      drawSimulation(context, controller.psi, controller.potential, width, height, controller.lastObservation?.position ?? null);
+      const pair = controller.creatureStates;
+      drawSimulation(context, pair?.a.psi ?? controller.psi, controller.potential, width, height,
+        controller.lastObservation?.position ?? null, pair?.b.psi ?? null);
     };
     const controller = new SimulationPlayback({
       request: callback => requestAnimationFrame(callback),
@@ -68,10 +74,12 @@ export default function App() {
       else if (publishTimer === undefined) publishTimer = setTimeout(publish, delay);
     });
     // Preserve the selected initial condition if a development effect remounts.
-    if (modeRef.current === 'scattering') controller.loadScatteringDemo();
+    controller.setSocialCoupling(couplingRef.current);
+    if (modeRef.current === 'creatures') controller.loadCreatureDemo();
+    else if (modeRef.current === 'scattering') controller.loadScatteringDemo();
     controller.setInitialMomentum(initialMomentumRef.current);
     controller.setMeasurementResolution(resolutionRef.current);
-    if (controller.initialMomentum !== DEFAULT_INITIAL_MOMENTUM || modeRef.current === 'scattering') controller.reset();
+    if (modeRef.current !== 'creatures' && (controller.initialMomentum !== DEFAULT_INITIAL_MOMENTUM || modeRef.current === 'scattering')) controller.reset();
     playbackRef.current = controller;
     const refresh = () => { draw(); latest = controller.snapshot(); publish(); };
     refreshRef.current = refresh;
@@ -115,13 +123,13 @@ export default function App() {
     };
   }, []);
 
-  const control = (action: 'play' | 'pause' | 'reset' | 'clearTerrain' | 'loadScatteringDemo' | 'loadFreeExploration' | 'observe') => {
+  const control = (action: 'play' | 'pause' | 'reset' | 'clearTerrain' | 'loadScatteringDemo' | 'loadFreeExploration' | 'loadCreatureDemo' | 'observe') => {
     const controller = playbackRef.current;
     if (!controller) return;
     try {
       if (action !== 'play' && action !== 'pause') paintingRef.current?.cancelStroke();
       controller[action]();
-      if (action === 'loadScatteringDemo' || action === 'loadFreeExploration') {
+      if (action === 'loadScatteringDemo' || action === 'loadFreeExploration' || action === 'loadCreatureDemo') {
         settingsRef.current.enabled = true; settingsRef.current.observing = false; setInteractionMode('paint');
         modeRef.current = controller.snapshot().mode;
         initialMomentumRef.current = controller.initialMomentum; setInitialMomentum(controller.initialMomentum);
@@ -166,6 +174,12 @@ export default function App() {
     const next = { ...settingsRef.current.brush, [key]: value };
     settingsRef.current.brush = next; setBrush(next);
   };
+  const changeCoupling = (value: number) => {
+    if (!Number.isFinite(value) || Math.abs(value) > SOCIAL_COUPLING_LIMIT) return;
+    playbackRef.current?.setSocialCoupling(value);
+    couplingRef.current = value; setCoupling(value);
+  };
+  const creatures = (snapshot?.mode ?? modeRef.current) === 'creatures';
   const error = setupError ?? snapshot?.error;
   const demo = snapshot?.mode === 'scattering';
   const extent = demo ? SCATTERING_CONFIG.halfExtent : 20;
@@ -184,12 +198,12 @@ export default function App() {
   return (
     <main>
       <div className="heading">
-        <div className="eyebrow">PSI ZOO · SLICE 3</div>
+        <div className="eyebrow">PSI ZOO · SLICE 4D</div>
         <h1>A little world for wavefunctions.</h1>
-        <p>Paint a potential landscape or observe the wave packet, then watch it evolve under Schrödinger dynamics — no scripted motion or per-step normalization.</p>
+        <p>Two quantum creatures, one shared landscape. Watch their densities respond to mood-driven forces and mean-field attraction or repulsion — no scripted motion.</p>
       </div>
       <canvas className={`terrarium ${interactionMode === 'paint' ? 'painting' : 'observing'}`} ref={canvasRef} role="img"
-        aria-label={`Numerically evolved density and potential, x from −${extent} to ${extent}. Density left axis 0 to 10.5, square-root spaced; potential right axis 0 to 5, linear. Region cuts at −4 and 4.`}
+        aria-label={`Numerically evolved ${creatures ? 'Creature A cyan solid and Creature B rose dashed independent densities, and shared terrain' : 'density and potential'}, x from −${extent} to ${extent}. Density left axis 0 to 10.5, square-root spaced; terrain right axis 0 to 5, linear.`}
         aria-describedby="painting-help observation-help" />
       <div className="controls" aria-label="Simulation controls">
         <button onClick={() => control('play')} disabled={!snapshot || snapshot.playing || !!error}>Play</button>
@@ -199,13 +213,30 @@ export default function App() {
         <span role="status">{error ? 'Stopped — numerical or rendering error' : snapshot?.playing ? 'Playing' : 'Paused'}</span>
       </div>
       <div className="controls" aria-label="Reproducible experiment selection">
+        <button onClick={() => control('loadCreatureDemo')} disabled={!snapshot || !!setupError}>Load two-creature demo</button>
         <button onClick={() => control('loadScatteringDemo')} disabled={!snapshot || !!setupError}>Load tunnelling demo</button>
         <button onClick={() => control('loadFreeExploration')} disabled={!snapshot || !!setupError}>Load free exploration</button>
       </div>
-      <p className="plot-note">Loading a preset pauses and replaces packet, terrain, time and momentum selection; interaction returns to Paint and the observation RNG rewinds. {demo
+      {creatures && <>
+        <fieldset className="brush-controls" disabled={!snapshot || !!setupError}>
+          <legend>Social coupling · applies on Reset</legend>
+          <label>Pending g = {coupling.toFixed(1)}
+            <input aria-label="Social coupling" type="range" min={-SOCIAL_COUPLING_LIMIT} max={SOCIAL_COUPLING_LIMIT} step="0.5"
+              value={coupling} onChange={event => changeCoupling(event.currentTarget.valueAsNumber)} />
+          </label>
+          <button onClick={() => control('reset')}>Apply coupling &amp; Reset</button>
+          <span>Active g = {number(snapshot?.coupling, 1)} · {snapshot?.coupling === 0 ? 'independent' : (snapshot?.coupling ?? 0) < 0 ? 'attractive' : 'repulsive'}</span>
+        </fieldset>
+        <p className="plot-note">g &lt; 0 attracts · g = 0 is independent · g &gt; 0 repels. Select −3, 0, or +3 and Apply coupling &amp; Reset to compare identical starting packets with the same terrain. Reset pauses, preserves terrain, and rewinds observations. Load two-creature demo clears terrain too.</p>
+        <CreatureInspector selected={snapshot?.selectedCreature ?? 'a'} inspection={snapshot?.inspection}
+          onSelect={id => { playbackRef.current?.selectCreature(id); refreshRef.current?.(); }} />
+      </>}
+      <p className="plot-note">Loading a preset pauses and replaces states, terrain and time; interaction returns to Paint and the observation RNG rewinds. {creatures
+        ? 'Two-creature preset: x ∈ [−20,20], centers −1.5 and +1.5, density σ=0.8, momenta +0.5 and −0.5. Opposite initial rz, mood H=0.6σx+0.15σz and drive F0=0.12. The densities meet through numerical evolution.'
+        : demo
         ? 'Validated preset reference: x ∈ [−120,120], packet xc=−24, σ=3, p₀=1.5; Gaussian barrier A=1.8, width=0.6, center=0. Initial mean kinetic energy ≈1.137, momentum spread Δp=1/6; its incident over-barrier tail is less than 1% but is not zero. Keep the loaded preset unchanged for quantitative R/T. Reset uses selected momentum and preserves terrain rather than reloading the barrier.'
         : 'Free exploration: x ∈ [−20,20], packet xc=−5, σ=1, initial p₀=0.75 and no terrain.'}</p>
-      <fieldset className="brush-controls" disabled={!snapshot || !!setupError}>
+      {!creatures && <fieldset className="brush-controls" disabled={!snapshot || !!setupError}>
         <legend>Initial wave packet · applies on Reset</legend>
         <label>Initial momentum p₀ = {initialMomentum.toFixed(2)} (ℏ = m = 1)
           <input type="range" min={-INITIAL_MOMENTUM_LIMIT} max={INITIAL_MOMENTUM_LIMIT} step="0.25"
@@ -213,7 +244,7 @@ export default function App() {
             onChange={event => changeInitialMomentum(event.currentTarget.valueAsNumber)} />
         </label>
         <span id="momentum-help" className="plot-note">Negative: left · zero: spreading without drift · positive: right (free motion). Select, then Reset to apply. Selection does not change the live packet or terrain. Default p₀ = 0.75; |p₀Δx| ≤ 0.15.</span>
-      </fieldset>
+      </fieldset>}
       <fieldset className="brush-controls" disabled={!snapshot || !!error}>
         <legend>Interaction mode</legend>
         <label className="painting-toggle"><input type="radio" name="interaction" checked={interactionMode === 'paint'}
@@ -228,7 +259,7 @@ export default function App() {
             value={resolution} aria-describedby="observation-help"
             onChange={event => changeResolution(event.currentTarget.valueAsNumber)} />
         </label>
-        <button onClick={() => control('observe')} disabled={interactionMode !== 'observe'}>Observe particle</button>
+        <button onClick={() => control('observe')} disabled={interactionMode !== 'observe'}>Observe particle{creatures ? ` · Creature ${(snapshot?.selectedCreature ?? 'a').toUpperCase()}` : ''}</button>
         <button ref={notebookTrigger} onClick={openNotebook} aria-haspopup="dialog"
           aria-controls="observer-notebook" aria-expanded={notebookOpen}>Why did it jump?</button>
         <span role="status">{snapshot?.observation
@@ -236,7 +267,8 @@ export default function App() {
           : 'No position observed yet.'}</span>
       </fieldset>
       {notebookOpen && <Notebook observation={snapshot?.observation ?? null} onClose={closeNotebook} />}
-      <p id="observation-help" className="plot-note">In Observe mode, click anywhere inside the plot or activate Observe particle with the keyboard. The click only triggers measurement: the Born distribution samples the outcome, not the click location. Lower resolution σ means a sharper finite-resolution Gaussian measurement, not exact coordinate projection. The magenta line and diamond mark the last sampled position, not a tracked particle. Observe while paused or playing; Play continues evolution and re-spreading. Reset clears the result and rewinds the seeded random sequence; the selected resolution is retained.</p>
+      {creatures && <p className="plot-note">Observation targets only the selected creature. Its partner and both moods are unchanged; the next social potential responds to the new density. This mean-field model is not entangled. The white line/diamond marks the selected creature’s last sampled position, not a tracked particle.</p>}
+      <p id="observation-help" className="plot-note">In Observe mode, click anywhere inside the plot or activate Observe particle with the keyboard. The click only triggers measurement: the Born distribution samples the outcome, not the click location. Lower resolution σ means a sharper finite-resolution Gaussian measurement, not exact coordinate projection. The marker line and diamond mark the last sampled position, not a tracked particle. Observe while paused or playing; Play continues evolution and re-spreading. Reset clears the result and rewinds the seeded random sequence; the selected resolution is retained.</p>
       <fieldset className="brush-controls" disabled={!snapshot || !!error}>
         <legend>Potential painting</legend>
         <label>Brush width σ = {brush.sigma.toFixed(1)} (x units)
@@ -248,15 +280,15 @@ export default function App() {
             onChange={event => changeBrush('amplitude', event.currentTarget.valueAsNumber)} />
         </label>
       </fieldset>
-      <p id="painting-help" className="plot-note">Select Paint mode, then press and drag inside the plot with mouse, touch, or pen. Horizontal position sets the barrier location; vertical position does not set its height. Painting raises terrain, never adds repeatedly. Brush changes apply to the next stroke. Reset pauses and restores the packet/time using the selected initial momentum, preserving terrain. Clear Terrain removes only the barriers.</p>
+      <p id="painting-help" className="plot-note">Select Paint mode, then press and drag inside the plot with mouse, touch, or pen. Horizontal position sets the barrier location; vertical position does not set its height. Painting raises terrain, never adds repeatedly. Brush changes apply to the next stroke. Reset pauses and restores the initial states/time (and selected momentum in single-packet modes), preserving terrain. Clear Terrain removes only the barriers.</p>
       {error && <p className="error" role="alert">{error} {snapshot?.error && 'Reset to restore the initial state.'}</p>}
       <div className="diagnostics" aria-label="Simulation diagnostics">
         <span><strong>Physical time:</strong> {number(snapshot?.time, 2)}</span>
         <span><strong>Probability norm:</strong> {number(snapshot?.norm, 10)}</span>
-        <span><strong>Energy ⟨ψ|H|ψ⟩:</strong> {number(snapshot?.energy, 8)}</span>
-        <span><strong>Energy drift since last update:</strong> {number(snapshot?.energyDrift, 10)}</span>
+        {!creatures && <><span><strong>Energy ⟨ψ|H|ψ⟩:</strong> {number(snapshot?.energy, 8)}</span>
+        <span><strong>Energy drift since last update:</strong> {number(snapshot?.energyDrift, 10)}</span></>}
       </div>
-      <section className="scattering-readout" aria-label="Scattering probability regions">
+      {!creatures && <section className="scattering-readout" aria-label="Scattering probability regions">
         <h2>Probability regions · cuts at x = −4 and +4</h2>
         <div className="diagnostics">
           <span><strong>P_left (x &lt; −4):</strong> {number(snapshot?.regions?.left, 6)}</span>
@@ -270,12 +302,13 @@ export default function App() {
           <span><strong>T estimate:</strong> {number(snapshot?.transmission ?? undefined, 4)}</span>
         </div>
         <p className="plot-note">All masses come from the actual wavefunction, with disjoint dx-weighted samples. P_left includes the incident packet before collision; it is not then reflection. Only the unchanged left-incident demo, after separation and before wall returns, supplies R/T estimates. Gray dotted lines mark the reference cuts, not hard walls. The demo's transmitted mass exceeds a conservative incident over-barrier-tail bound; a below-peak mean energy alone would not establish tunnelling.</p>
-      </section>
+      </section>}
       <footer>
         <span><strong>Evolution:</strong> Crank–Nicolson · Δt = {demo ? SCATTERING_CONFIG.dt : 0.01} · ℏ = m = 1</span>
         <span><strong>Grid:</strong> {demo ? 2401 : 401} points · Δx = 0.1 · fixed zero endpoints</span>
       </footer>
-      <p className="plot-note">Cyan: probability density, fixed square-root-spaced left scale 0–10.5 (not linear). Dashed amber: V(x), independent linear right scale 0–5. Density ticks are actual |ψ|² values; screen area under this nonlinear curve is not probability. The fixed density range includes the normalized-grid maximum 1/Δx = 10 with headroom, so sharp measurement peaks remain visible without autoscaling. Norm is conserved up to roundoff; energy is conserved during evolution with fixed V, not during measurement, painting or clearing. The energy-drift reference resets after these updates and Reset. At long times the packet reflects from the Dirichlet walls. Playback pauses in background tabs; long frame stalls slow simulated time rather than skipping physics steps.</p>
+      {creatures ? <p className="plot-note">Cyan solid: |ψA|². Rose short-dashed: |ψB|². Translucent fills identify each density, not phase, extra probability, or interference. Curves share a fixed square-root-spaced density axis; geometric screen area is not probability. Amber long-dashed: shared terrain only, not mood/social potentials. Dotted gray lines are reference positions, not walls. Density overlap is not coherent quantum interference: no amplitudes are summed. Social feedback uses g times the other density, a deterministic mean-field approximation, not entanglement. Each norm is preserved to roundoff, not each energy. Frozen-density coupling is first-order in time; strong coupling, sharp measurements, finite spacing and wall reflections limit accuracy. World snapshots/potentials are copied for safe ownership. Background tabs pause; stalls never enlarge physics dt.</p>
+        : <p className="plot-note">Cyan: probability density, fixed square-root-spaced left scale 0–10.5 (not linear). Dashed amber: V(x), independent linear right scale 0–5. Density ticks are actual |ψ|² values; screen area under this nonlinear curve is not probability. The fixed density range includes the normalized-grid maximum 1/Δx = 10 with headroom, so sharp measurement peaks remain visible without autoscaling. Norm is conserved up to roundoff; energy is conserved during evolution with fixed V, not during measurement, painting or clearing. The energy-drift reference resets after these updates and Reset. At long times the packet reflects from the Dirichlet walls. Playback pauses in background tabs; long frame stalls slow simulated time rather than skipping physics steps.</p>}
     </main>
   );
 }

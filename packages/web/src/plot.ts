@@ -18,10 +18,12 @@ export function densityPlotFraction(density: number, dx: number): number {
 
 /** Independent fixed y scales: sqrt-spaced density left, linear V=[0,5] right.
  * Direct array traversal; no copied density/potential buffers per draw.
+ * Optional secondPsi shares the grid (enforced by the world coordinator).
+ * Colours/patterns identify creatures, never relative phase or interference.
  */
 export function drawSimulation(
   context: CanvasRenderingContext2D, psi: PsiGrid, potential: Float64Array, width: number, height: number,
-  observedPosition: number | null = null,
+  observedPosition: number | null = null, secondPsi: PsiGrid | null = null,
 ): void {
   const { left, right, top, bottom } = plotBounds(width, height);
   const plotWidth = right - left, plotHeight = bottom - top;
@@ -53,8 +55,9 @@ export function drawSimulation(
   context.save(); context.translate(width - 12, (top + bottom) / 2); context.rotate(Math.PI / 2);
   context.fillStyle = '#ffc477'; context.fillText('V(x)', 0, 0); context.restore();
   context.textAlign = 'left'; context.fillStyle = '#a8f9fc';
-  context.fillText(`Density |ψ|² · sqrt-spaced axis · 0–${densityScaleMaximum(psi.dx).toFixed(1)}`, left, 22);
-  context.fillStyle = '#ffc477'; context.fillText('Potential V(x) · right axis', left, 42);
+  context.fillText(secondPsi ? 'A: cyan solid · B: rose dashed'
+    : `Density |ψ|² · sqrt-spaced axis · 0–${densityScaleMaximum(psi.dx).toFixed(1)}`, left, 22);
+  context.fillStyle = '#ffc477'; context.fillText(secondPsi ? 'Shared terrain only · right axis' : 'Potential V(x) · right axis', left, 42);
 
   context.save(); context.beginPath(); context.rect(left, top, plotWidth, plotHeight); context.clip();
   // Potential drawn first so density remains legible over the terrain.
@@ -67,15 +70,20 @@ export function drawSimulation(
   context.setLineDash([]);
   context.lineTo(right, bottom); context.lineTo(left, bottom); context.closePath();
   context.fillStyle = 'rgba(255,180,90,0.12)'; context.fill();
-  context.beginPath();
-  for (let i = 0; i < psi.count; i++) {
-    const density = psi.values[2 * i]! ** 2 + psi.values[2 * i + 1]! ** 2;
-    const x = px(i / (psi.count - 1)), y = py(densityPlotFraction(density, psi.dx));
-    if (i === 0) context.moveTo(x, y); else context.lineTo(x, y);
-  }
-  context.strokeStyle = '#a8f9fc'; context.lineWidth = 2; context.stroke();
-  context.lineTo(right, bottom); context.lineTo(left, bottom); context.closePath();
-  context.fillStyle = 'rgba(86,188,229,0.18)'; context.fill();
+  // Independent density traversal: never add complex amplitudes or stack curves.
+  const drawDensity = (state: PsiGrid, colour: string, fill: string, dash: number[]) => {
+    context.beginPath();
+    for (let i = 0; i < state.count; i++) {
+      const density = state.values[2 * i]! ** 2 + state.values[2 * i + 1]! ** 2;
+      const x = px(i / (state.count - 1)), y = py(densityPlotFraction(density, state.dx));
+      if (i === 0) context.moveTo(x, y); else context.lineTo(x, y);
+    }
+    context.setLineDash(dash); context.strokeStyle = colour; context.lineWidth = 2; context.stroke();
+    context.lineTo(right, bottom); context.lineTo(left, bottom); context.closePath();
+    context.fillStyle = fill; context.fill();
+  };
+  drawDensity(psi, '#a8f9fc', 'rgba(86,188,229,0.18)', []);
+  if (secondPsi) drawDensity(secondPsi, '#f49bdf', 'rgba(244,155,223,0.12)', [3, 3]);
   context.strokeStyle = '#8394ae'; context.lineWidth = 1; context.setLineDash([2, 4]);
   for (const cut of [SCATTERING_CONFIG.leftEdge, SCATTERING_CONFIG.rightEdge]) {
     const x = px((cut - psi.x0) / ((psi.count - 1) * psi.dx));
@@ -83,11 +91,11 @@ export function drawSimulation(
   }
   if (observedPosition !== null) {
     const x = px((observedPosition - psi.x0) / ((psi.count - 1) * psi.dx));
-    // Magenta solid line and diamond distinguish the last observed position
-    // from cyan density, amber terrain and gray dotted region cuts.
-    context.setLineDash([]); context.strokeStyle = '#f49bdf'; context.lineWidth = 2;
+    // White in pair mode (distinct from rose B), magenta in single-state mode:
+    // the solid line/diamond records an outcome, never a tracked trajectory.
+    context.setLineDash([]); context.strokeStyle = secondPsi ? '#ffffff' : '#f49bdf'; context.lineWidth = 2;
     context.beginPath(); context.moveTo(x, top); context.lineTo(x, bottom); context.stroke();
-    context.fillStyle = '#f49bdf'; context.beginPath();
+    context.fillStyle = secondPsi ? '#ffffff' : '#f49bdf'; context.beginPath();
     context.moveTo(x, top + 2); context.lineTo(x + 6, top + 9);
     context.lineTo(x, top + 16); context.lineTo(x - 6, top + 9); context.closePath(); context.fill();
   }

@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import assert from 'node:assert/strict';
 
+const captureScreenshots = !process.argv.includes('--no-screenshots');
 const chromePath = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const profile = await mkdtemp(join(tmpdir(), 'psi-observer-'));
 const server = spawn(process.execPath, ['node_modules/vite/bin/vite.js', 'packages/web', '--host', '127.0.0.1', '--port', '5174', '--strictPort'], { stdio: 'pipe' });
@@ -67,6 +68,9 @@ try {
   ` });
   await send('Page.navigate', { url: 'http://127.0.0.1:5174' });
   await retry(() => evaluate(`document.querySelector('button') && !document.querySelector('button').disabled && window.__plot.density?.length === 401`));
+  // This regression targets the original single-packet scene, not the new default.
+  await evaluate(`[...document.querySelectorAll('button')].find(b=>b.textContent==='Load free exploration').click()`);
+  await retry(() => evaluate(`!document.querySelector('.creature-inspector')`));
   await evaluate(`window.button = text => [...document.querySelectorAll('button')].find(b => b.textContent === text);
     window.diagnostic = label => [...document.querySelectorAll('.diagnostics span')].find(e => e.textContent.startsWith(label))?.textContent.split(':').slice(1).join(':').trim();
     window.variance = () => { const p = __plot.density.map(([x,y],i) => ({x:-20+i*0.1,w:10.5*((292-y)/232)**2*0.1})); const norm=p.reduce((s,v)=>s+v.w,0);const mean=p.reduce((s,v)=>s+v.x*v.w,0)/norm;return p.reduce((s,v)=>s+(v.x-mean)**2*v.w,0)/norm; };
@@ -111,18 +115,22 @@ try {
   check('11a. Keyboard Space observes exactly once', await evaluate('count()===1'));
   // Capture the genuine paused measurement, including diagnostics, in one full-page screenshot.
   await evaluate('window.scrollTo(0,0)');
-  await mkdir('docs/media', { recursive: true });
-  const layout = await send('Page.getLayoutMetrics');
-  const screenshot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true,
-    clip: { x: 0, y: 0, width: 1280, height: Math.ceil(layout.cssContentSize.height), scale: 1 } });
-  await writeFile('docs/media/observer.png', Buffer.from(screenshot.data, 'base64'));
+  if (captureScreenshots) {
+    await mkdir('docs/media', { recursive: true });
+    const layout = await send('Page.getLayoutMetrics');
+    const screenshot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true,
+      clip: { x: 0, y: 0, width: 1280, height: Math.ceil(layout.cssContentSize.height), scale: 1 } });
+    await writeFile('docs/media/observer.png', Buffer.from(screenshot.data, 'base64'));
+  }
   await evaluate(`button('Why did it jump?').click()`);
   await retry(() => evaluate(`document.querySelector('dialog')?.open`));
   await evaluate(`document.querySelectorAll('dialog details').forEach(e=>e.open=true)`);
   check('10a. Notebook opens, pauses, and renders valid native MathML and current example', await evaluate(`(() => { const math=[...document.querySelectorAll('dialog math')]; return math.length===6 && math.every(m=>m.namespaceURI==='http://www.w3.org/1998/Math/MathML' && m.getBoundingClientRect().height>15 && !new DOMParser().parseFromString(m.outerHTML,'application/xml').querySelector('parsererror')) && document.querySelector('.notebook-example').textContent.includes('P(j)') && !button('Play').disabled; })()`));
   await evaluate(`document.querySelector('dialog details').scrollIntoView({block:'start'})`);
-  const notebookShot = await send('Page.captureScreenshot', { format: 'png' });
-  await writeFile('docs/media/observer-notebook.png', Buffer.from(notebookShot.data, 'base64'));
+  if (captureScreenshots) {
+    const notebookShot = await send('Page.captureScreenshot', { format: 'png' });
+    await writeFile('docs/media/observer-notebook.png', Buffer.from(notebookShot.data, 'base64'));
+  }
   await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
   await send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
   await retry(() => evaluate(`!document.querySelector('dialog')`));
@@ -137,7 +145,7 @@ try {
   check('10c. Close button permits continued playback', await evaluate(`!document.querySelector('dialog') && Number(diagnostic('Physical time'))>0.1`));
   if (errors.length) console.error('Browser errors:', JSON.stringify(errors));
   check('12. No browser console/runtime errors', errors.length === 0);
-  console.log(JSON.stringify({ browser: (await send('Browser.getVersion')).product, checks: results, errors, screenshots: ['docs/media/observer.png', 'docs/media/observer-notebook.png'] }, null, 2));
+  console.log(JSON.stringify({ browser: (await send('Browser.getVersion')).product, checks: results, errors, screenshots: captureScreenshots ? ['docs/media/observer.png', 'docs/media/observer-notebook.png'] : [] }, null, 2));
   await send('Browser.close');
 } finally {
   socket?.close(); chrome.kill(); server.kill();

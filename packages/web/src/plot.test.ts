@@ -3,6 +3,29 @@ import { createPsiGrid, measurePosition } from '@psi-zoo/sim-core';
 import { SimulationPlayback } from './simulation';
 import { drawSimulation, plotBounds, densityScaleMaximum, densityPlotFraction } from './plot';
 
+it('draws two independent densities, including imaginary amplitudes, on the same physical coordinate scale', () => {
+  const a = createPsiGrid(5, 0.5, -1), b = createPsiGrid(5, 0.5, -1);
+  a.values[2] = 1; b.values[3] = -1; // Same density despite different complex phases.
+  b.values[6] = 0.5;
+  const beforeA = a.values.slice(), beforeB = b.values.slice();
+  const paths: { colour: string; dash: number[]; points: number[][] }[] = [];
+  let points: number[][] = [], dash: number[] = [];
+  const { context } = mockContext();
+  context.beginPath = () => { points = []; };
+  context.moveTo = context.lineTo = (x, y) => { points.push([x, y]); };
+  context.setLineDash = values => { dash = [...values]; };
+  context.stroke = () => { paths.push({ colour: String(context.strokeStyle), dash, points: [...points] }); };
+  drawSimulation(context, a, new Float64Array(5), 800, 340, null, b);
+  const pathA = paths.find(p => p.colour === '#a8f9fc' && p.points.length === 5)!;
+  const pathB = paths.find(p => p.colour === '#f49bdf' && p.points.length === 5)!;
+  const { left, right, bottom, top } = plotBounds(800, 340);
+  expect(pathA.points[1]).toEqual([left + (right - left) / 4, bottom - densityPlotFraction(1, 0.5) * (bottom - top)]);
+  expect(pathB.points[1]).toEqual(pathA.points[1]); // Not summed/cancelled amplitudes.
+  expect(pathB.points[3]![1]).toBe(bottom - densityPlotFraction(0.25, 0.5) * (bottom - top));
+  expect(pathA.dash).toEqual([]); expect(pathB.dash).toEqual([3, 3]);
+  expect(a.values).toEqual(beforeA); expect(b.values).toEqual(beforeB);
+});
+
 function mockContext() {
   const methods = new Map<string, ReturnType<typeof vi.fn>>();
   const context = new Proxy({} as CanvasRenderingContext2D, {

@@ -45,7 +45,7 @@
   simulation through t=44, with accelerated presentation only. See
   [results, limitations, browser acceptance and capture provenance](SCATTERING_VALIDATION.md).
 
-## Current: Slice 3 — observer (functionally approved)
+## Slice 3 — observer (functionally approved)
 - Phase 3A: boundary-normalized Gaussian POVM probabilities, injected sampling,
   normalized phase-preserving update, and numerical measurement/CN tests.
 - Phase 3B: Paint/Observe modes, seeded controller-owned RNG, sampled-position
@@ -62,8 +62,19 @@
   measurement/localization and re-spreading in the README. Final release checks
   pass; committing and pushing remain manual steps, with no automatic commit.
 
-## Slice 4 — creature
-Qubit, Bloch inspection, mood coupling to V, interactions. Confirm scientific model.
+## Current: Slice 4 — creature
+- 4A: pure qubit exponential and Bloch extraction; [validation](QUBIT_VALIDATION.md).
+- 4B: owned Creature with midpoint mood drive through V; [validation](CREATURE_VALIDATION.md).
+- 4C: atomic synchronized pair with explicit frozen-density contact interaction;
+  [model, refinement and limitations](SOCIAL_INTERACTION_VALIDATION.md).
+- 4D implemented for review: default two-creature browser scene, selection/Bloch
+  inspection, reset-applied coupling, shared painting, selected observation, and
+  retained single-packet presets/notebook. Final review: 296 tests, typecheck/build,
+  DOM-free compilation, 22 pair/preset Chrome checks and 14 Observer regressions
+  pass. Default-mood counterfactual verifies a modest real force effect; authentic
+  [Slice 4 GIF](media/creatures.gif) now leads the README. Full manual device
+  acceptance remains separate; no automatic commit, push, or next-slice work.
+  [Controls and browser validation](TWO_CREATURE_BROWSER_VALIDATION.md).
 
 ## Slice 5+ — terrarium
 2D ADI solver (validated); explore genuinely joint entangled states when ready.
