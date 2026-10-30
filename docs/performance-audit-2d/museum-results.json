@@ -1,0 +1,3330 @@
+{
+  "phase": "5E.4",
+  "status": "Implemented for independent review. Functional/numerical/bounded accessibility checks pass. Historical sustained performance and real AT/device acceptance remain open. Stop before any next phase.",
+  "checks": {
+    "tests": 421,
+    "testFiles": 40,
+    "museumProjectionBrowser": 77,
+    "creatureProjectionBrowser": 51,
+    "shellBrowser": 36,
+    "worldBrowser": 30,
+    "gaussianTerrainBrowser": 21,
+    "legacyCreatureBrowser": 22,
+    "observerBrowser": 15,
+    "browserExecutions": 252,
+    "browserWithoutRepeatedProjection": 229,
+    "typecheck": true,
+    "build": true,
+    "domFreeWorldCompile": true,
+    "performanceEntryCompile": true,
+    "scriptSyntax": true,
+    "diffCheck": true,
+    "noShippedAuditHooks": true
+  },
+  "protectedSource": [
+    {
+      "path": "packages/sim-core/src/adi2d.ts",
+      "sha256": "3b89a34ff96cfb1746d5454143ec81b7ae9e57f9b52a39cdd952971104add424"
+    },
+    {
+      "path": "packages/sim-core/src/crankNicolson.ts",
+      "sha256": "d8ffc407be235be9725103a77bc084db9cc15630dab5a57b310dfcefc724870c"
+    },
+    {
+      "path": "packages/sim-core/src/gaussian.ts",
+      "sha256": "f5359312ddbc96cc31d62f63dee2a304867bdfcb53c770c55ec6f12800c62b44"
+    },
+    {
+      "path": "packages/sim-core/src/gaussian2d.ts",
+      "sha256": "eccbd41009d35234311384701eff0b81bb26dafdac530959270c857008b5a493"
+    },
+    {
+      "path": "packages/sim-core/src/grid.ts",
+      "sha256": "dff48343bc91dc999d93b1a16e2a35a1b89a44c1be32e9aec04daf78400a9291"
+    },
+    {
+      "path": "packages/sim-core/src/grid2d.ts",
+      "sha256": "faffdf33d52c6eeaf52a0a28a4e1494a8c2eba7e25a8ace1560d250ff266f84d"
+    },
+    {
+      "path": "packages/sim-core/src/hamiltonian.ts",
+      "sha256": "b5dfb490e8b28bbc2da6f8ba312d3c33f0b52990ae3d2e63f1fe505ebf80dced"
+    },
+    {
+      "path": "packages/sim-core/src/index.ts",
+      "sha256": "05eb9ea37b7f78d5e37b0751771c696a0b510b269c1cf5751d0d1cd1648a9911"
+    },
+    {
+      "path": "packages/sim-core/src/interaction2d.ts",
+      "sha256": "6ce5d0ee9e87dd277ccd614acffeefa7632297d9fdc31302402258a9c185c21f"
+    },
+    {
+      "path": "packages/sim-core/src/joint-qubit.ts",
+      "sha256": "afa6736eff2b94a8bf6e722bdc7de154360c7d7e5f4e3ef103d4aecca2112f6e"
+    },
+    {
+      "path": "packages/sim-core/src/math.ts",
+      "sha256": "c5f564d9a0e0ba6c9444c5bb675c79a11f52c778d645ec81acb4d82b5ab6badd"
+    },
+    {
+      "path": "packages/sim-core/src/measurement.ts",
+      "sha256": "5f03c6ba8ca128538025f8bb46d224edfd2b68979519dc0d19810a0fbf62f000"
+    },
+    {
+      "path": "packages/sim-core/src/observables2d.ts",
+      "sha256": "59bcb1ed0ccd261fe6603ab471c7d9c9663fba2fbc930cd5ce1c38efa85e08f3"
+    },
+    {
+      "path": "packages/sim-core/src/potential.ts",
+      "sha256": "d8ab5824d45e166841e19c858a56298e14384b5d9646d26828dd4d3c4747324b"
+    },
+    {
+      "path": "packages/sim-core/src/potential2d.ts",
+      "sha256": "a022832ca8fa6b4cfbc9a8dda56f96bbd5c0b108d9290e9a1f586e58d9eec38b"
+    },
+    {
+      "path": "packages/sim-core/src/projection2d.ts",
+      "sha256": "3429e6aea4cfea02d58ee8543eddf65fa75c09778d0f643657ebc4e7c47735ab"
+    },
+    {
+      "path": "packages/sim-core/src/qubit.ts",
+      "sha256": "9bfa32fadb3c3b9d945ac8114461518abc6bf27a7d9bdaedc996276900571820"
+    },
+    {
+      "path": "packages/sim-core/src/regions.ts",
+      "sha256": "9b57e773f79972a507c39f8ecce482b70ff5fc79ac3b91504b02d618566bca57"
+    },
+    {
+      "path": "packages/sim-core/src/scatteringExperiment.ts",
+      "sha256": "a89709749f6ebf2ba3284b3497d567b77d9e45de801c9e65408452a020545149"
+    },
+    {
+      "path": "packages/sim-core/src/stepper.ts",
+      "sha256": "a484780fd431487748cde3bda621abfe229ca8d82f5288dfa2a10c89cdd62697"
+    },
+    {
+      "path": "packages/sim-core/src/tridiagonal.ts",
+      "sha256": "5fb0432d688a65fd36823b8596f287696db67b6f7b979ba4758862585c813b93"
+    },
+    {
+      "path": "packages/web/src/world/creature.ts",
+      "sha256": "9bf8e945d0b3a2d75ed109a03566c2440eda729059b1c013b2c695309db1aea7"
+    },
+    {
+      "path": "packages/web/src/world/moodRegistry2d.ts",
+      "sha256": "bf79b2a266eb23bd6ee6071231b873f94ce56082e243113f3867e2313600ba46"
+    },
+    {
+      "path": "packages/web/src/world/twoCreatureWorld.ts",
+      "sha256": "122271689421d4195e4cd95343849bc2246f5609d5a06827c19f7582e75bc661"
+    },
+    {
+      "path": "packages/web/src/world/world2d.ts",
+      "sha256": "c5493db40ba34d4c8068338a9ffda8f9bd2194bd231e8c81eca726717f85f6bb"
+    },
+    {
+      "path": "packages/web/src/world/worldPresets2d.ts",
+      "sha256": "01e60e9207ad3ef82e53d89f82d8df7e75e37a232bece568d2ee4d53f0eb5481"
+    },
+    {
+      "path": "packages/web/src/simulation.ts",
+      "sha256": "d3ccec38379a89d57092e5ba899922d1888112432671cbfb04155b1d8b686223"
+    },
+    {
+      "path": "packages/web/src/simulation2d.ts",
+      "sha256": "2c92ee2020ddfc64f3aff29da7ea0d42f365860375fcca629b44832bba817ed2"
+    },
+    {
+      "path": "packages/web/src/random.ts",
+      "sha256": "12fbedcf532e58c58cb784e401d9cbc991b251740d610ebab64a4b9d02fc9674"
+    },
+    {
+      "path": "packages/web/src/terrainBrush.ts",
+      "sha256": "8ef3d3c7e60d03fd0044d83e02a0281f0a5feb560e5e9fc79be6fb8988e5f277"
+    },
+    {
+      "path": "packages/web/src/terrainPresets.ts",
+      "sha256": "db4a7076512a9409b8aa2a2dd9178c6c61d5fe0cf5d550a9c5b281a590d57f65"
+    },
+    {
+      "path": "packages/web/src/painting.ts",
+      "sha256": "b10877c90336778a70cc8b55083a9f92a984d7afcd634f6e75a87ca6220299c7"
+    },
+    {
+      "path": "packages/web/src/observation.ts",
+      "sha256": "4576ac0782482e6b4d9301fe077bbcb96d88b8791e07d9be720516b4eebd458b"
+    },
+    {
+      "path": "packages/web/src/plot.ts",
+      "sha256": "310e2a29897efeffd00146f5e7df553181ee97e77b87f05b87d4e2c9488006b7"
+    },
+    {
+      "path": "packages/web/src/terrariumView.ts",
+      "sha256": "4cb9eb0c7c4c29caf1a9dceb0bb4ae46f89b83be5d6fcb39d0caff52834b2b4e"
+    },
+    {
+      "path": "packages/web/src/CreatureInspector.tsx",
+      "sha256": "75ccbc1b84407d4dacceffda1198574879df244d579e1023babe3af3b884b202"
+    }
+  ],
+  "protectedRendering": [
+    {
+      "path": "packages/web/src/render/creatureDecoration.ts",
+      "sha256": "090309c96c8820d9cfabf3018580ad2a17d76472c86148eaa5de889e75df3a93"
+    },
+    {
+      "path": "packages/web/src/render/creatures2d.ts",
+      "sha256": "5a5c99305e1fe06514f8c2affd6e87f7943b927995996f99bf7366965376b255"
+    },
+    {
+      "path": "packages/web/src/render/density2d.ts",
+      "sha256": "5485d4f33475c6c5d559a9f2a41cda8b6d8bf6562132b47a463b8431ff1d2b07"
+    },
+    {
+      "path": "packages/web/src/render/potential2d.ts",
+      "sha256": "b46e498fbdf8fd9d31b01fe6d0370fa13afa9dfcf15382d924e1d77935845f6f"
+    },
+    {
+      "path": "packages/web/src/render/projection1d.ts",
+      "sha256": "9c382f255cc44f4191ac6a0347e1d2f786128298822bfa1ef36bd686c883f4f1"
+    }
+  ],
+  "packageMetadataUnchanged": true,
+  "finalSource": [
+    {
+      "path": "packages/web/src/App.tsx",
+      "sha256": "80a70919f7987bce6ec4e1b4b54d16d8937836e77cb586b3f8a53c4b56d45f91"
+    },
+    {
+      "path": "packages/web/src/Gaussian2DDemo.tsx",
+      "sha256": "6ec115ebfa969b5fd3545bd30f4a86ab724cf2453526238246085b50f17d0b7c"
+    },
+    {
+      "path": "packages/web/src/Notebook.tsx",
+      "sha256": "5ec1cb61208df4e048c97b3f4ceb9dfe5cfada5cded3f4b2665380af321420b3"
+    },
+    {
+      "path": "packages/web/src/Notebook.test.tsx",
+      "sha256": "b6860168d7ffdb2632f4ad5d80e584a6430c943edcc96476cdd08adea7acb771"
+    },
+    {
+      "path": "packages/web/src/content/notebook/observer.md",
+      "sha256": "eeffd62410904bfcd10aa47d925bb53dd64fc76a2f0b93e5e0e17aec82bd60e2"
+    },
+    {
+      "path": "packages/web/src/style.css",
+      "sha256": "53db98ad723f65405e8bfcb1ae10f542b26e782f588cbbe4a6f09aad050b57fd"
+    },
+    {
+      "path": "packages/web/src/Museum.tsx",
+      "sha256": "4b49821d32f439092dfbfb4a69fd3614ea364f413c82b24112d074e9a49df18a"
+    },
+    {
+      "path": "packages/web/src/museumGuide.ts",
+      "sha256": "edb9886b38f6a9bbb51d3ca06d33d533f7a8411713d7fea4dc8bdd36c84da4a4"
+    },
+    {
+      "path": "packages/web/src/museumScience.ts",
+      "sha256": "e1af6863820554455d0b1b2a65de64c97c82af0ff9dd89cd54305a7374f84008"
+    },
+    {
+      "path": "packages/web/src/museumNotebook.ts",
+      "sha256": "f73dfe3db4117c12339ce27da0665fa3a98822df2a9ebd182a46827cf1025658"
+    },
+    {
+      "path": "packages/web/src/museum.test.tsx",
+      "sha256": "ec1e0df335a96ed5be45b42364674f3709c09909edece4ba7e63438f873b7f0c"
+    },
+    {
+      "path": "scripts/museum-browser-check.mjs",
+      "sha256": "32a280dc3c0cb7899b9348f0b43917a6b1d878ba8aeffdb6d1c20fdb00b5f4e7"
+    },
+    {
+      "path": "scripts/museum-browser-cases.mjs",
+      "sha256": "2750648e7d01c74675e98200b88503fb7db566cc7d9c18c1d82a5e72f30e65a6"
+    },
+    {
+      "path": "scripts/projection-browser-check.mjs",
+      "sha256": "3033d3a059fcdddff3fd6068e00f470904a2f4f75004a0aa570b6dee19fade00"
+    },
+    {
+      "path": "scripts/observer-browser-check.mjs",
+      "sha256": "bc6acade5e84e462a24b4e6b99ed03433da3b7db1cca2afe18b87cc38054186d"
+    },
+    {
+      "path": "scripts/performance/runtime-2d.mjs",
+      "sha256": "5347b71d2624c66f1af0d236fd243923d746a3cfe75623b9b088556e19ef7b02"
+    },
+    {
+      "path": "scripts/performance/museum-matrix.mjs",
+      "sha256": "dae978059fd3859f97beaa866f801af1e6627f4ed018dd4ee348eda4adf52d13"
+    },
+    {
+      "path": "packages/web/src/content/notebook/museum/entanglement.md",
+      "sha256": "d522a4d52a9309183fcb7513d3f77168665db2f3204983d5a9c7cbf56b631b7f"
+    },
+    {
+      "path": "packages/web/src/content/notebook/museum/marginals.md",
+      "sha256": "70d4fe7c3fbb86f368ad3415909b62c473ef982471f2cc1005fffb130281ff39"
+    },
+    {
+      "path": "packages/web/src/content/notebook/museum/mean-field.md",
+      "sha256": "c15b3453666ab78ff43db1a3c4fdd110591cd8c7ee148b0ab4fd1d7b51120ba3"
+    },
+    {
+      "path": "packages/web/src/content/notebook/museum/measurement.md",
+      "sha256": "33eca93a4f15b8e4c93460bea7c14ac91d3a05cb6a4e2923a7868b2a594840f3"
+    },
+    {
+      "path": "packages/web/src/content/notebook/museum/no-signalling.md",
+      "sha256": "2f93e33c1c4e6178fe98099a8588aba403bd0e09a9f0774f395a3cd164b1187a"
+    },
+    {
+      "path": "packages/web/src/content/notebook/museum/potentials.md",
+      "sha256": "c1832f6e059c3a1a9e1acc2056e03cfe86b3142052485cbbb3a41e53af16ce44"
+    },
+    {
+      "path": "packages/web/src/content/notebook/museum/probability.md",
+      "sha256": "2e056a4ea3057fecca8c6ed3058ff39ce1e7cb84ee7363ba960295f4924d4d81"
+    },
+    {
+      "path": "packages/web/src/content/notebook/museum/qubits.md",
+      "sha256": "1f7cbb682b5b788423a1c3a47648631736992ad0f404d6577b39b302382d4e87"
+    },
+    {
+      "path": "packages/web/src/content/notebook/museum/scattering.md",
+      "sha256": "27aabebb376dbb9b15206a256d5dd790d2618ade292dd6cdd92d9053fa106b94"
+    },
+    {
+      "path": "packages/web/src/content/notebook/museum/spreading.md",
+      "sha256": "cc445f06326b338c674ec7539347e21899ecf0af1b2541b9a8b5c3704ff4ca76"
+    }
+  ],
+  "proofs": {
+    "commit": "ac2ff0ffb4f05f2758b85909885b4ef337287eb4",
+    "workingTreeClean": true,
+    "build": "Build completed successfully (5044 jobs)",
+    "sourceFiles": [
+      {
+        "path": "PsiZooProofs/CreatureCoupling.lean",
+        "sha256": "e3b1e9832424b2c47a72d05c3b782bb204d2d86ef6db76255ec5f1861bf2e582"
+      },
+      {
+        "path": "PsiZooProofs/CoordinateProjection.lean",
+        "sha256": "188f7f498ed877a3659c9aa99f15238c7bc666dc285ef5140b277aeb0c10db26"
+      },
+      {
+        "path": "PsiZooProofs/FiniteMeasurement.lean",
+        "sha256": "729b056368529ecf0c9060694a60f4bfe13e15854320c83aea63c71645ba09f3"
+      },
+      {
+        "path": "PsiZooProofs/GaussianMeasurement.lean",
+        "sha256": "c2a1b67e5543e7bad3bc71396cbdd81a1a9a4a98c7976d821badcdce556e0ad4"
+      },
+      {
+        "path": "PsiZooProofs/CrankNicolsonUnitarity.lean",
+        "sha256": "a4de8e8490502db31c0f29a73378469339a0105b5e93d3f2d98c57e77ad8286a"
+      },
+      {
+        "path": "PsiZooProofs/HermitianCayley.lean",
+        "sha256": "02d90a6065537595bfa338b41be818749e28182c30c6837723203c1da0807ea7"
+      },
+      {
+        "path": "PsiZooProofs/GridNormalization.lean",
+        "sha256": "c68d7257ca377e30c6821fa7b6dabda58d7810ca23cde5e05650d65111d94eec"
+      },
+      {
+        "path": "PsiZooProofs/Qubit.lean",
+        "sha256": "d56d5d759c30f41150ad4dbc06596d74da3970abc0cf3b559bd4c90baf041ce5"
+      },
+      {
+        "path": "PsiZooProofs/QubitExponential.lean",
+        "sha256": "246620c50652bdca6b300f38e385b1aa009f9a181fe6a369b8a972a5c567fcd8"
+      },
+      {
+        "path": "PsiZooProofs/RegionProbability.lean",
+        "sha256": "778ff4256f6628166628184b9274a536cbbe4b0543e105e588553cfd13653507"
+      }
+    ],
+    "scope": "Exact linked finite mathematical models, not TypeScript/floating-point/sampling/whole-game verification."
+  },
+  "museumDirectory": "C:/Users/marys/AppData/Local/Temp/psi-projection-check-rzMvU3",
+  "museum": {
+    "topics": [
+      "Wavefunctions and probability",
+      "Free spreading",
+      "Marginal distributions — a quantum shadow",
+      "Potential energy and Schrödinger dynamics",
+      "Scattering and tunnelling",
+      "Qubits and Bloch vectors",
+      "Mean-field interactions",
+      "Entangled two-qubit states",
+      "Projective measurement and finite resolution",
+      "No-signalling and conditional states"
+    ],
+    "guide": "native Play/view/paint and keyboard alternative; confirmed destructive replay; clean skip/finish",
+    "storage": "minimal optional preference; blocked writes tested",
+    "sourceChecks": "exact spatial/mood/terrain/controller continuity on reading and replay cancellation",
+    "viewports": [
+      [
+        1920,
+        1080
+      ],
+      [
+        1440,
+        900
+      ],
+      [
+        1366,
+        768
+      ],
+      [
+        1280,
+        720
+      ],
+      [
+        1024,
+        600
+      ],
+      [
+        512,
+        300
+      ]
+    ]
+  },
+  "rendering": {
+    "note": "Isolated synchronous Canvas2D rendering at 600x600; not physical/wall throughput, compositor time or sustained FPS.",
+    "two": {
+      "creatures": 2,
+      "without": {
+        "samples": 50,
+        "medianMs": 4.199999809265137,
+        "p95Ms": 5.800000190734863
+      },
+      "with": {
+        "samples": 50,
+        "medianMs": 4.400000095367432,
+        "p95Ms": 5.799999713897705
+      },
+      "samePhysics": true,
+      "rngDraws": 1
+    },
+    "four": {
+      "creatures": 4,
+      "without": {
+        "samples": 50,
+        "medianMs": 6,
+        "p95Ms": 7.900000095367432
+      },
+      "with": {
+        "samples": 50,
+        "medianMs": 6.199999809265137,
+        "p95Ms": 7.599999904632568
+      },
+      "samePhysics": true,
+      "rngDraws": 1
+    }
+  },
+  "incrementalMedianDrawBudgetMs": 2,
+  "host": {
+    "node": "v24.20.0",
+    "chrome": {
+      "protocolVersion": "1.3",
+      "product": "Chrome/156.0.8078.48",
+      "revision": "@d0c02bfad08ec92a6ffcf989e53cd995e6381a4c",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+      "jsVersion": "15.6.75.19"
+    },
+    "os": "10.0.19045",
+    "cpu": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+    "logicalCpus": 8
+  },
+  "datasets": [
+    {
+      "directory": "D:/Temp/psi-5e4-deep",
+      "environment": {
+        "date": "2026-10-30T14:43:03.843Z",
+        "mode": "deep",
+        "seconds": 5,
+        "batches": 1,
+        "shallow": false,
+        "serial": false,
+        "startup1d": false,
+        "view": "2d",
+        "panel": "off",
+        "decorations": "on",
+        "comparison": false,
+        "node": "v24.20.0",
+        "chrome": {
+          "protocolVersion": "1.3",
+          "product": "Chrome/156.0.8078.48",
+          "revision": "@d0c02bfad08ec92a6ffcf989e53cd995e6381a4c",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "jsVersion": "15.6.75.19"
+        },
+        "os": "10.0.19045",
+        "cpus": [
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40115062,
+              "nice": 0,
+              "sys": 48389375,
+              "idle": 639340093,
+              "irq": 16150484
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40414125,
+              "nice": 0,
+              "sys": 30509843,
+              "idle": 656920578,
+              "irq": 4932437
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 36749421,
+              "nice": 0,
+              "sys": 17594343,
+              "idle": 673500750,
+              "irq": 1379265
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32000406,
+              "nice": 0,
+              "sys": 12886000,
+              "idle": 682958156,
+              "irq": 844828
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 30793890,
+              "nice": 0,
+              "sys": 15333906,
+              "idle": 681716734,
+              "irq": 837890
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 28521781,
+              "nice": 0,
+              "sys": 12584046,
+              "idle": 686738703,
+              "irq": 711656
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 29685750,
+              "nice": 0,
+              "sys": 13530937,
+              "idle": 684627828,
+              "irq": 699046
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 31997468,
+              "nice": 0,
+              "sys": 12428234,
+              "idle": 683418796,
+              "irq": 548125
+            }
+          }
+        ],
+        "note": "Audit-only registration; standard minified production React. Plain mode wraps only real rAF callback; deep/trace wraps methods and changes call-site/JIT conditions. No simulator step replacement."
+      },
+      "errors": [],
+      "groups": {
+        "on": {
+          "physicalSeconds": 4.400000000000105,
+          "wallSeconds": 5.087900000095368,
+          "ratio": 0.8647968709914958,
+          "callbackMedianMs": 23.90000009536743,
+          "callbackP95Ms": 90.2000002861023,
+          "completedSteps": 528,
+          "discardedWallSeconds": 0.6498999999999997,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 0,
+          "start": {
+            "wall": 5592,
+            "steps": 559,
+            "time": 4.6583333333333545,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible"
+          },
+          "ratio": 0.8647968709914958,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e4-final-2d-minute",
+      "environment": {
+        "date": "2026-10-30T17:34:43.726Z",
+        "mode": "plain",
+        "seconds": 60,
+        "batches": 1,
+        "shallow": false,
+        "serial": false,
+        "startup1d": false,
+        "view": "2d",
+        "panel": "off",
+        "decorations": "on",
+        "comparison": false,
+        "node": "v24.20.0",
+        "chrome": {
+          "protocolVersion": "1.3",
+          "product": "Chrome/156.0.8078.48",
+          "revision": "@d0c02bfad08ec92a6ffcf989e53cd995e6381a4c",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "jsVersion": "15.6.75.19"
+        },
+        "os": "10.0.19045",
+        "cpus": [
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40421765,
+              "nice": 0,
+              "sys": 48790234,
+              "idle": 648932421,
+              "irq": 16227218
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40806062,
+              "nice": 0,
+              "sys": 30793421,
+              "idle": 666544953,
+              "irq": 4959234
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 37039625,
+              "nice": 0,
+              "sys": 17760093,
+              "idle": 683344687,
+              "irq": 1399578
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32273234,
+              "nice": 0,
+              "sys": 13004000,
+              "idle": 692867218,
+              "irq": 853078
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 31051546,
+              "nice": 0,
+              "sys": 15433953,
+              "idle": 691658921,
+              "irq": 842203
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 28756687,
+              "nice": 0,
+              "sys": 12674843,
+              "idle": 696712890,
+              "irq": 716609
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 29936078,
+              "nice": 0,
+              "sys": 13616859,
+              "idle": 694591468,
+              "irq": 701640
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32267109,
+              "nice": 0,
+              "sys": 12513640,
+              "idle": 693363640,
+              "irq": 550312
+            }
+          }
+        ],
+        "note": "Audit-only registration; standard minified production React. Plain mode wraps only real rAF callback; deep/trace wraps methods and changes call-site/JIT conditions. No simulator step replacement."
+      },
+      "errors": [],
+      "groups": {
+        "on": {
+          "physicalSeconds": 58.7666666666637,
+          "wallSeconds": 60.0162999997139,
+          "ratio": 0.9791784343077438,
+          "callbackMedianMs": 13.200000286102295,
+          "callbackP95Ms": 35.09999990463257,
+          "completedSteps": 7052,
+          "discardedWallSeconds": 1.2675666666666507,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 0,
+          "start": {
+            "wall": 5612,
+            "steps": 543,
+            "time": 4.525000000000015,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible",
+            "viewport": {
+              "width": 1258,
+              "height": 902,
+              "dpr": 1
+            },
+            "canvas": {
+              "width": 697,
+              "height": 697,
+              "cssWidth": 697,
+              "cssHeight": 697
+            }
+          },
+          "ratio": 0.9791784343077438,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e4-final-bell",
+      "environment": {
+        "date": "2026-10-30T17:51:08.768Z",
+        "mode": "plain",
+        "seconds": 10,
+        "batches": 1,
+        "shallow": false,
+        "serial": false,
+        "startup1d": false,
+        "view": "2d",
+        "panel": "off",
+        "decorations": "on",
+        "comparison": false,
+        "node": "v24.20.0",
+        "chrome": {
+          "protocolVersion": "1.3",
+          "product": "Chrome/156.0.8078.48",
+          "revision": "@d0c02bfad08ec92a6ffcf989e53cd995e6381a4c",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "jsVersion": "15.6.75.19"
+        },
+        "os": "10.0.19045",
+        "cpus": [
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40578062,
+              "nice": 0,
+              "sys": 48899703,
+              "idle": 649651687,
+              "irq": 16253031
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40954140,
+              "nice": 0,
+              "sys": 30866359,
+              "idle": 667308968,
+              "irq": 4971390
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 37148625,
+              "nice": 0,
+              "sys": 17787546,
+              "idle": 684193265,
+              "irq": 1401203
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32363625,
+              "nice": 0,
+              "sys": 13023984,
+              "idle": 693741875,
+              "irq": 853671
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 31150968,
+              "nice": 0,
+              "sys": 15452484,
+              "idle": 692526000,
+              "irq": 843046
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 28839390,
+              "nice": 0,
+              "sys": 12692625,
+              "idle": 697597437,
+              "irq": 717578
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 30027359,
+              "nice": 0,
+              "sys": 13635968,
+              "idle": 695466109,
+              "irq": 702328
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32346609,
+              "nice": 0,
+              "sys": 12528812,
+              "idle": 694254000,
+              "irq": 550812
+            }
+          }
+        ],
+        "note": "Audit-only registration; standard minified production React. Plain mode wraps only real rAF callback; deep/trace wraps methods and changes call-site/JIT conditions. No simulator step replacement."
+      },
+      "errors": [],
+      "groups": {
+        "on": {
+          "physicalSeconds": 10.016666666666417,
+          "wallSeconds": 10.024900000095368,
+          "ratio": 0.9991787116650668,
+          "callbackMedianMs": 10,
+          "callbackP95Ms": 14.900000095367432,
+          "completedSteps": 1202,
+          "discardedWallSeconds": 0,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 0,
+          "start": {
+            "creatureIds": [
+              "a",
+              "b"
+            ],
+            "registeredPairs": 1,
+            "wall": 5597.89999961853,
+            "steps": 599,
+            "time": 4.991666666666704,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": false,
+              "social": false,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible",
+            "viewport": {
+              "width": 1258,
+              "height": 902,
+              "dpr": 1
+            },
+            "canvas": {
+              "width": 697,
+              "height": 697,
+              "cssWidth": 697,
+              "cssHeight": 697
+            }
+          },
+          "ratio": 0.9991787116650668,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e4-final-four",
+      "environment": {
+        "date": "2026-10-30T17:50:50.051Z",
+        "mode": "plain",
+        "seconds": 10,
+        "batches": 1,
+        "shallow": false,
+        "serial": false,
+        "startup1d": false,
+        "view": "2d",
+        "panel": "off",
+        "decorations": "on",
+        "comparison": false,
+        "node": "v24.20.0",
+        "chrome": {
+          "protocolVersion": "1.3",
+          "product": "Chrome/156.0.8078.48",
+          "revision": "@d0c02bfad08ec92a6ffcf989e53cd995e6381a4c",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "jsVersion": "15.6.75.19"
+        },
+        "os": "10.0.19045",
+        "cpus": [
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40574109,
+              "nice": 0,
+              "sys": 48895812,
+              "idle": 649640812,
+              "irq": 16251859
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40948390,
+              "nice": 0,
+              "sys": 30863843,
+              "idle": 667298515,
+              "irq": 4971328
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 37144234,
+              "nice": 0,
+              "sys": 17785609,
+              "idle": 684180875,
+              "irq": 1401156
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32358531,
+              "nice": 0,
+              "sys": 13022359,
+              "idle": 693729875,
+              "irq": 853656
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 31146406,
+              "nice": 0,
+              "sys": 15450671,
+              "idle": 692513656,
+              "irq": 842984
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 28835468,
+              "nice": 0,
+              "sys": 12691062,
+              "idle": 697584203,
+              "irq": 717578
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 30022390,
+              "nice": 0,
+              "sys": 13634640,
+              "idle": 695453687,
+              "irq": 702312
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32343421,
+              "nice": 0,
+              "sys": 12527343,
+              "idle": 694239937,
+              "irq": 550781
+            }
+          }
+        ],
+        "note": "Audit-only registration; standard minified production React. Plain mode wraps only real rAF callback; deep/trace wraps methods and changes call-site/JIT conditions. No simulator step replacement."
+      },
+      "errors": [],
+      "groups": {
+        "on": {
+          "physicalSeconds": 7.333333333333396,
+          "wallSeconds": 10.068800000190734,
+          "ratio": 0.7283224746935564,
+          "callbackMedianMs": 83.09999990463257,
+          "callbackP95Ms": 123.30000019073486,
+          "completedSteps": 880,
+          "discardedWallSeconds": 2.733033333333332,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 0,
+          "start": {
+            "creatureIds": [
+              "a",
+              "b",
+              "c",
+              "d"
+            ],
+            "registeredPairs": 0,
+            "wall": 5689.699999809265,
+            "steps": 357,
+            "time": 2.974999999999992,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible",
+            "viewport": {
+              "width": 1258,
+              "height": 902,
+              "dpr": 1
+            },
+            "canvas": {
+              "width": 697,
+              "height": 697,
+              "cssWidth": 697,
+              "cssHeight": 697
+            }
+          },
+          "ratio": 0.7283224746935564,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e4-final-source-pair",
+      "environment": {
+        "date": "2026-10-30T17:37:36.633Z",
+        "mode": "plain",
+        "seconds": 60,
+        "batches": 1,
+        "shallow": false,
+        "serial": false,
+        "startup1d": false,
+        "view": "2d",
+        "panel": "off",
+        "decorations": "on",
+        "comparison": true,
+        "node": "v24.20.0",
+        "chrome": {
+          "protocolVersion": "1.3",
+          "product": "Chrome/156.0.8078.48",
+          "revision": "@d0c02bfad08ec92a6ffcf989e53cd995e6381a4c",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "jsVersion": "15.6.75.19"
+        },
+        "os": "10.0.19045",
+        "cpus": [
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40456640,
+              "nice": 0,
+              "sys": 48813468,
+              "idle": 649047218,
+              "irq": 16231718
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40829937,
+              "nice": 0,
+              "sys": 30819609,
+              "idle": 666667796,
+              "irq": 4964140
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 37063156,
+              "nice": 0,
+              "sys": 17767796,
+              "idle": 683486359,
+              "irq": 1400109
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32293093,
+              "nice": 0,
+              "sys": 13009828,
+              "idle": 693014437,
+              "irq": 853218
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 31073406,
+              "nice": 0,
+              "sys": 15438578,
+              "idle": 691805343,
+              "irq": 842375
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 28773734,
+              "nice": 0,
+              "sys": 12679640,
+              "idle": 696863953,
+              "irq": 716796
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 29954937,
+              "nice": 0,
+              "sys": 13622125,
+              "idle": 694740250,
+              "irq": 701781
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32285296,
+              "nice": 0,
+              "sys": 12517078,
+              "idle": 693514921,
+              "irq": 550375
+            }
+          }
+        ],
+        "note": "Audit-only registration; standard minified production React. Plain mode wraps only real rAF callback; deep/trace wraps methods and changes call-site/JIT conditions. No simulator step replacement."
+      },
+      "errors": [],
+      "groups": {
+        "before": {
+          "physicalSeconds": 42.016666666664634,
+          "wallSeconds": 60.05759999990463,
+          "ratio": 0.6996061558692215,
+          "callbackMedianMs": 88.40000009536743,
+          "callbackP95Ms": 102.7999997138977,
+          "completedSteps": 5042,
+          "discardedWallSeconds": 17.964400000000012,
+          "viewSwitches": 0,
+          "panelActions": 0
+        },
+        "after": {
+          "physicalSeconds": 42.33333333333139,
+          "wallSeconds": 60.06290000009537,
+          "ratio": 0.7048166727424778,
+          "callbackMedianMs": 88.7999997138977,
+          "callbackP95Ms": 96,
+          "completedSteps": 5080,
+          "discardedWallSeconds": 17.764366666666703,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      },
+      "runs": [
+        {
+          "source": "before",
+          "decorations": "on",
+          "batch": 0,
+          "start": {
+            "wall": 5701,
+            "steps": 563,
+            "time": 4.6916666666666895,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible",
+            "viewport": {
+              "width": 1258,
+              "height": 902,
+              "dpr": 1
+            },
+            "canvas": {
+              "width": 697,
+              "height": 697,
+              "cssWidth": 697,
+              "cssHeight": 697
+            }
+          },
+          "ratio": 0.6996061558692215,
+          "viewSwitches": 0,
+          "panelActions": 0
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 0,
+          "start": {
+            "wall": 5779.799999713898,
+            "steps": 411,
+            "time": 3.4249999999999905,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible",
+            "viewport": {
+              "width": 1258,
+              "height": 902,
+              "dpr": 1
+            },
+            "canvas": {
+              "width": 697,
+              "height": 697,
+              "cssWidth": 697,
+              "cssHeight": 697
+            }
+          },
+          "ratio": 0.7048166727424778,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e4-matrix/1d",
+      "environment": {
+        "date": "2026-10-30T16:13:22.211Z",
+        "mode": "plain",
+        "seconds": 10,
+        "batches": 1,
+        "shallow": false,
+        "serial": false,
+        "startup1d": false,
+        "view": "1d",
+        "panel": "off",
+        "decorations": "on",
+        "comparison": false,
+        "node": "v24.20.0",
+        "chrome": {
+          "protocolVersion": "1.3",
+          "product": "Chrome/156.0.8078.48",
+          "revision": "@d0c02bfad08ec92a6ffcf989e53cd995e6381a4c",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "jsVersion": "15.6.75.19"
+        },
+        "os": "10.0.19045",
+        "cpus": [
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40133984,
+              "nice": 0,
+              "sys": 48421890,
+              "idle": 644707031,
+              "irq": 16160781
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40445000,
+              "nice": 0,
+              "sys": 30527281,
+              "idle": 662290640,
+              "irq": 4932968
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 36771328,
+              "nice": 0,
+              "sys": 17608093,
+              "idle": 678883468,
+              "irq": 1380468
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32024875,
+              "nice": 0,
+              "sys": 12899515,
+              "idle": 688338546,
+              "irq": 844984
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 30811656,
+              "nice": 0,
+              "sys": 15344390,
+              "idle": 687106859,
+              "irq": 838078
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 28538828,
+              "nice": 0,
+              "sys": 12594265,
+              "idle": 692129812,
+              "irq": 711796
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 29702531,
+              "nice": 0,
+              "sys": 13540609,
+              "idle": 690019750,
+              "irq": 699218
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32012109,
+              "nice": 0,
+              "sys": 12436031,
+              "idle": 688814734,
+              "irq": 548250
+            }
+          }
+        ],
+        "note": "Audit-only registration; standard minified production React. Plain mode wraps only real rAF callback; deep/trace wraps methods and changes call-site/JIT conditions. No simulator step replacement."
+      },
+      "errors": [],
+      "groups": {
+        "on": {
+          "physicalSeconds": 10.016666666666428,
+          "wallSeconds": 10.016200000286103,
+          "ratio": 1.0000465911603513,
+          "callbackMedianMs": 10.400000095367432,
+          "callbackP95Ms": 17.300000190734863,
+          "completedSteps": 1202,
+          "discardedWallSeconds": 0,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 0,
+          "start": {
+            "wall": 6160,
+            "steps": 587,
+            "time": 4.8916666666666995,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible",
+            "viewport": {
+              "width": 1258,
+              "height": 902,
+              "dpr": 1
+            },
+            "canvas": {
+              "width": 697,
+              "height": 697,
+              "cssWidth": 697,
+              "cssHeight": 697
+            }
+          },
+          "ratio": 1.0000465911603513,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e4-matrix/2d",
+      "environment": {
+        "date": "2026-10-30T16:13:03.520Z",
+        "mode": "plain",
+        "seconds": 10,
+        "batches": 1,
+        "shallow": false,
+        "serial": false,
+        "startup1d": false,
+        "view": "2d",
+        "panel": "off",
+        "decorations": "on",
+        "comparison": false,
+        "node": "v24.20.0",
+        "chrome": {
+          "protocolVersion": "1.3",
+          "product": "Chrome/156.0.8078.48",
+          "revision": "@d0c02bfad08ec92a6ffcf989e53cd995e6381a4c",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "jsVersion": "15.6.75.19"
+        },
+        "os": "10.0.19045",
+        "cpus": [
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40130781,
+              "nice": 0,
+              "sys": 48416593,
+              "idle": 644696843,
+              "irq": 16159843
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40437875,
+              "nice": 0,
+              "sys": 30525109,
+              "idle": 662281250,
+              "irq": 4932968
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 36766031,
+              "nice": 0,
+              "sys": 17605015,
+              "idle": 678873156,
+              "irq": 1380171
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32019687,
+              "nice": 0,
+              "sys": 12897062,
+              "idle": 688327500,
+              "irq": 844968
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 30807984,
+              "nice": 0,
+              "sys": 15342328,
+              "idle": 687093906,
+              "irq": 838031
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 28534828,
+              "nice": 0,
+              "sys": 12592531,
+              "idle": 692116859,
+              "irq": 711781
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 29699140,
+              "nice": 0,
+              "sys": 13539203,
+              "idle": 690005859,
+              "irq": 699218
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32008781,
+              "nice": 0,
+              "sys": 12434828,
+              "idle": 688800578,
+              "irq": 548250
+            }
+          }
+        ],
+        "note": "Audit-only registration; standard minified production React. Plain mode wraps only real rAF callback; deep/trace wraps methods and changes call-site/JIT conditions. No simulator step replacement."
+      },
+      "errors": [],
+      "groups": {
+        "on": {
+          "physicalSeconds": 7.583333333333254,
+          "wallSeconds": 10.056700000286103,
+          "ratio": 0.7540578254414982,
+          "callbackMedianMs": 19.699999809265137,
+          "callbackP95Ms": 106.10000038146973,
+          "completedSteps": 910,
+          "discardedWallSeconds": 2.3996999999999997,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 0,
+          "start": {
+            "wall": 5637.699999809265,
+            "steps": 563,
+            "time": 4.6916666666666895,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible",
+            "viewport": {
+              "width": 1258,
+              "height": 902,
+              "dpr": 1
+            },
+            "canvas": {
+              "width": 697,
+              "height": 697,
+              "cssWidth": 697,
+              "cssHeight": 697
+            }
+          },
+          "ratio": 0.7540578254414982,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e4-matrix/bell",
+      "environment": {
+        "date": "2026-10-30T16:15:40.837Z",
+        "mode": "plain",
+        "seconds": 10,
+        "batches": 1,
+        "shallow": false,
+        "serial": false,
+        "startup1d": false,
+        "view": "2d",
+        "panel": "off",
+        "decorations": "on",
+        "comparison": false,
+        "node": "v24.20.0",
+        "chrome": {
+          "protocolVersion": "1.3",
+          "product": "Chrome/156.0.8078.48",
+          "revision": "@d0c02bfad08ec92a6ffcf989e53cd995e6381a4c",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "jsVersion": "15.6.75.19"
+        },
+        "os": "10.0.19045",
+        "cpus": [
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40164671,
+              "nice": 0,
+              "sys": 48455000,
+              "idle": 644781859,
+              "irq": 16166593
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40484281,
+              "nice": 0,
+              "sys": 30548312,
+              "idle": 662368953,
+              "irq": 4933625
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 36797390,
+              "nice": 0,
+              "sys": 17624812,
+              "idle": 678979312,
+              "irq": 1381687
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32046812,
+              "nice": 0,
+              "sys": 12909671,
+              "idle": 688445078,
+              "irq": 845234
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 30837625,
+              "nice": 0,
+              "sys": 15352875,
+              "idle": 687211031,
+              "irq": 838343
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 28556390,
+              "nice": 0,
+              "sys": 12605109,
+              "idle": 692240031,
+              "irq": 711984
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 29720546,
+              "nice": 0,
+              "sys": 13548203,
+              "idle": 690132765,
+              "irq": 699406
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32027890,
+              "nice": 0,
+              "sys": 12443109,
+              "idle": 688930500,
+              "irq": 548375
+            }
+          }
+        ],
+        "note": "Audit-only registration; standard minified production React. Plain mode wraps only real rAF callback; deep/trace wraps methods and changes call-site/JIT conditions. No simulator step replacement."
+      },
+      "errors": [],
+      "groups": {
+        "on": {
+          "physicalSeconds": 10.016666666666415,
+          "wallSeconds": 10.004699999809265,
+          "ratio": 1.0011961045166151,
+          "callbackMedianMs": 9.399999618530273,
+          "callbackP95Ms": 14.799999713897705,
+          "completedSteps": 1202,
+          "discardedWallSeconds": 0,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 0,
+          "start": {
+            "wall": 5621.099999904633,
+            "steps": 601,
+            "time": 5.008333333333372,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": false,
+              "social": false,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible",
+            "viewport": {
+              "width": 1258,
+              "height": 902,
+              "dpr": 1
+            },
+            "canvas": {
+              "width": 697,
+              "height": 697,
+              "cssWidth": 697,
+              "cssHeight": 697
+            }
+          },
+          "ratio": 1.0011961045166151,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e4-matrix/faces",
+      "environment": {
+        "date": "2026-10-30T16:13:59.715Z",
+        "mode": "plain",
+        "seconds": 10,
+        "batches": 4,
+        "shallow": false,
+        "serial": true,
+        "startup1d": false,
+        "view": "2d",
+        "panel": "off",
+        "decorations": "alternating",
+        "comparison": false,
+        "node": "v24.20.0",
+        "chrome": {
+          "protocolVersion": "1.3",
+          "product": "Chrome/156.0.8078.48",
+          "revision": "@d0c02bfad08ec92a6ffcf989e53cd995e6381a4c",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "jsVersion": "15.6.75.19"
+        },
+        "os": "10.0.19045",
+        "cpus": [
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40140265,
+              "nice": 0,
+              "sys": 48434343,
+              "idle": 644725781,
+              "irq": 16162812
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40456546,
+              "nice": 0,
+              "sys": 30531593,
+              "idle": 662312265,
+              "irq": 4933015
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 36780890,
+              "nice": 0,
+              "sys": 17614046,
+              "idle": 678905437,
+              "irq": 1380734
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32032859,
+              "nice": 0,
+              "sys": 12903156,
+              "idle": 688364406,
+              "irq": 845062
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 30818968,
+              "nice": 0,
+              "sys": 15347625,
+              "idle": 687133796,
+              "irq": 838187
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 28544390,
+              "nice": 0,
+              "sys": 12598296,
+              "idle": 692157703,
+              "irq": 711937
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 29707468,
+              "nice": 0,
+              "sys": 13543203,
+              "idle": 690049703,
+              "irq": 699296
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32016843,
+              "nice": 0,
+              "sys": 12438265,
+              "idle": 688845250,
+              "irq": 548328
+            }
+          }
+        ],
+        "note": "Audit-only registration; standard minified production React. Plain mode wraps only real rAF callback; deep/trace wraps methods and changes call-site/JIT conditions. No simulator step replacement."
+      },
+      "errors": [],
+      "groups": {
+        "off": {
+          "physicalSeconds": 19.86666666666624,
+          "wallSeconds": 20.020400000095368,
+          "ratio": 0.992321165739526,
+          "callbackMedianMs": 11.599999904632568,
+          "callbackP95Ms": 17.09999990463257,
+          "completedSteps": 2384,
+          "discardedWallSeconds": 0.16696666666666418,
+          "viewSwitches": 0,
+          "panelActions": 0
+        },
+        "on": {
+          "physicalSeconds": 20.033333333332838,
+          "wallSeconds": 20.03659999990463,
+          "ratio": 0.9998369650254131,
+          "callbackMedianMs": 11.5,
+          "callbackP95Ms": 16.199999809265137,
+          "completedSteps": 2404,
+          "discardedWallSeconds": 0,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "decorations": "off",
+          "batch": 0,
+          "start": {
+            "wall": 5620.800000190735,
+            "steps": 527,
+            "time": 4.391666666666675,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible",
+            "viewport": {
+              "width": 1258,
+              "height": 902,
+              "dpr": 1
+            },
+            "canvas": {
+              "width": 697,
+              "height": 697,
+              "cssWidth": 697,
+              "cssHeight": 697
+            }
+          },
+          "ratio": 0.9843798407284867,
+          "viewSwitches": 0,
+          "panelActions": 0
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 1,
+          "start": {
+            "wall": 20929.699999809265,
+            "steps": 597,
+            "time": 4.975000000000037,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible",
+            "viewport": {
+              "width": 1258,
+              "height": 902,
+              "dpr": 1
+            },
+            "canvas": {
+              "width": 697,
+              "height": 697,
+              "cssWidth": 697,
+              "cssHeight": 697
+            }
+          },
+          "ratio": 0.9996274267066272,
+          "viewSwitches": 0,
+          "panelActions": 0
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 2,
+          "start": {
+            "wall": 36249.40000009537,
+            "steps": 597,
+            "time": 4.975000000000037,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible",
+            "viewport": {
+              "width": 1258,
+              "height": 902,
+              "dpr": 1
+            },
+            "canvas": {
+              "width": 697,
+              "height": 697,
+              "cssWidth": 697,
+              "cssHeight": 697
+            }
+          },
+          "ratio": 1.0000465912079595,
+          "viewSwitches": 0,
+          "panelActions": 0
+        },
+        {
+          "source": "after",
+          "decorations": "off",
+          "batch": 3,
+          "start": {
+            "wall": 51579.199999809265,
+            "steps": 599,
+            "time": 4.991666666666704,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible",
+            "viewport": {
+              "width": 1258,
+              "height": 902,
+              "dpr": 1
+            },
+            "canvas": {
+              "width": 697,
+              "height": 697,
+              "cssWidth": 697,
+              "cssHeight": 697
+            }
+          },
+          "ratio": 1.0002563052380993,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e4-matrix/four",
+      "environment": {
+        "date": "2026-10-30T16:15:59.516Z",
+        "mode": "plain",
+        "seconds": 10,
+        "batches": 1,
+        "shallow": false,
+        "serial": false,
+        "startup1d": false,
+        "view": "2d",
+        "panel": "off",
+        "decorations": "on",
+        "comparison": false,
+        "node": "v24.20.0",
+        "chrome": {
+          "protocolVersion": "1.3",
+          "product": "Chrome/156.0.8078.48",
+          "revision": "@d0c02bfad08ec92a6ffcf989e53cd995e6381a4c",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "jsVersion": "15.6.75.19"
+        },
+        "os": "10.0.19045",
+        "cpus": [
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40168765,
+              "nice": 0,
+              "sys": 48459562,
+              "idle": 644791875,
+              "irq": 16167265
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40489796,
+              "nice": 0,
+              "sys": 30551156,
+              "idle": 662379265,
+              "irq": 4933656
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 36801250,
+              "nice": 0,
+              "sys": 17628515,
+              "idle": 678990421,
+              "irq": 1382578
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32051734,
+              "nice": 0,
+              "sys": 12911500,
+              "idle": 688457000,
+              "irq": 845265
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 30841234,
+              "nice": 0,
+              "sys": 15354500,
+              "idle": 687224468,
+              "irq": 838375
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 28559703,
+              "nice": 0,
+              "sys": 12606609,
+              "idle": 692253890,
+              "irq": 711984
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 29724500,
+              "nice": 0,
+              "sys": 13549500,
+              "idle": 690146187,
+              "irq": 699406
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32031421,
+              "nice": 0,
+              "sys": 12444625,
+              "idle": 688944125,
+              "irq": 548437
+            }
+          }
+        ],
+        "note": "Audit-only registration; standard minified production React. Plain mode wraps only real rAF callback; deep/trace wraps methods and changes call-site/JIT conditions. No simulator step replacement."
+      },
+      "errors": [],
+      "groups": {
+        "on": {
+          "physicalSeconds": 7.133333333333418,
+          "wallSeconds": 10.02910000038147,
+          "ratio": 0.7112635563572097,
+          "callbackMedianMs": 81.90000009536743,
+          "callbackP95Ms": 136.89999961853027,
+          "completedSteps": 856,
+          "discardedWallSeconds": 2.899666666666666,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 0,
+          "start": {
+            "wall": 5697.099999904633,
+            "steps": 333,
+            "time": 2.774999999999993,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible",
+            "viewport": {
+              "width": 1258,
+              "height": 902,
+              "dpr": 1
+            },
+            "canvas": {
+              "width": 697,
+              "height": 697,
+              "cssWidth": 697,
+              "cssHeight": 697
+            }
+          },
+          "ratio": 0.7112635563572097,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e4-matrix/inspector",
+      "environment": {
+        "date": "2026-10-30T16:15:22.384Z",
+        "mode": "plain",
+        "seconds": 10,
+        "batches": 1,
+        "shallow": false,
+        "serial": false,
+        "startup1d": false,
+        "view": "2d",
+        "panel": "advanced",
+        "decorations": "on",
+        "comparison": false,
+        "node": "v24.20.0",
+        "chrome": {
+          "protocolVersion": "1.3",
+          "product": "Chrome/156.0.8078.48",
+          "revision": "@d0c02bfad08ec92a6ffcf989e53cd995e6381a4c",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "jsVersion": "15.6.75.19"
+        },
+        "os": "10.0.19045",
+        "cpus": [
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40162593,
+              "nice": 0,
+              "sys": 48447218,
+              "idle": 644773265,
+              "irq": 16164703
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40475968,
+              "nice": 0,
+              "sys": 30546046,
+              "idle": 662361078,
+              "irq": 4933531
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 36792390,
+              "nice": 0,
+              "sys": 17622093,
+              "idle": 678968578,
+              "irq": 1381625
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32043125,
+              "nice": 0,
+              "sys": 12907500,
+              "idle": 688432484,
+              "irq": 845187
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 30835015,
+              "nice": 0,
+              "sys": 15351140,
+              "idle": 687196921,
+              "irq": 838281
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 28554140,
+              "nice": 0,
+              "sys": 12603375,
+              "idle": 692225562,
+              "irq": 711984
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 29717703,
+              "nice": 0,
+              "sys": 13546671,
+              "idle": 690118687,
+              "irq": 699375
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32025234,
+              "nice": 0,
+              "sys": 12440671,
+              "idle": 688917140,
+              "irq": 548359
+            }
+          }
+        ],
+        "note": "Audit-only registration; standard minified production React. Plain mode wraps only real rAF callback; deep/trace wraps methods and changes call-site/JIT conditions. No simulator step replacement."
+      },
+      "errors": [],
+      "groups": {
+        "on": {
+          "physicalSeconds": 9.766666666666492,
+          "wallSeconds": 10.013699999809266,
+          "ratio": 0.9753304639496411,
+          "callbackMedianMs": 12.5,
+          "callbackP95Ms": 42.299999713897705,
+          "completedSteps": 1172,
+          "discardedWallSeconds": 0.25013333333333265,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 0,
+          "start": {
+            "wall": 5669.400000095367,
+            "steps": 531,
+            "time": 4.42500000000001,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible",
+            "viewport": {
+              "width": 1258,
+              "height": 902,
+              "dpr": 1
+            },
+            "canvas": {
+              "width": 697,
+              "height": 697,
+              "cssWidth": 697,
+              "cssHeight": 697
+            }
+          },
+          "ratio": 0.9753304639496411,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e4-matrix/morph",
+      "environment": {
+        "date": "2026-10-30T16:13:40.989Z",
+        "mode": "plain",
+        "seconds": 10,
+        "batches": 1,
+        "shallow": false,
+        "serial": false,
+        "startup1d": false,
+        "view": "alternating",
+        "panel": "off",
+        "decorations": "on",
+        "comparison": false,
+        "node": "v24.20.0",
+        "chrome": {
+          "protocolVersion": "1.3",
+          "product": "Chrome/156.0.8078.48",
+          "revision": "@d0c02bfad08ec92a6ffcf989e53cd995e6381a4c",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "jsVersion": "15.6.75.19"
+        },
+        "os": "10.0.19045",
+        "cpus": [
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40136125,
+              "nice": 0,
+              "sys": 48428171,
+              "idle": 644717390,
+              "irq": 16161687
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40450812,
+              "nice": 0,
+              "sys": 30529156,
+              "idle": 662301734,
+              "irq": 4932984
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 36775437,
+              "nice": 0,
+              "sys": 17611046,
+              "idle": 678895187,
+              "irq": 1380671
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32028796,
+              "nice": 0,
+              "sys": 12901328,
+              "idle": 688351593,
+              "irq": 845031
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 30814687,
+              "nice": 0,
+              "sys": 15346125,
+              "idle": 687120875,
+              "irq": 838156
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 28541125,
+              "nice": 0,
+              "sys": 12595828,
+              "idle": 692144734,
+              "irq": 711859
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 29704750,
+              "nice": 0,
+              "sys": 13541812,
+              "idle": 690035109,
+              "irq": 699250
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32014265,
+              "nice": 0,
+              "sys": 12437109,
+              "idle": 688830281,
+              "irq": 548296
+            }
+          }
+        ],
+        "note": "Audit-only registration; standard minified production React. Plain mode wraps only real rAF callback; deep/trace wraps methods and changes call-site/JIT conditions. No simulator step replacement."
+      },
+      "errors": [],
+      "groups": {
+        "on": {
+          "physicalSeconds": 9.866666666666445,
+          "wallSeconds": 10.013700000286102,
+          "ratio": 0.9853167826462291,
+          "callbackMedianMs": 12,
+          "callbackP95Ms": 41.69999980926514,
+          "completedSteps": 1184,
+          "discardedWallSeconds": 0.1333000000000002,
+          "viewSwitches": 14,
+          "panelActions": 0
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 0,
+          "start": {
+            "wall": 5625.699999809265,
+            "steps": 577,
+            "time": 4.808333333333362,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible",
+            "viewport": {
+              "width": 1258,
+              "height": 902,
+              "dpr": 1
+            },
+            "canvas": {
+              "width": 697,
+              "height": 697,
+              "cssWidth": 697,
+              "cssHeight": 697
+            }
+          },
+          "ratio": 0.9853167826462291,
+          "viewSwitches": 14,
+          "panelActions": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e4-matrix/popover",
+      "environment": {
+        "date": "2026-10-30T16:15:04.053Z",
+        "mode": "plain",
+        "seconds": 10,
+        "batches": 1,
+        "shallow": false,
+        "serial": false,
+        "startup1d": false,
+        "view": "2d",
+        "panel": "alternating",
+        "decorations": "on",
+        "comparison": false,
+        "node": "v24.20.0",
+        "chrome": {
+          "protocolVersion": "1.3",
+          "product": "Chrome/156.0.8078.48",
+          "revision": "@d0c02bfad08ec92a6ffcf989e53cd995e6381a4c",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "jsVersion": "15.6.75.19"
+        },
+        "os": "10.0.19045",
+        "cpus": [
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40157859,
+              "nice": 0,
+              "sys": 48442015,
+              "idle": 644764875,
+              "irq": 16163906
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40467859,
+              "nice": 0,
+              "sys": 30543906,
+              "idle": 662353000,
+              "irq": 4933500
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 36788250,
+              "nice": 0,
+              "sys": 17617781,
+              "idle": 678958703,
+              "irq": 1380890
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32038843,
+              "nice": 0,
+              "sys": 12905609,
+              "idle": 688420328,
+              "irq": 845171
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 30830687,
+              "nice": 0,
+              "sys": 15349375,
+              "idle": 687184687,
+              "irq": 838265
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 28550500,
+              "nice": 0,
+              "sys": 12601562,
+              "idle": 692212687,
+              "irq": 711984
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 29713890,
+              "nice": 0,
+              "sys": 13545359,
+              "idle": 690105484,
+              "irq": 699343
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32021500,
+              "nice": 0,
+              "sys": 12439546,
+              "idle": 688903671,
+              "irq": 548343
+            }
+          }
+        ],
+        "note": "Audit-only registration; standard minified production React. Plain mode wraps only real rAF callback; deep/trace wraps methods and changes call-site/JIT conditions. No simulator step replacement."
+      },
+      "errors": [],
+      "groups": {
+        "on": {
+          "physicalSeconds": 9.849999999999838,
+          "wallSeconds": 10.014099999904632,
+          "ratio": 0.9836131055305662,
+          "callbackMedianMs": 12.800000190734863,
+          "callbackP95Ms": 47.69999980926514,
+          "completedSteps": 1182,
+          "discardedWallSeconds": 0.18353333333333227,
+          "viewSwitches": 0,
+          "panelActions": 14
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 0,
+          "start": {
+            "wall": 5615,
+            "steps": 511,
+            "time": 4.258333333333335,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible",
+            "viewport": {
+              "width": 1258,
+              "height": 902,
+              "dpr": 1
+            },
+            "canvas": {
+              "width": 697,
+              "height": 697,
+              "cssWidth": 697,
+              "cssHeight": 697
+            }
+          },
+          "ratio": 0.9836131055305662,
+          "viewSwitches": 0,
+          "panelActions": 14
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e4-source-long-retry",
+      "environment": {
+        "date": "2026-10-30T17:17:52.618Z",
+        "mode": "plain",
+        "seconds": 60,
+        "batches": 2,
+        "shallow": false,
+        "serial": false,
+        "startup1d": false,
+        "view": "2d",
+        "panel": "off",
+        "decorations": "on",
+        "comparison": true,
+        "node": "v24.20.0",
+        "chrome": {
+          "protocolVersion": "1.3",
+          "product": "Chrome/156.0.8078.48",
+          "revision": "@d0c02bfad08ec92a6ffcf989e53cd995e6381a4c",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "jsVersion": "15.6.75.19"
+        },
+        "os": "10.0.19045",
+        "cpus": [
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40224234,
+              "nice": 0,
+              "sys": 48531953,
+              "idle": 648377125,
+              "irq": 16179984
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40549984,
+              "nice": 0,
+              "sys": 30608265,
+              "idle": 665975078,
+              "irq": 4938312
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 36844625,
+              "nice": 0,
+              "sys": 17659781,
+              "idle": 682628890,
+              "irq": 1384890
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32093046,
+              "nice": 0,
+              "sys": 12931187,
+              "idle": 692109109,
+              "irq": 845828
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 30881156,
+              "nice": 0,
+              "sys": 15374109,
+              "idle": 690878046,
+              "irq": 838984
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 28599890,
+              "nice": 0,
+              "sys": 12621671,
+              "idle": 695911750,
+              "irq": 712359
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 29767421,
+              "nice": 0,
+              "sys": 13568312,
+              "idle": 693797562,
+              "irq": 699968
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 32083406,
+              "nice": 0,
+              "sys": 12462343,
+              "idle": 692587531,
+              "irq": 549000
+            }
+          }
+        ],
+        "note": "Audit-only registration; standard minified production React. Plain mode wraps only real rAF callback; deep/trace wraps methods and changes call-site/JIT conditions. No simulator step replacement."
+      },
+      "errors": [],
+      "groups": {
+        "before": {
+          "physicalSeconds": 84.58333333332934,
+          "wallSeconds": 120.09590000009536,
+          "ratio": 0.7042982594181998,
+          "callbackMedianMs": 87.69999980926514,
+          "callbackP95Ms": 101,
+          "completedSteps": 10150,
+          "discardedWallSeconds": 35.42880000000004,
+          "viewSwitches": 0,
+          "panelActions": 0
+        },
+        "after": {
+          "physicalSeconds": 85.8666666666627,
+          "wallSeconds": 120.1222000002861,
+          "ratio": 0.7148276227579763,
+          "callbackMedianMs": 87.19999980926514,
+          "callbackP95Ms": 95.80000019073486,
+          "completedSteps": 10304,
+          "discardedWallSeconds": 34.24533333333337,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      },
+      "runs": [
+        {
+          "source": "before",
+          "decorations": "on",
+          "batch": 0,
+          "start": {
+            "wall": 5635.900000095367,
+            "steps": 567,
+            "time": 4.7250000000000245,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible",
+            "viewport": {
+              "width": 1258,
+              "height": 902,
+              "dpr": 1
+            },
+            "canvas": {
+              "width": 697,
+              "height": 697,
+              "cssWidth": 697,
+              "cssHeight": 697
+            }
+          },
+          "ratio": 0.7131499408137499,
+          "viewSwitches": 0,
+          "panelActions": 0
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 0,
+          "start": {
+            "wall": 5697.099999904633,
+            "steps": 418,
+            "time": 3.4833333333333236,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible",
+            "viewport": {
+              "width": 1258,
+              "height": 902,
+              "dpr": 1
+            },
+            "canvas": {
+              "width": 697,
+              "height": 697,
+              "cssWidth": 697,
+              "cssHeight": 697
+            }
+          },
+          "ratio": 0.7143447412157555,
+          "viewSwitches": 0,
+          "panelActions": 0
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 1,
+          "start": {
+            "wall": 5712,
+            "steps": 415,
+            "time": 3.4583333333333237,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible",
+            "viewport": {
+              "width": 1258,
+              "height": 902,
+              "dpr": 1
+            },
+            "canvas": {
+              "width": 697,
+              "height": 697,
+              "cssWidth": 697,
+              "cssHeight": 697
+            }
+          },
+          "ratio": 0.7153111575766838,
+          "viewSwitches": 0,
+          "panelActions": 0
+        },
+        {
+          "source": "before",
+          "decorations": "on",
+          "batch": 1,
+          "start": {
+            "wall": 5584.199999809265,
+            "steps": 415,
+            "time": 3.4583333333333237,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible",
+            "viewport": {
+              "width": 1258,
+              "height": 902,
+              "dpr": 1
+            },
+            "canvas": {
+              "width": 697,
+              "height": 697,
+              "cssWidth": 697,
+              "cssHeight": 697
+            }
+          },
+          "ratio": 0.6954492752186017,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e4-source-short",
+      "environment": {
+        "date": "2026-10-30T14:36:14.794Z",
+        "mode": "plain",
+        "seconds": 10,
+        "batches": 3,
+        "shallow": false,
+        "serial": false,
+        "startup1d": false,
+        "view": "2d",
+        "panel": "off",
+        "decorations": "on",
+        "comparison": true,
+        "node": "v24.20.0",
+        "chrome": {
+          "protocolVersion": "1.3",
+          "product": "Chrome/156.0.8078.48",
+          "revision": "@d0c02bfad08ec92a6ffcf989e53cd995e6381a4c",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+          "jsVersion": "15.6.75.19"
+        },
+        "os": "10.0.19045",
+        "cpus": [
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40095578,
+              "nice": 0,
+              "sys": 48369437,
+              "idle": 638970468,
+              "irq": 16145562
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 40362953,
+              "nice": 0,
+              "sys": 30501921,
+              "idle": 656570625,
+              "irq": 4932171
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 36728140,
+              "nice": 0,
+              "sys": 17585484,
+              "idle": 673121843,
+              "irq": 1378406
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 31975671,
+              "nice": 0,
+              "sys": 12879765,
+              "idle": 682580078,
+              "irq": 844390
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 30777531,
+              "nice": 0,
+              "sys": 15329968,
+              "idle": 681327984,
+              "irq": 837796
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 28508406,
+              "nice": 0,
+              "sys": 12580937,
+              "idle": 686346140,
+              "irq": 711578
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 29672734,
+              "nice": 0,
+              "sys": 13527953,
+              "idle": 684234781,
+              "irq": 698984
+            }
+          },
+          {
+            "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+            "speed": 1498,
+            "times": {
+              "user": 31984734,
+              "nice": 0,
+              "sys": 12425859,
+              "idle": 683024859,
+              "irq": 548046
+            }
+          }
+        ],
+        "note": "Audit-only registration; standard minified production React. Plain mode wraps only real rAF callback; deep/trace wraps methods and changes call-site/JIT conditions. No simulator step replacement."
+      },
+      "errors": [],
+      "groups": {
+        "before": {
+          "physicalSeconds": 22.66666666666661,
+          "wallSeconds": 30.254799999713896,
+          "ratio": 0.7491924146542353,
+          "callbackMedianMs": 83.90000009536743,
+          "callbackP95Ms": 92.30000019073486,
+          "completedSteps": 2720,
+          "discardedWallSeconds": 7.498866666666668,
+          "viewSwitches": 0,
+          "panelActions": 0
+        },
+        "after": {
+          "physicalSeconds": 22.333333333333414,
+          "wallSeconds": 30.114200000286104,
+          "ratio": 0.7416213392061297,
+          "callbackMedianMs": 84.69999980926514,
+          "callbackP95Ms": 88.40000009536743,
+          "completedSteps": 2680,
+          "discardedWallSeconds": 7.798866666666667,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      },
+      "runs": [
+        {
+          "source": "before",
+          "decorations": "on",
+          "batch": 0,
+          "start": {
+            "wall": 5595.799999713898,
+            "steps": 577,
+            "time": 4.808333333333362,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible"
+          },
+          "ratio": 0.7618214820480964,
+          "viewSwitches": 0,
+          "panelActions": 0
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 0,
+          "start": {
+            "wall": 5675.800000190735,
+            "steps": 419,
+            "time": 3.491666666666657,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible"
+          },
+          "ratio": 0.7411524921182416,
+          "viewSwitches": 0,
+          "panelActions": 0
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 1,
+          "start": {
+            "wall": 5578.5,
+            "steps": 430,
+            "time": 3.5833333333333233,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible"
+          },
+          "ratio": 0.7387515099411569,
+          "viewSwitches": 0,
+          "panelActions": 0
+        },
+        {
+          "source": "before",
+          "decorations": "on",
+          "batch": 1,
+          "start": {
+            "wall": 5559.900000095367,
+            "steps": 432,
+            "time": 3.59999999999999,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible"
+          },
+          "ratio": 0.7386376751518566,
+          "viewSwitches": 0,
+          "panelActions": 0
+        },
+        {
+          "source": "before",
+          "decorations": "on",
+          "batch": 2,
+          "start": {
+            "wall": 5576.800000190735,
+            "steps": 433,
+            "time": 3.608333333333323,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible"
+          },
+          "ratio": 0.7471691875361618,
+          "viewSwitches": 0,
+          "panelActions": 0
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 2,
+          "start": {
+            "wall": 5541.099999904633,
+            "steps": 429,
+            "time": 3.57499999999999,
+            "dt": 0.008333333333333333,
+            "nx": 128,
+            "ny": 128,
+            "interactions": {
+              "drives": true,
+              "social": true,
+              "strength": 3,
+              "range": 2
+            },
+            "visibility": "visible"
+          },
+          "ratio": 0.7449607066413558,
+          "viewSwitches": 0,
+          "panelActions": 0
+        }
+      ]
+    }
+  ],
+  "incompleteAttempts": [
+    {
+      "directory": "D:/Temp/psi-5e4-source-long",
+      "log": "/tmp/psi-5e4-source-long.log",
+      "status": "Timed out before recording samples; retained. Later bounded CDP/readiness and owned-server cleanup were followed by successful sustained rerun."
+    }
+  ],
+  "provenance": "Matrix and initial sustained ABBA precede guide-only 20% width-gate/compact-help refinements; those paths are inactive in benchmark scenes. Final source pair, unpaired minute and census-asserted four/Bell runs use final app source. Census fields added later are absent from earlier endpoint records.",
+  "interpretation": "Final matched source pair 0.69961 before / 0.70482 after misses historical ~0.965 absolute target in both arms. Unpaired final minute 0.97918 and near-real-time bounded UI probes do not erase adverse data or establish sustained acceptance. Cause of fast/slow regimes unresolved; no claim that all regressions are environmental. Kernels/step policy unchanged."
+}

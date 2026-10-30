@@ -3,7 +3,105 @@
 A quantum-creature terrarium for learning, playing, and formally exploring
 Schrödinger dynamics.
 
-**Now starts with two interacting creatures.** Play the numerical mean-field
+**Current: Slice 5E.4 — museum guide and complete physics notebook (implemented for review).**
+Use **Start three-step guide…** on first visit, or **What am I seeing? → Replay
+three-step guide…**. Replacement requires explicit confirmation. The guide asks
+for real Play with perceptible computed spreading, a state-preserving 1D marginal,
+and a visitor-painted 2D barrier (with an explicit keyboard alternative).
+**Finish/Skip replaces the guide with one initial creature, clean terrain,
+paused 2D and time zero.** Canceling replay leaves the personal scene untouched.
+
+**What am I seeing?** gives compact context-specific science. **Menu → Physics
+notebook** and the help dialog open all ten locally bundled chapters, each with
+**Observe → Understand → Explore the mathematics**, native MathML and precise
+proof/model limitations. No accounts, services, downloaded equation fonts or new
+dependencies. Only an optional local guide-completion preference is stored.
+
+**421 tests / 40 files; 229 browser checks** (252 executed, including 23 shared
+projection checks) pass, along with typecheck/build and the DOM-free/performance
+compiles. The linked Lean repo builds at the pinned commit. Physics and step
+policy are unchanged. **Final Slice 5E acceptance remains open:** real AT/device
+review and sustained performance require review. A final unpaired minute reached
+0.979 physical/wall throughput, but the final matched source pair was
+0.700 before / 0.705 after, below the historical ~0.965 target. Adverse results
+are retained. [Files, exact usage, evidence and limitations](docs/MUSEUM_VALIDATION.md).
+**Stop for independent review; do not automatically proceed beyond 5E.4.**
+
+**Retained Slice 5E.3 — expressive creatures, discoverable controls.** Mochi, Pip,
+Lumi and Nori keep deterministic names/colors, tiny density-anchored faces, mood
+badges, selection halos and registered-pair indicators. Click a cloud/hill to
+**select, never measure**, or use the creature list. Faces do not move probability,
+modify amplitudes or consume quantum randomness; reduced motion disables blinking.
+
+**Menu** now has Simulation, Terrain, Creatures, Moods & friendships, Experiments,
+Display, Physics notebook and Advanced, with internal Back navigation. Try Create
+a barrier, Build a well or the explicitly separate Watch scattering experiment.
+Detailed diagnostics and all legacy demonstrations remain available under Advanced.
+
+**408 tests and 174 browser checks pass**, including exact-state/RNG comparisons
+and the bounded overlay draw-cost budget. Whole-app/sustained performance
+acceptance remains open; adverse comparisons are retained, not hidden by the
+successful bounded on/off run. [5E.3 evidence, usage, files and remaining review](docs/CREATURE_DESIGN_VALIDATION.md).
+This is the historical 5E.3 review boundary. The separately authorized 5E.4 work
+is described above; its performance gate is not retroactively cleared.
+
+**Retained Slice 5E.2 — one terrarium, two views (historical phase record).** The default opens the existing
+2D creature world. **1D view** shows each creature’s true x-marginal density;
+**2D view** returns to its heatmap. The 450 ms mirror presentation preserves the
+same amplitudes, moods, terrain, time and playback, with immediate reduced-motion
+switching. The separate signed **Average terrain along y** is not a 1D Hamiltonian.
+
+Open **Menu → Advanced / Legacy demonstrations → 1D simulations** for the original
+standalone 1D/Observer experiments, or choose **2D Gaussian demo**. Entering/leaving
+a legacy demonstration starts a fresh experiment; the main view switch does not.
+
+**399 tests**, typecheck/build and **146 browser checks** pass. Sustained performance
+acceptance remains open: final short paired 2D runs were near real time, but a
+minute-long comparison was slower. See the [5E.2 implementation, numerical evidence,
+performance caveat and review checklist](docs/PROJECTION_1D_VALIDATION.md).
+This records the 5E.2 boundary; 5E.3 is described above. Historical milestones
+below describe retained demonstrations, not the current acceptance counts.
+
+**Retained Slice 5D — entangled mood qubits.** In **2D creature world**, select
+an independent creature and a partner, then **Entangle moods**, or load
+**World: entangled friendship**. Both creatures share one genuine Bell-state
+mood, while their spatial wavefunctions remain independent. Inspect reduced
+Bloch vectors, purity and entropy; measure in Z or X with seeded Born-rule
+outcomes, or **Measure & Release** to restore independent moods. Registered
+pairs have all mood-dependent spatial feedback suspended to avoid spurious
+signalling through the approximate mean-field interface.
+[Model, controls, tests, benchmarks and review checklist](docs/ENTANGLEMENT_2D_VALIDATION.md).
+
+**Post-5D performance audit:** reproducible production/Node benchmarks, private
+observable caching, terrain-only fast paths and presentation-cadence diagnostics.
+All **378 tests** and browser regressions pass, with tested bit-identical evolution
+and pixels. Independent/Bell playback improves, but the coupled two-creature
+real-time target was **not met in that audit**.
+[Controlled results, sustained playback, memory checks and limitations](docs/PERFORMANCE_AUDIT_2D.md).
+
+**Production-loop follow-up:** indexed finite-value guards preserve every check
+and all physics. The matched 60-second interacting UI comparison reaches
+**0.786 → 0.965 physical/wall throughput**, meeting the bounded ≥0.9 target;
+**380 tests** and browser regressions pass. Long callbacks and some discarded
+wall time remain; no Worker was introduced. This historical record predates 5E.
+[Real callback traces, controlled comparisons, limits and recommendation](docs/RUNTIME_PERFORMANCE_2D.md).
+
+The retained 5C independent, drive, attraction and repulsion scenes support 1–4
+separately normalized spatial states, shared editable terrain and independent
+unitary moods. Spatial feedback remains a generally first-order mean-field game
+model, **not spatial entanglement or an exact many-body simulation**. Standalone
+1D and Gaussian 2D demonstrations remain available under Advanced / Legacy.
+[5C numerical evidence and limitations](docs/WORLD_2D_VALIDATION.md).
+
+**Retained Slice 5B — interactive 2D potential terrain.** Select **2D Gaussian demo**
+to paint positive barriers, negative wells, or smoothly erase them while one
+complex wavefunction evolves on the existing 128 × 128 interior grid. Signed
+terrain colors are separate from the probability heatmap. Reproducible free,
+scattering and attractive-well presets are included. These are legacy experiments,
+not the main terrarium’s marginal view.
+[Controls, physics, numerical evidence and performance](docs/TERRAIN_2D_VALIDATION.md).
+
+**The legacy 1D demonstration starts with two interacting creatures.** Play the numerical mean-field
 simulation, select A or B to inspect its qubit mood, paint shared terrain, and
 observe only the selected creature. Compare attraction, independence, and
 repulsion from identical initial conditions using **Apply coupling & Reset**.
@@ -40,9 +138,28 @@ physical time 0–44 at approximately **2.5× playback speed**, in dimensionless
 the absolute numerical uncertainty budget is about 0.0015, not exact continuum
 accuracy. [Capture provenance and numerical evidence](docs/SCATTERING_VALIDATION.md).
 
-**Status:** Slice 4 final release-readiness checks pass, pending user review. **296 automated
-tests**, TypeScript checks, production build, and strict DOM-free controller/world
-compilation pass. Real Chrome checks passed for the two-creature scene (22 checks)
+**Historical 5D status:** implementation and automated checks pass, pending human
+visual/device/accessibility review. **375 automated tests**, TypeScript checks,
+production build and a separate DOM-free world compile pass, including all 355
+unchanged pre-5D tests. Algebraic X/Z no-signalling, joint-state invariants,
+seeded replay, feedback suspension and bit-identical spatial continuity pass.
+**30 world**, **21 Gaussian/terrain**, **22 1D creature**, and **14 Observer**
+Chrome checks pass without runtime/console errors. Latest benchmark timings
+are slower than the historical 5C run; even two-creature playback can lag on
+this configuration. See [5D evidence](docs/ENTANGLEMENT_2D_VALIDATION.md).
+The following describes the retained 5C evidence: World validation checks complex-state reference equivalence,
+order independence, norms, causal behavioral contrasts, lifecycle continuity
+and first-order coupled convergence. **21 world and 21 Gaussian/terrain Chrome
+checks** pass. Four-creature playback can lag on the tested headless machine;
+no resolution/timestep reduction hides that limitation.
+[World evidence and reproduction](docs/WORLD_2D_VALIDATION.md).
+Terrain validation retains exact state continuity, the instantaneous energy
+jump and static-H refinement checks. [Terrain evidence](docs/TERRAIN_2D_VALIDATION.md).
+The [unchanged 5A benchmarks](docs/TWO_DIMENSIONAL_VALIDATION.md) still pass:
+<0.86% Gaussian width error at t=2, <7e-13 norm drift over 10,000 steps, and
+second-order full-complex-state temporal convergence.
+The existing Slice 4 strict DOM-free controller/world compilation result is
+recorded in its historical validation. Real Chrome checks passed for the two-creature scene (22 checks)
 and retained Observer scene (14 checks), with no runtime/console errors. This is
 not a claim of exhaustive manual device or accessibility acceptance. No automatic
 commit or push. [Slice 4D validation](docs/TWO_CREATURE_BROWSER_VALIDATION.md).
@@ -75,7 +192,91 @@ new dependencies. The older CN entry remains documentation-only.
 
 ## Browser simulation
 
-### Two-creature demonstration (default)
+### 2D potential terrain (Slices 5A–5B)
+
+Run `npm run dev` and select **2D Gaussian demo**. The grid has 128 × 128
+**interior** points on x,y ∈ [−10,10], Δx=Δy=20/129, zero Dirichlet values on
+all four unstored boundaries, ℏ=m=1 and fixed Δt=1/120. Defaults are center
+(0,0), density standard deviations (0.8,0.8), momentum (0,0), V=0. The default
+View / inspect tool never paints. Select **Barrier (+)**, **Well (−)**, or
+**Eraser**, then click/drag with mouse, pen, or touch. Width sigma defaults to
+0.7 and strength A to 2; both are adjustable. Gaussian stamps are truncated at
+3 sigma, distance-interpolated independently of event frequency, and bounded to
+[−20,20] energy units. Repeated passes add; erasing attenuates either sign.
+The ring shows sigma, not the full cutoff.
+
+The finite-difference method uses symmetric potential/Cayley splitting:
+`P(dt/2) Cx(dt/2) Cy(dt) Cx(dt/2) P(dt/2)`. Row/column tridiagonal solves and
+exact real-potential phase rotations are unitary in exact arithmetic, preserving
+the **area-weighted** norm to roundoff. This is second-order, **not the full
+unsplit 2D Crank–Nicolson update**. Norm preservation does not imply exact energy
+preservation for a nontrivial static potential. V is frozen during each step.
+
+**Play / Pause** remain independent of browser frame rate; painting also works
+during playback, between complete steps. **Reset evolution** restores this
+experiment's initial state/time and pauses, preserving terrain. **Clear terrain**
+changes only V, not the packet or time. **Load preset** replaces both packet and
+terrain at t=0. Switching dimensions disposes the inactive view and starts fresh.
+
+Positive V is a barrier relative to zero; negative V is attractive. Painting is
+an external Hamiltonian change, **not measurement**: it never collapses,
+renormalizes or directly changes the wavefunction. Current expected energy can
+jump by `dx*dy*sum rho*deltaV` when terrain changes; this is not a numerical
+conservation failure. Static-H splitting drift is a separate source of error.
+
+The density heatmap retains fixed navy-to-cyan brightness `1-exp(-ρ/0.08)`,
+without autoscaling or phase coloring. A separately toggleable/cached terrain
+overlay uses **warm positive / blue negative / transparent zero** energy colors
+with adjustable opacity. Both layers preserve physical aspect ratio and exact
+sample-center alignment. Hide the overlay to inspect density alone.
+
+Load **scattering barrier**, Play, and inspect near t=2.4: an incoming packet
+(center −4, px=3) encounters a full-height, smoothly edged V≈6 barrier. Outgoing
+region masses are documented, **not a calibrated tunnelling percentage**; the
+packet includes above-barrier momentum components. Load **attractive well** to
+see evolution in a depth-5 Gaussian well, without assuming a single bound state.
+For quantitative tunnelling, the existing validated 1D tunnelling preset remains
+available. Finite walls, spatial dispersion and temporal errors remain. This
+Gaussian mode has no creatures; the separate world mode is described below.
+Neither mode includes spatial measurement, spatial entanglement or saving.
+The creature world now supports mood-only measurements and entanglement (5D).
+See [terrain validation, presets and limitations](docs/TERRAIN_2D_VALIDATION.md).
+
+The [technical validation](docs/TWO_DIMENSIONAL_VALIDATION.md) documents the grid,
+Gaussian convention, APIs, analytical comparisons, eigenmode phase, long-run
+norm, static-V energy drift, convergence, memory and actual Chrome timings.
+
+### 2D creature world (Slices 5C–5D)
+
+Select **2D creature world**. Each creature has its own complex ψ; independent
+creatures own pure mood qubits, while registered pairs share a two-qubit mood.
+There is no joint spatial many-body wavefunction. The following drive/social
+rules apply only between unpaired members; registered pairs are excluded. The same grid/terrain tools above are reused.
+All means and moods are snapshotted before any creature advances; separate
+potentials contain terrain plus `−F sz d·(x−center)` and other-creature
+`−g₀ sz_a sz_b exp(−|x−μ_b|²/(2ℓ²))` terms, with no self-interaction. These
+change spatial evolution through the unchanged Cayley solver, never scripted
+movement. Mood evolution reuses `Hm=(ω/2)σx`. The complete feedback scheme is
+generally **first-order**, despite the frozen linear solver's second-order accuracy.
+
+- Start with two; **Add creature / Remove selected creature** supports one to four,
+  preserving survivors and time. Selection changes only inspection.
+- Toggle mood drives/social feedback and adjust social strength/range live.
+- Each identity has a colored density, its own norm diagnostic and selected
+  mean/width/Bloch/force inspection. **Show selected density only** resolves
+  overlaps. Layers combine densities for display, **not coherent amplitudes**;
+  each norm is one, while the integral of their sum equals creature count.
+- **Reset evolution** restores the current roster's saved initial ψ/moods at t=0,
+  preserving terrain and current interaction settings. **Clear terrain** preserves
+  all live states, moods and time. **World presets** replace roster, initial
+  conditions and settings at t=0, preserving terrain. Clear terrain first to
+  reproduce the documented free-terrain examples.
+- No conserved total many-body energy is claimed; world energy is not displayed.
+  Signed terrain overlay colors remain separate from creature identity colors.
+
+[Model, preset parameters, checks, measured timings and pending manual review](docs/WORLD_2D_VALIDATION.md).
+
+### Two-creature 1D demonstration (Advanced / Legacy)
 
 Starts paused with **Paint** selected, no terrain, and g=1.5. Two normalized
 packets start at x=−1.5/+1.5 with density sigma=0.8 and momenta +0.5/−0.5 on
@@ -259,9 +460,11 @@ preserves terrain, as before.
 
 Measurement remains synchronous O(N²) and can underflow extremely small tails.
 Repeated sharp observations can produce near-grid-scale states: normalization
-and CN stability do not establish continuum accuracy there. Neither the POVM nor
-TypeScript sampling is formally verified. The companion's checked exact
-coordinate-projection theorem is a different operator; see the
+and CN stability do not establish continuum accuracy there. TypeScript sampling,
+IEEE-754 error and underflow are not formally verified. The companion now also
+has exact finite weighted POVM and Gaussian-response models at the museum's
+pinned commit; this is not verification of the running browser. The exact
+coordinate-projection theorem concerns a different operator; see the
 [notebook](packages/web/src/content/notebook/observer.md) and
 [release validation](docs/OBSERVER_VALIDATION.md) for precise scope.
 
@@ -293,6 +496,9 @@ node scripts/scattering-report.mjs
 Run the real Chrome integration checks (uses an installed Chrome, no added packages):
 
 ```bash
+npx tsc --project packages/web/tsconfig.world2d.json
+node scripts/world-2d-browser-check.mjs
+node scripts/two-dimensional-browser-check.mjs
 node scripts/creature-browser-check.mjs
 node scripts/observer-browser-check.mjs --no-screenshots
 ```
@@ -308,7 +514,11 @@ node scripts/capture-observer-gif.mjs --creatures
 
 ## Directory structure
 
-- `packages/web/src/world/`: browser-independent Creature and two-creature coordinator
+- `packages/web/src/world/`: browser-independent 1D/2D worlds, presets and mood-pair registry
+- `packages/sim-core/src/joint-qubit.ts`: mood-only two-qubit math
+- `docs/ENTANGLEMENT_2D_VALIDATION.md`: Slice 5D model, evidence and manual review
+- `docs/WORLD_2D_VALIDATION.md`: Slice 5C model, controls, evidence and performance limits
+- `scripts/world-2d-browser-check.mjs`: real Chrome world integration checks/benchmarks
 - `docs/TWO_CREATURE_BROWSER_VALIDATION.md`: controls, browser checks and limitations
 - `scripts/creature-browser-check.mjs`: real Chrome two-creature integration checks
 - `packages/sim-core`: dependency-free numerical state, observables, and tested Crank–Nicolson solver

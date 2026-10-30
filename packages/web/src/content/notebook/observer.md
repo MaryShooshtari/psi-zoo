@@ -2,7 +2,7 @@
 title: "The Observer — Why does the wavefunction collapse?"
 topic: "Born rule and finite-resolution position measurement"
 mechanic: "Observe particle (Slice 3)"
-status: "Gaussian POVM numerically tested; exact projection is a separate Lean theorem"
+status: "Exact finite-response/Gaussian model and sharp projection have distinct Lean results; TypeScript is numerically tested"
 ---
 
 ## Start with what you saw
@@ -57,4 +57,6 @@ The UI re-establishes its energy-drift reference after measurement and terrain c
 
 The companion repository's [CoordinateProjection.lean](https://github.com/MaryShooshtari/psi-zoo-proofs/blob/94a75c8f71448482434f9d76a667c53cf4d8853e/PsiZooProofs/CoordinateProjection.lean) proves idempotence, self-adjointness, retained regional mass, and normalization after a positive-mass exact sharp projection. In particular, coordinateProjection_idempotent, coordinateProjection_mass, and normalize_coordinateProjection concern that sharp operator, not the Gaussian mask above. The file neither chooses a random outcome nor proves the Born sampling algorithm.
 
-The separate [CrankNicolsonUnitarity.lean](https://github.com/MaryShooshtari/psi-zoo-proofs/blob/94a75c8f71448482434f9d76a667c53cf4d8853e/PsiZooProofs/CrankNicolsonUnitarity.lean) proves exact finite-matrix CN unitarity under its hypotheses. These two source files were checked locally with Lean at the linked commit for this release review. Neither theorem formally verifies the TypeScript implementation, IEEE-754 arithmetic, the Gaussian POVM, or its sampling. The finite-resolution measurement is supported here by numerical tests, not a completed companion proof of that model.
+The separate [CrankNicolsonUnitarity.lean](https://github.com/MaryShooshtari/psi-zoo-proofs/blob/94a75c8f71448482434f9d76a667c53cf4d8853e/PsiZooProofs/CrankNicolsonUnitarity.lean) proves exact finite-matrix CN unitarity under its hypotheses. These two pinned sources were checked in the earlier Observer release.
+
+The companion now also contains [FiniteMeasurement.lean](https://github.com/MaryShooshtari/psi-zoo-proofs/blob/ac2ff0ffb4f05f2758b85909885b4ef337287eb4/PsiZooProofs/FiniteMeasurement.lean) and [GaussianMeasurement.lean](https://github.com/MaryShooshtari/psi-zoo-proofs/blob/ac2ff0ffb4f05f2758b85909885b4ef337287eb4/PsiZooProofs/GaussianMeasurement.lean). They prove exact finite-response completeness, probability and conditional-normalization properties, including the normalized Gaussian instance, under explicit positive-spacing, nonzero-input and positive-conditioning hypotheses. These are not a verification of TypeScript sampling, IEEE-754 behavior, or the whole game. The Gaussian operator remains distinct from sharp coordinate projection even though both models now have specific mathematical proofs.

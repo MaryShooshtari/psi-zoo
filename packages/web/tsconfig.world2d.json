@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": []
+  },
+  "include": [
+    "src/world/world2d.ts",
+    "src/world/worldPresets2d.ts"
+  ]
+}

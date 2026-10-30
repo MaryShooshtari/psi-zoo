@@ -67,14 +67,16 @@ try {
     };
   ` });
   await send('Page.navigate', { url: 'http://127.0.0.1:5174' });
+  await retry(() => evaluate(`!!document.querySelector('.dimension-controls')`));
+  await evaluate(`[...document.querySelectorAll('button')].find(b=>b.textContent==='1D simulations').click()`);
   await retry(() => evaluate(`document.querySelector('button') && !document.querySelector('button').disabled && window.__plot.density?.length === 401`));
   // This regression targets the original single-packet scene, not the new default.
   await evaluate(`[...document.querySelectorAll('button')].find(b=>b.textContent==='Load free exploration').click()`);
   await retry(() => evaluate(`!document.querySelector('.creature-inspector')`));
   await evaluate(`window.button = text => [...document.querySelectorAll('button')].find(b => b.textContent === text);
     window.diagnostic = label => [...document.querySelectorAll('.diagnostics span')].find(e => e.textContent.startsWith(label))?.textContent.split(':').slice(1).join(':').trim();
-    window.variance = () => { const p = __plot.density.map(([x,y],i) => ({x:-20+i*0.1,w:10.5*((292-y)/232)**2*0.1})); const norm=p.reduce((s,v)=>s+v.w,0);const mean=p.reduce((s,v)=>s+v.x*v.w,0)/norm;return p.reduce((s,v)=>s+(v.x-mean)**2*v.w,0)/norm; };
-    window.count = () => Number(document.body.innerText.match(/observation #(\\d+)/)?.[1] || 0);`);
+    window.variance = () => { const bottom=document.querySelector('canvas').clientHeight-48,height=bottom-60; const p = __plot.density.map(([x,y],i) => ({x:-20+i*0.1,w:10.5*((bottom-y)/height)**2*0.1})); const norm=p.reduce((s,v)=>s+v.w,0);const mean=p.reduce((s,v)=>s+v.x*v.w,0)/norm;return p.reduce((s,v)=>s+(v.x-mean)**2*v.w,0)/norm; };
+    window.count = () => Number(document.body.textContent.match(/observation #(\\d+)/)?.[1] || 0);`);
   check('1. Initial free density and diagnostics', await evaluate(`Math.abs(Number(diagnostic('Probability norm'))-1)<1e-9 && Math.abs(variance()-1)<1e-8`));
   const initialPotential = await evaluate('JSON.stringify(__plot.potential)');
   const point = await evaluate(`(() => {const r=document.querySelector('canvas').getBoundingClientRect();return {x:r.left+58+0.375*(r.width-116),y:r.top+160};})()`);
@@ -93,8 +95,8 @@ try {
   await clickPlot(plotPoint.x, plotPoint.y);
   await retry(() => evaluate('count() === 1'));
   check('3. One Observe click produces one measurement while paused', await evaluate(`count()===1 && button('Play').disabled===false && diagnostic('Physical time')==='0.00'`));
-  check('4. Marker uses sampled position, not click', await evaluate(`(() => {const x=Number(document.body.innerText.match(/Observed x = ([\\d.-]+)/)[1]); const width=document.querySelector('canvas').clientWidth; return Math.abs(__plot.marker[0][0]-(58+(x+20)/40*(width-116)))<1e-6 && Math.abs(x-12)>1;})()`));
-  check('5. Localized density peak above 0.5 is inside fixed plot bounds', await evaluate(`(() => {const ys=__plot.density.map(p=>p[1]); return Math.min(...ys)>60 && Math.max(...ys)<=292 && 10.5*((292-Math.min(...ys))/232)**2>0.5;})()`));
+  check('4. Marker uses sampled position, not click', await evaluate(`(() => {const x=Number(document.body.textContent.match(/Observed x = ([\\d.-]+)/)[1]); const width=document.querySelector('canvas').clientWidth; return Math.abs(__plot.marker[0][0]-(58+(x+20)/40*(width-116)))<1e-6 && Math.abs(x-12)>1;})()`));
+  check('5. Localized density peak above 0.5 is inside fixed plot bounds', await evaluate(`(() => {const ys=__plot.density.map(p=>p[1]),bottom=document.querySelector('canvas').clientHeight-48,height=bottom-60; return Math.min(...ys)>60 && Math.max(...ys)<=bottom && 10.5*((bottom-Math.min(...ys))/height)**2>0.5;})()`));
   const localizedVariance = await evaluate('variance()');
   await evaluate(`button('Play').click()`);
   await retry(() => evaluate(`Number(diagnostic('Physical time')) >= 1.5`));
@@ -106,8 +108,10 @@ try {
   await evaluate(`button('Pause').click()`);
   check('8. Norm and energy diagnostics are finite; norm is one', await evaluate(`Math.abs(Number(diagnostic('Probability norm'))-1)<1e-9 && Number.isFinite(Number(diagnostic('Energy ⟨ψ|H|ψ⟩'))) && Math.abs(Number(diagnostic('Energy drift since last update')))<1e-8`));
   await evaluate(`button('Reset').click()`);
-  check('9. Reset clears result, pauses and restores initial packet/time', await evaluate(`count()===0 && diagnostic('Physical time')==='0.00' && Math.abs(variance()-1)<1e-8 && !button('Play').disabled && document.body.innerText.includes('No position observed yet')`));
+  check('9. Reset clears result, pauses and restores initial packet/time', await evaluate(`count()===0 && diagnostic('Physical time')==='0.00' && Math.abs(variance()-1)<1e-8 && !button('Play').disabled && document.body.textContent.includes('No position observed yet')`));
   // A keyboard Space on the native observation button must produce only one action.
+  await evaluate(`[...document.querySelectorAll('button')].find(b=>b.classList.contains('settings-trigger')).click();button('Experiments').click()`);
+  await sleep(100);
   await evaluate(`button('Observe particle').focus()`);
   await send('Input.dispatchKeyEvent', { type: 'keyDown', key: ' ', code: 'Space', windowsVirtualKeyCode: 32 });
   await send('Input.dispatchKeyEvent', { type: 'keyUp', key: ' ', code: 'Space', windowsVirtualKeyCode: 32 });
@@ -122,9 +126,16 @@ try {
       clip: { x: 0, y: 0, width: 1280, height: Math.ceil(layout.cssContentSize.height), scale: 1 } });
     await writeFile('docs/media/observer.png', Buffer.from(screenshot.data, 'base64'));
   }
-  await evaluate(`button('Why did it jump?').click()`);
+  await evaluate(`button('← Back to menu').click();button('Physics notebook').click();button('Why did it jump?').click()`);
   await retry(() => evaluate(`document.querySelector('dialog')?.open`));
   await evaluate(`document.querySelectorAll('dialog details').forEach(e=>e.open=true)`);
+  await evaluate(`button('Close notebook').focus()`);
+  await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9, modifiers: 8 });
+  await send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 });
+  await evaluate(`window.notebookBackTrap=document.querySelector('dialog').contains(document.activeElement)&&document.activeElement!==button('Close notebook')`);
+  await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 });
+  await send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 });
+  check('10d. Legacy notebook contains both directions of keyboard focus', await evaluate(`notebookBackTrap&&document.activeElement===button('Close notebook')`));
   check('10a. Notebook opens, pauses, and renders valid native MathML and current example', await evaluate(`(() => { const math=[...document.querySelectorAll('dialog math')]; return math.length===6 && math.every(m=>m.namespaceURI==='http://www.w3.org/1998/Math/MathML' && m.getBoundingClientRect().height>15 && !new DOMParser().parseFromString(m.outerHTML,'application/xml').querySelector('parsererror')) && document.querySelector('.notebook-example').textContent.includes('P(j)') && !button('Play').disabled; })()`));
   await evaluate(`document.querySelector('dialog details').scrollIntoView({block:'start'})`);
   if (captureScreenshots) {

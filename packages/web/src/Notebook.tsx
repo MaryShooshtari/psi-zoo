@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type KeyboardEvent } from 'react';
 import type { Observation } from './simulation';
 import source from './content/notebook/observer.md?raw';
 
@@ -8,18 +8,18 @@ import source from './content/notebook/observer.md?raw';
  */
 export function parseNotebook(markdown: string) {
   const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/.exec(markdown);
-  const title = frontmatter?.[1]?.match(/^title: "(.+)"$/m)?.[1];
+  const title = frontmatter?.[1]?.match(/^title: "(.+)"\r?$/m)?.[1];
   if (!frontmatter || !title) throw new Error('Notebook needs a quoted title in frontmatter');
   const sections = markdown.slice(frontmatter[0].length).trim().split(/^## /m).filter(Boolean).map(section => {
     const [heading, ...lines] = section.split('\n');
     const blocks = lines.join('\n').trim().split(/\r?\n\s*\r?\n/).map(text => {
       if (text.startsWith('<math ')) {
-        if (!text.endsWith('</math>') || !text.includes('aria-label=')) throw new Error('Malformed notebook equation');
+        if (!text.endsWith('</math>') || !text.includes('aria-label=') || !text.includes('xmlns="http://www.w3.org/1998/Math/MathML"') || (text.match(/<math\b/g)?.length !== 1) || /on\w+\s*=|<(?:script|style|iframe|foreignObject)\b|(?:href|src)\s*=/i.test(text)) throw new Error('Malformed notebook equation');
         return { kind: 'math' as const, text };
       }
       return { kind: 'paragraph' as const, text };
     });
-    return { heading: heading!, blocks };
+    return { heading: heading!.trim(), blocks };
   });
   return { title, sections };
 }
@@ -44,13 +44,21 @@ export function ObservationExample({ observation }: { observation: Observation |
   </aside>;
 }
 
+export function containDialogFocus(event: KeyboardEvent<HTMLDialogElement>) {
+  if (event.key !== 'Tab') return;
+  const controls = [...event.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], summary, input:not(:disabled), select:not(:disabled), [tabindex="0"]')].filter(el => el.getClientRects().length > 0);
+  const first = controls[0], last = controls[controls.length - 1], active = document.activeElement;
+  if (event.shiftKey && (active === first || !controls.includes(active as HTMLElement))) { event.preventDefault(); last?.focus(); }
+  else if (!event.shiftKey && (active === last || !controls.includes(active as HTMLElement))) { event.preventDefault(); first?.focus(); }
+}
+
 export function Notebook({ observation, onClose }: { observation: Observation | null; onClose(): void }) {
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     if (!dialog.current?.open) dialog.current?.showModal();
   }, []);
   return <dialog id="observer-notebook" className="notebook" ref={dialog} onClose={onClose}
-    aria-labelledby="notebook-title" aria-describedby="notebook-playback-help">
+    aria-labelledby="notebook-title" aria-describedby="notebook-playback-help" onKeyDown={containDialogFocus}>
     <div className="notebook-heading">
       <h2 id="notebook-title">{observerNotebook.title}</h2>
       <button autoFocus onClick={() => dialog.current?.close()}>Close notebook</button>

@@ -1,0 +1,650 @@
+{
+  "phase": "5E.3",
+  "status": "Implemented for review. Functional checks and bounded incremental draw-cost budget pass. Whole-app/sustained throughput acceptance remains open; no universal performance-improvement claim.",
+  "checks": {
+    "tests": 408,
+    "testFiles": 39,
+    "creatureAndProjectionBrowser": 51,
+    "shellBrowser": 36,
+    "worldBrowser": 30,
+    "gaussianTerrainBrowser": 21,
+    "legacyCreatureBrowser": 22,
+    "observerBrowser": 14,
+    "typecheck": true,
+    "build": true,
+    "domFreeWorldCompile": true,
+    "performanceEntryTypecheck": true
+  },
+  "protectedSource": [
+    {
+      "path": "packages/sim-core/src/adi2d.ts",
+      "sha256": "3b89a34ff96cfb1746d5454143ec81b7ae9e57f9b52a39cdd952971104add424"
+    },
+    {
+      "path": "packages/sim-core/src/crankNicolson.ts",
+      "sha256": "d8ffc407be235be9725103a77bc084db9cc15630dab5a57b310dfcefc724870c"
+    },
+    {
+      "path": "packages/sim-core/src/gaussian.ts",
+      "sha256": "f5359312ddbc96cc31d62f63dee2a304867bdfcb53c770c55ec6f12800c62b44"
+    },
+    {
+      "path": "packages/sim-core/src/gaussian2d.ts",
+      "sha256": "eccbd41009d35234311384701eff0b81bb26dafdac530959270c857008b5a493"
+    },
+    {
+      "path": "packages/sim-core/src/grid.ts",
+      "sha256": "dff48343bc91dc999d93b1a16e2a35a1b89a44c1be32e9aec04daf78400a9291"
+    },
+    {
+      "path": "packages/sim-core/src/grid2d.ts",
+      "sha256": "faffdf33d52c6eeaf52a0a28a4e1494a8c2eba7e25a8ace1560d250ff266f84d"
+    },
+    {
+      "path": "packages/sim-core/src/hamiltonian.ts",
+      "sha256": "b5dfb490e8b28bbc2da6f8ba312d3c33f0b52990ae3d2e63f1fe505ebf80dced"
+    },
+    {
+      "path": "packages/sim-core/src/index.ts",
+      "sha256": "05eb9ea37b7f78d5e37b0751771c696a0b510b269c1cf5751d0d1cd1648a9911"
+    },
+    {
+      "path": "packages/sim-core/src/interaction2d.ts",
+      "sha256": "6ce5d0ee9e87dd277ccd614acffeefa7632297d9fdc31302402258a9c185c21f"
+    },
+    {
+      "path": "packages/sim-core/src/joint-qubit.ts",
+      "sha256": "afa6736eff2b94a8bf6e722bdc7de154360c7d7e5f4e3ef103d4aecca2112f6e"
+    },
+    {
+      "path": "packages/sim-core/src/math.ts",
+      "sha256": "c5f564d9a0e0ba6c9444c5bb675c79a11f52c778d645ec81acb4d82b5ab6badd"
+    },
+    {
+      "path": "packages/sim-core/src/measurement.ts",
+      "sha256": "5f03c6ba8ca128538025f8bb46d224edfd2b68979519dc0d19810a0fbf62f000"
+    },
+    {
+      "path": "packages/sim-core/src/observables2d.ts",
+      "sha256": "59bcb1ed0ccd261fe6603ab471c7d9c9663fba2fbc930cd5ce1c38efa85e08f3"
+    },
+    {
+      "path": "packages/sim-core/src/potential.ts",
+      "sha256": "d8ab5824d45e166841e19c858a56298e14384b5d9646d26828dd4d3c4747324b"
+    },
+    {
+      "path": "packages/sim-core/src/potential2d.ts",
+      "sha256": "a022832ca8fa6b4cfbc9a8dda56f96bbd5c0b108d9290e9a1f586e58d9eec38b"
+    },
+    {
+      "path": "packages/sim-core/src/projection2d.ts",
+      "sha256": "3429e6aea4cfea02d58ee8543eddf65fa75c09778d0f643657ebc4e7c47735ab"
+    },
+    {
+      "path": "packages/sim-core/src/qubit.ts",
+      "sha256": "9bfa32fadb3c3b9d945ac8114461518abc6bf27a7d9bdaedc996276900571820"
+    },
+    {
+      "path": "packages/sim-core/src/regions.ts",
+      "sha256": "9b57e773f79972a507c39f8ecce482b70ff5fc79ac3b91504b02d618566bca57"
+    },
+    {
+      "path": "packages/sim-core/src/scatteringExperiment.ts",
+      "sha256": "a89709749f6ebf2ba3284b3497d567b77d9e45de801c9e65408452a020545149"
+    },
+    {
+      "path": "packages/sim-core/src/stepper.ts",
+      "sha256": "a484780fd431487748cde3bda621abfe229ca8d82f5288dfa2a10c89cdd62697"
+    },
+    {
+      "path": "packages/sim-core/src/tridiagonal.ts",
+      "sha256": "5fb0432d688a65fd36823b8596f287696db67b6f7b979ba4758862585c813b93"
+    },
+    {
+      "path": "packages/web/src/world/creature.ts",
+      "sha256": "9bf8e945d0b3a2d75ed109a03566c2440eda729059b1c013b2c695309db1aea7"
+    },
+    {
+      "path": "packages/web/src/world/moodRegistry2d.ts",
+      "sha256": "bf79b2a266eb23bd6ee6071231b873f94ce56082e243113f3867e2313600ba46"
+    },
+    {
+      "path": "packages/web/src/world/twoCreatureWorld.ts",
+      "sha256": "122271689421d4195e4cd95343849bc2246f5609d5a06827c19f7582e75bc661"
+    },
+    {
+      "path": "packages/web/src/world/world2d.ts",
+      "sha256": "c5493db40ba34d4c8068338a9ffda8f9bd2194bd231e8c81eca726717f85f6bb"
+    },
+    {
+      "path": "packages/web/src/world/worldPresets2d.ts",
+      "sha256": "01e60e9207ad3ef82e53d89f82d8df7e75e37a232bece568d2ee4d53f0eb5481"
+    },
+    {
+      "path": "packages/web/src/simulation.ts",
+      "sha256": "d3ccec38379a89d57092e5ba899922d1888112432671cbfb04155b1d8b686223"
+    },
+    {
+      "path": "packages/web/src/simulation2d.ts",
+      "sha256": "2c92ee2020ddfc64f3aff29da7ea0d42f365860375fcca629b44832bba817ed2"
+    },
+    {
+      "path": "packages/web/src/random.ts",
+      "sha256": "12fbedcf532e58c58cb784e401d9cbc991b251740d610ebab64a4b9d02fc9674"
+    },
+    {
+      "path": "packages/web/src/terrainBrush.ts",
+      "sha256": "8ef3d3c7e60d03fd0044d83e02a0281f0a5feb560e5e9fc79be6fb8988e5f277"
+    },
+    {
+      "path": "packages/web/src/terrainPresets.ts",
+      "sha256": "db4a7076512a9409b8aa2a2dd9178c6c61d5fe0cf5d550a9c5b281a590d57f65"
+    },
+    {
+      "path": "packages/web/src/painting.ts",
+      "sha256": "b10877c90336778a70cc8b55083a9f92a984d7afcd634f6e75a87ca6220299c7"
+    },
+    {
+      "path": "packages/web/src/observation.ts",
+      "sha256": "4576ac0782482e6b4d9301fe077bbcb96d88b8791e07d9be720516b4eebd458b"
+    },
+    {
+      "path": "packages/web/src/plot.ts",
+      "sha256": "310e2a29897efeffd00146f5e7df553181ee97e77b87f05b87d4e2c9488006b7"
+    },
+    {
+      "path": "packages/web/src/terrariumView.ts",
+      "sha256": "4cb9eb0c7c4c29caf1a9dceb0bb4ae46f89b83be5d6fcb39d0caff52834b2b4e"
+    },
+    {
+      "path": "packages/web/src/Notebook.tsx",
+      "sha256": "056671d8463b545cddcb4f02d39897f233475d63069b26841e815fe715560c67"
+    },
+    {
+      "path": "packages/web/src/CreatureInspector.tsx",
+      "sha256": "75ccbc1b84407d4dacceffda1198574879df244d579e1023babe3af3b884b202"
+    }
+  ],
+  "packageMetadataUnchanged": true,
+  "finalSource": [
+    {
+      "path": "packages/web/src/App.tsx",
+      "sha256": "45ff6f43224b584524d67fc65e29a1b4cdae53c9d87bb800fdda6f0e8b386d50"
+    },
+    {
+      "path": "packages/web/src/Gaussian2DDemo.tsx",
+      "sha256": "7a59111b3aeb00b5076db11bf3f5e76e0a7f97e9fd0f2d4edfd9c9cc7cd4d045"
+    },
+    {
+      "path": "packages/web/src/TerrariumShell.tsx",
+      "sha256": "a2454980024f22925ce7c0a6c3e08e5f13cbbea4677cec17e564141cb24fbfbd"
+    },
+    {
+      "path": "packages/web/src/TerrariumShell.test.tsx",
+      "sha256": "5ecd9e5ae4452e5103e2c09ee06e1cc182070fe9aff3418a3b7a9723dcc0bbae"
+    },
+    {
+      "path": "packages/web/src/TerrainControls.tsx",
+      "sha256": "529aa14fe26f67fab28188cec4671e62fcc3b43301aca83ddefc821ba9b64ccd"
+    },
+    {
+      "path": "packages/web/src/WorldControls2D.tsx",
+      "sha256": "2d425cb41ec3201f2a272b74e9fe8554f50a41120b564e0fa55cb3754c9b48b5"
+    },
+    {
+      "path": "packages/web/src/EntanglementControls2D.tsx",
+      "sha256": "12f905c2b7deb4defa18442e26e7eb5869db6ceb942a63a3cb23c632314efd65"
+    },
+    {
+      "path": "packages/web/src/creatureIdentity.ts",
+      "sha256": "02f682a310cf02928299c9e99d14c920ada63f58b763c5ed72d05809010f78c9"
+    },
+    {
+      "path": "packages/web/src/CreatureSummary2D.tsx",
+      "sha256": "8e44cfda9a2a94d50a796da4079492aed4754f0005ae03e1b54a481799f0d981"
+    },
+    {
+      "path": "packages/web/src/TerrainShortcuts.tsx",
+      "sha256": "c07646d0f3a4e1b23cd56ca46a41f62e020d5d2d942ccfae7482a106c197eeea"
+    },
+    {
+      "path": "packages/web/src/creatureDesign.test.ts",
+      "sha256": "48fbef4abaecd8153b1a4046fc54f1b16f2921dbaf2d468349d02844de028a40"
+    },
+    {
+      "path": "packages/web/src/render/creatureDecoration.ts",
+      "sha256": "090309c96c8820d9cfabf3018580ad2a17d76472c86148eaa5de889e75df3a93"
+    },
+    {
+      "path": "packages/web/src/render/creatures2d.ts",
+      "sha256": "5a5c99305e1fe06514f8c2affd6e87f7943b927995996f99bf7366965376b255"
+    },
+    {
+      "path": "packages/web/src/render/projection1d.ts",
+      "sha256": "9c382f255cc44f4191ac6a0347e1d2f786128298822bfa1ef36bd686c883f4f1"
+    },
+    {
+      "path": "packages/web/src/style.css",
+      "sha256": "9beb9acf7067074ebea797b973fd29c7e9f984bbae4ff17ea11b0605099254c1"
+    },
+    {
+      "path": "scripts/creature-design-browser-check.mjs",
+      "sha256": "6bfa80d45ddc7e380529ab2d94c1896527ee771d04f540aa58b1e122c1881a1c"
+    },
+    {
+      "path": "scripts/creature-design-browser-cases.mjs",
+      "sha256": "4aa8ffa8397c1c444deda5fb4349cba1da5919519596238d3ad133ed375f45bd"
+    },
+    {
+      "path": "scripts/projection-browser-check.mjs",
+      "sha256": "8332a17c6bfc0b30633a64bb8c76a4477aa67b1e17ddc5edafc5922a0730d1c6"
+    },
+    {
+      "path": "scripts/terrarium-shell-browser-check.mjs",
+      "sha256": "2e7b55a5a57d385560ad08a97939866ab18140274860818af0371c49c57ed6f9"
+    },
+    {
+      "path": "scripts/world-2d-browser-check.mjs",
+      "sha256": "ed587a4e676804cbcb4bb0b0ec3a3fee372155d140824e7d16c097f03a9ce1e8"
+    },
+    {
+      "path": "scripts/creature-browser-check.mjs",
+      "sha256": "d2f00344e219f9ebd136f0f27014de33b690a6d124ac44f38752cb6391c72140"
+    },
+    {
+      "path": "scripts/observer-browser-check.mjs",
+      "sha256": "a4c856cc47cfde518d68a7a69e9cc96a7064f4eaa57eadf19c9973182fe315f7"
+    },
+    {
+      "path": "scripts/performance/runtime-2d.mjs",
+      "sha256": "6ac9ebdb34f31c2226979fbd1cd9b7045e7fb8f95e99584de284ae2dfa0f77e3"
+    }
+  ],
+  "host": {
+    "node": "v24.20.0",
+    "chrome": {
+      "protocolVersion": "1.3",
+      "product": "Chrome/156.0.8078.48",
+      "revision": "@d0c02bfad08ec92a6ffcf989e53cd995e6381a4c",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+      "jsVersion": "15.6.75.19"
+    },
+    "os": "10.0.19045",
+    "cpu": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+    "logicalCpus": 8
+  },
+  "renderingSource": "C:/Users/marys/AppData/Local/Temp/psi-projection-check-Am7aqq",
+  "rendering": {
+    "note": "Isolated synchronous Canvas2D rendering at 600x600; not physical/wall throughput, compositor time or sustained FPS.",
+    "two": {
+      "creatures": 2,
+      "without": {
+        "samples": 50,
+        "medianMs": 5,
+        "p95Ms": 6.799999952316284
+      },
+      "with": {
+        "samples": 50,
+        "medianMs": 5,
+        "p95Ms": 7
+      },
+      "samePhysics": true,
+      "rngDraws": 1
+    },
+    "four": {
+      "creatures": 4,
+      "without": {
+        "samples": 50,
+        "medianMs": 7,
+        "p95Ms": 9.099999904632568
+      },
+      "with": {
+        "samples": 50,
+        "medianMs": 7.1000001430511475,
+        "p95Ms": 9
+      },
+      "samePhysics": true,
+      "rngDraws": 1
+    }
+  },
+  "incrementalMedianDrawBudgetMs": 2,
+  "datasets": [
+    {
+      "directory": "D:/Temp/psi-5e3-decoration-abba",
+      "environment": {
+        "date": "2026-10-29T17:14:20.176Z",
+        "mode": "plain",
+        "view": "2d",
+        "decorations": "alternating",
+        "seconds": 10,
+        "batches": 6,
+        "serial": false,
+        "comparison": false
+      },
+      "errors": [],
+      "groups": {
+        "off": {
+          "physicalSeconds": 17.300000000000033,
+          "wallSeconds": 30.213099999904635,
+          "ratio": 0.5725993029531772,
+          "callbackMedianMs": 39.5,
+          "callbackP95Ms": 173,
+          "completedSteps": 2076,
+          "discardedWallSeconds": 12.799900000000008
+        },
+        "on": {
+          "physicalSeconds": 11.866666666666925,
+          "wallSeconds": 30.411400000333785,
+          "ratio": 0.39020455048227576,
+          "callbackMedianMs": 163,
+          "callbackP95Ms": 182.59999990463257,
+          "completedSteps": 1424,
+          "discardedWallSeconds": 18.599033333333338
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "decorations": "off",
+          "batch": 0,
+          "ratio": 0.9385374071915201
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 1,
+          "ratio": 0.3675300340915294
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 2,
+          "ratio": 0.38845051041556616
+        },
+        {
+          "source": "after",
+          "decorations": "off",
+          "batch": 3,
+          "ratio": 0.3879141723438488
+        },
+        {
+          "source": "after",
+          "decorations": "off",
+          "batch": 4,
+          "ratio": 0.3924581516570189
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 5,
+          "ratio": 0.4147001323012905
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e3-decoration-serial",
+      "environment": {
+        "date": "2026-10-29T17:17:26.739Z",
+        "mode": "plain",
+        "view": "2d",
+        "decorations": "alternating",
+        "seconds": 10,
+        "batches": 6,
+        "serial": true,
+        "comparison": false
+      },
+      "errors": [],
+      "groups": {
+        "off": {
+          "physicalSeconds": 21.933333333333266,
+          "wallSeconds": 30.154900000095367,
+          "ratio": 0.7273555320450044,
+          "callbackMedianMs": 86,
+          "callbackP95Ms": 106,
+          "completedSteps": 2632,
+          "discardedWallSeconds": 8.200399999999991
+        },
+        "on": {
+          "physicalSeconds": 20.858333333333526,
+          "wallSeconds": 30.164599999904635,
+          "ratio": 0.691483836463917,
+          "callbackMedianMs": 90.60000014305115,
+          "callbackP95Ms": 100.70000004768372,
+          "completedSteps": 2503,
+          "discardedWallSeconds": 9.30003333333333
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "decorations": "off",
+          "batch": 0,
+          "ratio": 0.7164820730112648
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 1,
+          "ratio": 0.6604714445202249
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 2,
+          "ratio": 0.6825706456503865
+        },
+        {
+          "source": "after",
+          "decorations": "off",
+          "batch": 3,
+          "ratio": 0.7295324691758874
+        },
+        {
+          "source": "after",
+          "decorations": "off",
+          "batch": 4,
+          "ratio": 0.7360474253224994
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 5,
+          "ratio": 0.7316505370980112
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e3-final-decoration-serial",
+      "environment": {
+        "date": "2026-10-29T17:28:38.757Z",
+        "mode": "plain",
+        "view": "2d",
+        "decorations": "alternating",
+        "seconds": 10,
+        "batches": 4,
+        "serial": true,
+        "comparison": false
+      },
+      "errors": [],
+      "groups": {
+        "off": {
+          "physicalSeconds": 19.599999999999596,
+          "wallSeconds": 20.0425,
+          "ratio": 0.9779219159286314,
+          "callbackMedianMs": 25.59999990463257,
+          "callbackP95Ms": 63,
+          "completedSteps": 2352,
+          "discardedWallSeconds": 0.43406666666667365
+        },
+        "on": {
+          "physicalSeconds": 20.03333333333284,
+          "wallSeconds": 20.044,
+          "ratio": 0.9994678374243086,
+          "callbackMedianMs": 25.300000190734863,
+          "callbackP95Ms": 44.19999980926514,
+          "completedSteps": 2404,
+          "discardedWallSeconds": 0.00019999999999711915
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "decorations": "off",
+          "batch": 0,
+          "ratio": 0.9555104989720071
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 1,
+          "ratio": 0.9997641752467467
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 2,
+          "ratio": 0.9991706883096209
+        },
+        {
+          "source": "after",
+          "decorations": "off",
+          "batch": 3,
+          "ratio": 1.000292444293118
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e3-release-decoration-serial",
+      "environment": {
+        "date": "2026-10-29T17:43:35.927Z",
+        "mode": "plain",
+        "view": "2d",
+        "decorations": "alternating",
+        "seconds": 10,
+        "batches": 4,
+        "serial": true,
+        "comparison": false
+      },
+      "errors": [],
+      "groups": {
+        "off": {
+          "physicalSeconds": 19.533333333332955,
+          "wallSeconds": 20.0335,
+          "ratio": 0.975033485578304,
+          "callbackMedianMs": 25.299999952316284,
+          "callbackP95Ms": 48.09999990463257,
+          "completedSteps": 2344,
+          "discardedWallSeconds": 0.5002666666666762
+        },
+        "on": {
+          "physicalSeconds": 20.06666666666618,
+          "wallSeconds": 20.095400000095367,
+          "ratio": 0.9985701536954203,
+          "callbackMedianMs": 25.5,
+          "callbackP95Ms": 45.799999952316284,
+          "completedSteps": 2408,
+          "discardedWallSeconds": 0.0005666666666572784
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "decorations": "off",
+          "batch": 0,
+          "ratio": 0.948510837979836
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 1,
+          "ratio": 0.9976765075308514
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 2,
+          "ratio": 0.9994654022219447
+        },
+        {
+          "source": "after",
+          "decorations": "off",
+          "batch": 3,
+          "ratio": 1.0015505733175791
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e3-runtime-ab",
+      "environment": {
+        "date": "2026-10-29T17:09:42.126Z",
+        "mode": "plain",
+        "view": "2d",
+        "decorations": "on",
+        "seconds": 10,
+        "batches": 3,
+        "serial": false,
+        "comparison": true
+      },
+      "errors": [],
+      "groups": {
+        "before": {
+          "physicalSeconds": 23.866666666666585,
+          "wallSeconds": 30.09239999985695,
+          "ratio": 0.7931127682331764,
+          "callbackMedianMs": 30,
+          "callbackP95Ms": 116.59999990463257,
+          "completedSteps": 2864,
+          "discardedWallSeconds": 6.2674999999999965
+        },
+        "after": {
+          "physicalSeconds": 18.06666666666706,
+          "wallSeconds": 30.1427000002861,
+          "ratio": 0.5993712131459883,
+          "callbackMedianMs": 102.79999995231628,
+          "callbackP95Ms": 158,
+          "completedSteps": 2168,
+          "discardedWallSeconds": 12.06646666666666
+        }
+      },
+      "runs": [
+        {
+          "source": "before",
+          "decorations": "on",
+          "batch": 0,
+          "ratio": 0.9992705325160055
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 0,
+          "ratio": 0.691873480280049
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 1,
+          "ratio": 0.5592059275801877
+        },
+        {
+          "source": "before",
+          "decorations": "on",
+          "batch": 1,
+          "ratio": 0.6575604507340568
+        },
+        {
+          "source": "before",
+          "decorations": "on",
+          "batch": 2,
+          "ratio": 0.7231953290870542
+        },
+        {
+          "source": "after",
+          "decorations": "on",
+          "batch": 2,
+          "ratio": 0.5474536807963767
+        }
+      ]
+    }
+  ],
+  "interpretation": "Canvas probes measure synchronous API cost, not compositor cost or end-to-end FPS. Whole-app controls and candidates vary; retain adverse runs. The first source comparison is unfavorable. Same-source serial on/off isolates overlay settings, not all UI changes or sustained parity. No solver/physics/step policy changes."
+}

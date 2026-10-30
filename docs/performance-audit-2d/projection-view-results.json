@@ -1,0 +1,1566 @@
+{
+  "phase": "5E.2",
+  "host": {
+    "node": "v24.20.0",
+    "chrome": {
+      "protocolVersion": "1.3",
+      "product": "Chrome/156.0.8078.48",
+      "revision": "@d0c02bfad08ec92a6ffcf989e53cd995e6381a4c",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+      "jsVersion": "15.6.75.19"
+    },
+    "os": "10.0.19045",
+    "cpus": [
+      {
+        "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+        "speed": 1498,
+        "times": {
+          "user": 38073578,
+          "nice": 0,
+          "sys": 45807109,
+          "idle": 562967640,
+          "irq": 15385656
+        }
+      },
+      {
+        "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+        "speed": 1498,
+        "times": {
+          "user": 38140156,
+          "nice": 0,
+          "sys": 28824343,
+          "idle": 579883843,
+          "irq": 4638031
+        }
+      },
+      {
+        "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+        "speed": 1498,
+        "times": {
+          "user": 34630515,
+          "nice": 0,
+          "sys": 16630031,
+          "idle": 595587765,
+          "irq": 1264781
+        }
+      },
+      {
+        "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+        "speed": 1498,
+        "times": {
+          "user": 30024625,
+          "nice": 0,
+          "sys": 12093031,
+          "idle": 604730703,
+          "irq": 769968
+        }
+      },
+      {
+        "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+        "speed": 1498,
+        "times": {
+          "user": 29049937,
+          "nice": 0,
+          "sys": 14520203,
+          "idle": 603278187,
+          "irq": 772937
+        }
+      },
+      {
+        "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+        "speed": 1498,
+        "times": {
+          "user": 26949640,
+          "nice": 0,
+          "sys": 11920546,
+          "idle": 607978140,
+          "irq": 637437
+        }
+      },
+      {
+        "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+        "speed": 1498,
+        "times": {
+          "user": 28012562,
+          "nice": 0,
+          "sys": 12899703,
+          "idle": 605936046,
+          "irq": 645296
+        }
+      },
+      {
+        "model": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+        "speed": 1498,
+        "times": {
+          "user": 30328828,
+          "nice": 0,
+          "sys": 11870234,
+          "idle": 604649234,
+          "irq": 517156
+        }
+      }
+    ]
+  },
+  "status": "Functional checks pass; sustained performance acceptance remains open. Stop before 5E.3.",
+  "checks": {
+    "tests": 399,
+    "testFiles": 38,
+    "projectionBrowser": 23,
+    "shellBrowser": 36,
+    "worldBrowser": 30,
+    "gaussianTerrainBrowser": 21,
+    "legacyCreatureBrowser": 22,
+    "observerBrowser": 14,
+    "typecheck": true,
+    "build": true,
+    "domFreeWorldCompile": true,
+    "performanceEntryTypecheck": true
+  },
+  "unchangedSource": [
+    {
+      "path": "packages/sim-core/src/adi2d.ts",
+      "sha256": "3b89a34ff96cfb1746d5454143ec81b7ae9e57f9b52a39cdd952971104add424"
+    },
+    {
+      "path": "packages/sim-core/src/crankNicolson.ts",
+      "sha256": "d8ffc407be235be9725103a77bc084db9cc15630dab5a57b310dfcefc724870c"
+    },
+    {
+      "path": "packages/sim-core/src/gaussian.ts",
+      "sha256": "f5359312ddbc96cc31d62f63dee2a304867bdfcb53c770c55ec6f12800c62b44"
+    },
+    {
+      "path": "packages/sim-core/src/gaussian2d.ts",
+      "sha256": "eccbd41009d35234311384701eff0b81bb26dafdac530959270c857008b5a493"
+    },
+    {
+      "path": "packages/sim-core/src/grid.ts",
+      "sha256": "dff48343bc91dc999d93b1a16e2a35a1b89a44c1be32e9aec04daf78400a9291"
+    },
+    {
+      "path": "packages/sim-core/src/grid2d.ts",
+      "sha256": "faffdf33d52c6eeaf52a0a28a4e1494a8c2eba7e25a8ace1560d250ff266f84d"
+    },
+    {
+      "path": "packages/sim-core/src/hamiltonian.ts",
+      "sha256": "b5dfb490e8b28bbc2da6f8ba312d3c33f0b52990ae3d2e63f1fe505ebf80dced"
+    },
+    {
+      "path": "packages/sim-core/src/interaction2d.ts",
+      "sha256": "6ce5d0ee9e87dd277ccd614acffeefa7632297d9fdc31302402258a9c185c21f"
+    },
+    {
+      "path": "packages/sim-core/src/joint-qubit.ts",
+      "sha256": "afa6736eff2b94a8bf6e722bdc7de154360c7d7e5f4e3ef103d4aecca2112f6e"
+    },
+    {
+      "path": "packages/sim-core/src/math.ts",
+      "sha256": "c5f564d9a0e0ba6c9444c5bb675c79a11f52c778d645ec81acb4d82b5ab6badd"
+    },
+    {
+      "path": "packages/sim-core/src/measurement.ts",
+      "sha256": "5f03c6ba8ca128538025f8bb46d224edfd2b68979519dc0d19810a0fbf62f000"
+    },
+    {
+      "path": "packages/sim-core/src/observables2d.ts",
+      "sha256": "59bcb1ed0ccd261fe6603ab471c7d9c9663fba2fbc930cd5ce1c38efa85e08f3"
+    },
+    {
+      "path": "packages/sim-core/src/potential.ts",
+      "sha256": "d8ab5824d45e166841e19c858a56298e14384b5d9646d26828dd4d3c4747324b"
+    },
+    {
+      "path": "packages/sim-core/src/potential2d.ts",
+      "sha256": "a022832ca8fa6b4cfbc9a8dda56f96bbd5c0b108d9290e9a1f586e58d9eec38b"
+    },
+    {
+      "path": "packages/sim-core/src/qubit.ts",
+      "sha256": "9bfa32fadb3c3b9d945ac8114461518abc6bf27a7d9bdaedc996276900571820"
+    },
+    {
+      "path": "packages/sim-core/src/regions.ts",
+      "sha256": "9b57e773f79972a507c39f8ecce482b70ff5fc79ac3b91504b02d618566bca57"
+    },
+    {
+      "path": "packages/sim-core/src/scatteringExperiment.ts",
+      "sha256": "a89709749f6ebf2ba3284b3497d567b77d9e45de801c9e65408452a020545149"
+    },
+    {
+      "path": "packages/sim-core/src/stepper.ts",
+      "sha256": "a484780fd431487748cde3bda621abfe229ca8d82f5288dfa2a10c89cdd62697"
+    },
+    {
+      "path": "packages/sim-core/src/tridiagonal.ts",
+      "sha256": "5fb0432d688a65fd36823b8596f287696db67b6f7b979ba4758862585c813b93"
+    },
+    {
+      "path": "packages/web/src/simulation.ts",
+      "sha256": "d3ccec38379a89d57092e5ba899922d1888112432671cbfb04155b1d8b686223"
+    },
+    {
+      "path": "packages/web/src/simulation2d.ts",
+      "sha256": "2c92ee2020ddfc64f3aff29da7ea0d42f365860375fcca629b44832bba817ed2"
+    },
+    {
+      "path": "packages/web/src/random.ts",
+      "sha256": "12fbedcf532e58c58cb784e401d9cbc991b251740d610ebab64a4b9d02fc9674"
+    },
+    {
+      "path": "packages/web/src/terrainBrush.ts",
+      "sha256": "8ef3d3c7e60d03fd0044d83e02a0281f0a5feb560e5e9fc79be6fb8988e5f277"
+    },
+    {
+      "path": "packages/web/src/terrainPresets.ts",
+      "sha256": "db4a7076512a9409b8aa2a2dd9178c6c61d5fe0cf5d550a9c5b281a590d57f65"
+    },
+    {
+      "path": "packages/web/src/world/moodRegistry2d.ts",
+      "sha256": "bf79b2a266eb23bd6ee6071231b873f94ce56082e243113f3867e2313600ba46"
+    },
+    {
+      "path": "packages/web/src/world/worldPresets2d.ts",
+      "sha256": "01e60e9207ad3ef82e53d89f82d8df7e75e37a232bece568d2ee4d53f0eb5481"
+    },
+    {
+      "path": "packages/web/src/world/creature.ts",
+      "sha256": "9bf8e945d0b3a2d75ed109a03566c2440eda729059b1c013b2c695309db1aea7"
+    },
+    {
+      "path": "packages/web/src/world/twoCreatureWorld.ts",
+      "sha256": "122271689421d4195e4cd95343849bc2246f5609d5a06827c19f7582e75bc661"
+    }
+  ],
+  "additionsOnly": {
+    "coreIndex": "One projection export; otherwise original text after LF normalization.",
+    "world": "One import and read-only copyProjectedDensityX query; otherwise original text after LF normalization."
+  },
+  "finalSource": [
+    {
+      "path": "packages/sim-core/src/projection2d.ts",
+      "sha256": "3429e6aea4cfea02d58ee8543eddf65fa75c09778d0f643657ebc4e7c47735ab"
+    },
+    {
+      "path": "packages/sim-core/tests/projection2d.test.ts",
+      "sha256": "2c7ec4549cea0297963814201a627d64273300a505e83050ff3715745979a0b7"
+    },
+    {
+      "path": "packages/sim-core/src/index.ts",
+      "sha256": "05eb9ea37b7f78d5e37b0751771c696a0b510b269c1cf5751d0d1cd1648a9911"
+    },
+    {
+      "path": "packages/web/src/App.tsx",
+      "sha256": "7701cf5deb19ef9aa2d082ffe53d387b5b49fde4eca59e0bedcd0543c5960743"
+    },
+    {
+      "path": "packages/web/src/Gaussian2DDemo.tsx",
+      "sha256": "58ce22a7b395e7e293b28a8eb64813ff3b6b427f7cdeeefaa24dbbbab2013123"
+    },
+    {
+      "path": "packages/web/src/world/world2d.ts",
+      "sha256": "c5493db40ba34d4c8068338a9ffda8f9bd2194bd231e8c81eca726717f85f6bb"
+    },
+    {
+      "path": "packages/web/src/style.css",
+      "sha256": "f67401c7d453a70b2a49c3b901f20730ca766e6901995c15c50de782a9aaf411"
+    },
+    {
+      "path": "packages/web/src/render/projection1d.ts",
+      "sha256": "e3dde33a4c2d94e49da41d9de1a46c65848f9f4056f7dabcc2f4cff02f2805e8"
+    },
+    {
+      "path": "packages/web/src/render/projection1d.test.ts",
+      "sha256": "d763ec681974b83cc37e65db746af1646154e432cbea9a34e1f52760e85f82b7"
+    },
+    {
+      "path": "packages/web/src/terrariumView.ts",
+      "sha256": "4cb9eb0c7c4c29caf1a9dceb0bb4ae46f89b83be5d6fcb39d0caff52834b2b4e"
+    },
+    {
+      "path": "packages/web/src/terrariumView.test.ts",
+      "sha256": "9da2c9a967ea274fbaa8858a2efd0648bcd70fe474f5c8cd549ad7ba3b84912f"
+    },
+    {
+      "path": "packages/web/src/TerrariumShell.test.tsx",
+      "sha256": "4df21a7e4e061ef60a66a8a75462ab6550bfc876b9a9b9b3083268c1edd613bc"
+    },
+    {
+      "path": "scripts/projection-browser-check.mjs",
+      "sha256": "f4da575a767f94ece935f42e6b88e50eeac1f63a2ca354da4949c4eea6bb9a38"
+    },
+    {
+      "path": "scripts/performance/runtime-2d.mjs",
+      "sha256": "0c5acabf622c0d3305a1ec2492a0fd9f22ae91a9c014497db9a89c048591c0ee"
+    }
+  ],
+  "datasets": [
+    {
+      "directory": "D:/Temp/psi-5e2-1d",
+      "finalSource": false,
+      "environment": {
+        "date": "2026-10-29T15:33:42.613Z",
+        "mode": "plain",
+        "seconds": 10,
+        "batches": 3,
+        "view": "1d"
+      },
+      "errors": [],
+      "groups": {
+        "two-interacting.after": {
+          "ratio": 0.7747742363228599,
+          "physicalSeconds": 23.333333333333204,
+          "wallSeconds": 30.116299999952318,
+          "fps": 14.277982355092783,
+          "callbackMedianMs": 79,
+          "callbackP95Ms": 100.70000004768372,
+          "gapMedianMs": 4.400000095367432,
+          "gapP95Ms": 10.700000047683716,
+          "completedSteps": 2800,
+          "discardedWallSeconds": 6.665833333333332,
+          "capRate": 0.7488372093023256
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 0.7573115440187226,
+          "physicalSeconds": 7.599999999999891,
+          "wallSeconds": 10.0355,
+          "completedSteps": 912,
+          "discardedWallSeconds": 2.3163333333333336,
+          "frames": 194,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 1,
+          "ratio": 0.7742934572166218,
+          "physicalSeconds": 7.800000000000004,
+          "wallSeconds": 10.073700000047683,
+          "completedSteps": 936,
+          "discardedWallSeconds": 2.2829666666666664,
+          "frames": 117,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 2,
+          "ratio": 0.7927704663098114,
+          "physicalSeconds": 7.933333333333309,
+          "wallSeconds": 10.007099999904632,
+          "completedSteps": 952,
+          "discardedWallSeconds": 2.066533333333332,
+          "frames": 119,
+          "viewSwitches": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e2-2d-ab",
+      "finalSource": false,
+      "environment": {
+        "date": "2026-10-29T15:31:48.623Z",
+        "mode": "plain",
+        "seconds": 10,
+        "batches": 3,
+        "view": "2d"
+      },
+      "errors": [],
+      "groups": {
+        "two-interacting.before": {
+          "ratio": 0.7255023153308646,
+          "physicalSeconds": 21.949999999999996,
+          "wallSeconds": 30.254899999856953,
+          "fps": 14.278678825646177,
+          "callbackMedianMs": 84.20000004768372,
+          "callbackP95Ms": 107.39999985694885,
+          "gapMedianMs": 5.299999952316284,
+          "gapP95Ms": 8.199999809265137,
+          "completedSteps": 2634,
+          "discardedWallSeconds": 8.215499999999999,
+          "capRate": 0.6805555555555556
+        },
+        "two-interacting.after": {
+          "ratio": 0.7330229025464345,
+          "physicalSeconds": 22.133333333333432,
+          "wallSeconds": 30.19460000014305,
+          "fps": 10.995343538196469,
+          "callbackMedianMs": 85.09999990463257,
+          "callbackP95Ms": 90.69999980926514,
+          "gapMedianMs": 5,
+          "gapP95Ms": 6.099999904632568,
+          "completedSteps": 2656,
+          "discardedWallSeconds": 8.065566666666667,
+          "capRate": 1
+        }
+      },
+      "runs": [
+        {
+          "source": "before",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 0.7615856841787623,
+          "physicalSeconds": 7.6833333333332305,
+          "wallSeconds": 10.088599999904632,
+          "completedSteps": 922,
+          "discardedWallSeconds": 2.3163666666666667,
+          "frames": 218,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 0.7341852527943709,
+          "physicalSeconds": 7.4000000000000306,
+          "wallSeconds": 10.079200000047683,
+          "completedSteps": 888,
+          "discardedWallSeconds": 2.6830000000000007,
+          "frames": 111,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 1,
+          "ratio": 0.7365456011237086,
+          "physicalSeconds": 7.4000000000000306,
+          "wallSeconds": 10.046900000095368,
+          "completedSteps": 888,
+          "discardedWallSeconds": 2.6496,
+          "frames": 111,
+          "viewSwitches": 0
+        },
+        {
+          "source": "before",
+          "scene": "two-interacting",
+          "batch": 1,
+          "ratio": 0.6735340729001648,
+          "physicalSeconds": 6.800000000000064,
+          "wallSeconds": 10.096,
+          "completedSteps": 816,
+          "discardedWallSeconds": 3.2996,
+          "frames": 102,
+          "viewSwitches": 0
+        },
+        {
+          "source": "before",
+          "scene": "two-interacting",
+          "batch": 2,
+          "ratio": 0.7414542433395287,
+          "physicalSeconds": 7.4666666666667005,
+          "wallSeconds": 10.070299999952317,
+          "completedSteps": 896,
+          "discardedWallSeconds": 2.5995333333333317,
+          "frames": 112,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 2,
+          "ratio": 0.7283441757295892,
+          "physicalSeconds": 7.3333333333333695,
+          "wallSeconds": 10.0685,
+          "completedSteps": 880,
+          "discardedWallSeconds": 2.7329666666666657,
+          "frames": 110,
+          "viewSwitches": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e2-bound-1d",
+      "finalSource": true,
+      "environment": {
+        "date": "2026-10-29T16:17:19.766Z",
+        "mode": "plain",
+        "seconds": 10,
+        "batches": 2,
+        "view": "1d"
+      },
+      "errors": [],
+      "groups": {
+        "two-interacting.after": {
+          "ratio": 1.0003542401500836,
+          "physicalSeconds": 20.049999999999514,
+          "wallSeconds": 20.04290000009537,
+          "fps": 58.27500012445516,
+          "callbackMedianMs": 10.900000095367432,
+          "callbackP95Ms": 16.700000047683716,
+          "gapMedianMs": 4.700000047683716,
+          "gapP95Ms": 11.299999952316284,
+          "completedSteps": 2406,
+          "discardedWallSeconds": 0,
+          "capRate": 0
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 0.9999068306304297,
+          "physicalSeconds": 10.016666666666431,
+          "wallSeconds": 10.017600000143052,
+          "completedSteps": 1202,
+          "discardedWallSeconds": 0,
+          "frames": 567,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 1,
+          "ratio": 1.0008013060338148,
+          "physicalSeconds": 10.033333333333083,
+          "wallSeconds": 10.025299999952317,
+          "completedSteps": 1204,
+          "discardedWallSeconds": 0,
+          "frames": 601,
+          "viewSwitches": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e2-bound-2d-ab",
+      "finalSource": true,
+      "environment": {
+        "date": "2026-10-29T16:13:07.638Z",
+        "mode": "plain",
+        "seconds": 10,
+        "batches": 3,
+        "view": "2d"
+      },
+      "errors": [],
+      "groups": {
+        "two-interacting.before": {
+          "ratio": 1.0003415800564617,
+          "physicalSeconds": 30.066666666665938,
+          "wallSeconds": 30.05639999985695,
+          "fps": 55.76183441822629,
+          "callbackMedianMs": 12.899999856948853,
+          "callbackP95Ms": 24.700000047683716,
+          "gapMedianMs": 2.799999952316284,
+          "gapP95Ms": 9.099999904632568,
+          "completedSteps": 3608,
+          "discardedWallSeconds": 0.00006666666666631238,
+          "capRate": 0.002386634844868735
+        },
+        "two-interacting.after": {
+          "ratio": 0.9993090238412692,
+          "physicalSeconds": 30.033333333332585,
+          "wallSeconds": 30.054099999904633,
+          "fps": 58.99361484807817,
+          "callbackMedianMs": 12.399999856948853,
+          "callbackP95Ms": 15.5,
+          "gapMedianMs": 2.8999998569488525,
+          "gapP95Ms": 9.5,
+          "completedSteps": 3604,
+          "discardedWallSeconds": 0,
+          "capRate": 0
+        }
+      },
+      "runs": [
+        {
+          "source": "before",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 0.9997870669854785,
+          "physicalSeconds": 10.016666666666438,
+          "wallSeconds": 10.018799999952316,
+          "completedSteps": 1202,
+          "discardedWallSeconds": 0.00006666666666631238,
+          "frames": 531,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 0.9995576001398788,
+          "physicalSeconds": 10.016666666666415,
+          "wallSeconds": 10.021099999904633,
+          "completedSteps": 1202,
+          "discardedWallSeconds": 0,
+          "frames": 601,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 1,
+          "ratio": 1.000056575565675,
+          "physicalSeconds": 10.016666666666417,
+          "wallSeconds": 10.016100000143052,
+          "completedSteps": 1202,
+          "discardedWallSeconds": 0,
+          "frames": 596,
+          "viewSwitches": 0
+        },
+        {
+          "source": "before",
+          "scene": "two-interacting",
+          "batch": 1,
+          "ratio": 0.9996374027438385,
+          "physicalSeconds": 10.016666666666419,
+          "wallSeconds": 10.020299999952316,
+          "completedSteps": 1202,
+          "discardedWallSeconds": 0,
+          "frames": 599,
+          "viewSwitches": 0
+        },
+        {
+          "source": "before",
+          "scene": "two-interacting",
+          "batch": 2,
+          "ratio": 1.0016005643617387,
+          "physicalSeconds": 10.033333333333085,
+          "wallSeconds": 10.017299999952316,
+          "completedSteps": 1204,
+          "discardedWallSeconds": 0,
+          "frames": 546,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 2,
+          "ratio": 0.9983128512955664,
+          "physicalSeconds": 9.99999999999975,
+          "wallSeconds": 10.01689999985695,
+          "completedSteps": 1200,
+          "discardedWallSeconds": 0,
+          "frames": 576,
+          "viewSwitches": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e2-bound-long",
+      "finalSource": true,
+      "environment": {
+        "date": "2026-10-29T16:15:05.200Z",
+        "mode": "plain",
+        "seconds": 60,
+        "batches": 1,
+        "view": "2d"
+      },
+      "errors": [],
+      "groups": {
+        "two-interacting.before": {
+          "ratio": 0.8545328553730324,
+          "physicalSeconds": 51.29999999999743,
+          "wallSeconds": 60.03279999995232,
+          "fps": 33.09857278023977,
+          "callbackMedianMs": 13.299999952316284,
+          "callbackP95Ms": 89.5,
+          "gapMedianMs": 3.3999998569488525,
+          "gapP95Ms": 8.700000047683716,
+          "completedSteps": 6156,
+          "discardedWallSeconds": 8.648999999999997,
+          "capRate": 0.16305988928032208
+        },
+        "two-interacting.after": {
+          "ratio": 0.7025265986242225,
+          "physicalSeconds": 42.19999999999806,
+          "wallSeconds": 60.068899999856946,
+          "fps": 10.537898979363822,
+          "callbackMedianMs": 88.70000004768372,
+          "callbackP95Ms": 98.5,
+          "gapMedianMs": 5,
+          "gapP95Ms": 6.700000047683716,
+          "completedSteps": 5064,
+          "discardedWallSeconds": 17.864300000000014,
+          "capRate": 1
+        }
+      },
+      "runs": [
+        {
+          "source": "before",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 0.8545328553730324,
+          "physicalSeconds": 51.29999999999743,
+          "wallSeconds": 60.03279999995232,
+          "completedSteps": 6156,
+          "discardedWallSeconds": 8.648999999999997,
+          "frames": 1987,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 0.7025265986242225,
+          "physicalSeconds": 42.19999999999806,
+          "wallSeconds": 60.068899999856946,
+          "completedSteps": 5064,
+          "discardedWallSeconds": 17.864300000000014,
+          "frames": 633,
+          "viewSwitches": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e2-bound-morph",
+      "finalSource": true,
+      "environment": {
+        "date": "2026-10-29T16:17:54.731Z",
+        "mode": "plain",
+        "seconds": 15,
+        "batches": 1,
+        "view": "alternating"
+      },
+      "errors": [],
+      "groups": {
+        "two-interacting.after": {
+          "ratio": 0.912390529785859,
+          "physicalSeconds": 13.699999999999566,
+          "wallSeconds": 15.0155,
+          "fps": 35.96283840031967,
+          "callbackMedianMs": 13.5,
+          "callbackP95Ms": 61,
+          "gapMedianMs": 5,
+          "gapP95Ms": 14.900000095367432,
+          "completedSteps": 1644,
+          "discardedWallSeconds": 1.3167999999999995,
+          "capRate": 0.06851851851851852
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 0.912390529785859,
+          "physicalSeconds": 13.699999999999566,
+          "wallSeconds": 15.0155,
+          "completedSteps": 1644,
+          "discardedWallSeconds": 1.3167999999999995,
+          "frames": 540,
+          "viewSwitches": 21
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e2-final-1d",
+      "finalSource": false,
+      "environment": {
+        "date": "2026-10-29T16:08:50.427Z",
+        "mode": "plain",
+        "seconds": 10,
+        "batches": 3,
+        "view": "1d"
+      },
+      "errors": [],
+      "groups": {
+        "two-interacting.after": {
+          "ratio": 1.00020303622046,
+          "physicalSeconds": 30.049999999999265,
+          "wallSeconds": 30.04390000009537,
+          "fps": 58.81393560737424,
+          "callbackMedianMs": 10.200000047683716,
+          "callbackP95Ms": 14.899999856948853,
+          "gapMedianMs": 5.800000190734863,
+          "gapP95Ms": 12.299999952316284,
+          "completedSteps": 3606,
+          "discardedWallSeconds": 0,
+          "capRate": 0
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 1.000126471890394,
+          "physicalSeconds": 10.01666666666643,
+          "wallSeconds": 10.015400000095367,
+          "completedSteps": 1202,
+          "discardedWallSeconds": 0,
+          "frames": 565,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 1,
+          "ratio": 1.0004561147773021,
+          "physicalSeconds": 10.016666666666417,
+          "wallSeconds": 10.012099999904633,
+          "completedSteps": 1202,
+          "discardedWallSeconds": 0,
+          "frames": 601,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 2,
+          "ratio": 1.0000266229953925,
+          "physicalSeconds": 10.016666666666419,
+          "wallSeconds": 10.016400000095368,
+          "completedSteps": 1202,
+          "discardedWallSeconds": 0,
+          "frames": 601,
+          "viewSwitches": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e2-final-2d-ab",
+      "finalSource": false,
+      "environment": {
+        "date": "2026-10-29T16:07:13.331Z",
+        "mode": "plain",
+        "seconds": 10,
+        "batches": 3,
+        "view": "2d"
+      },
+      "errors": [],
+      "groups": {
+        "two-interacting.before": {
+          "ratio": 0.8032527870835868,
+          "physicalSeconds": 24.23333333333322,
+          "wallSeconds": 30.16899999976158,
+          "fps": 24.694222546517537,
+          "callbackMedianMs": 13.399999856948853,
+          "callbackP95Ms": 91.59999990463257,
+          "gapMedianMs": 4.200000047683716,
+          "gapP95Ms": 8.699999809265137,
+          "completedSteps": 2908,
+          "discardedWallSeconds": 5.949266666666666,
+          "capRate": 0.28859060402684567
+        },
+        "two-interacting.after": {
+          "ratio": 0.7190583654143989,
+          "physicalSeconds": 21.66666666666667,
+          "wallSeconds": 30.132,
+          "fps": 13.042612504978095,
+          "callbackMedianMs": 87.29999995231628,
+          "callbackP95Ms": 99.5,
+          "gapMedianMs": 4.799999952316284,
+          "gapP95Ms": 6.900000095367432,
+          "completedSteps": 2600,
+          "discardedWallSeconds": 8.398900000000001,
+          "capRate": 0.7633587786259542
+        }
+      },
+      "runs": [
+        {
+          "source": "before",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 1.0009510697919786,
+          "physicalSeconds": 10.033333333333106,
+          "wallSeconds": 10.023799999952317,
+          "completedSteps": 1204,
+          "discardedWallSeconds": 0.00006666666666631238,
+          "frames": 532,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 0.7503843229477163,
+          "physicalSeconds": 7.533333333333227,
+          "wallSeconds": 10.039299999952316,
+          "completedSteps": 904,
+          "discardedWallSeconds": 2.433033333333333,
+          "frames": 181,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 1,
+          "ratio": 0.7045881316782213,
+          "physicalSeconds": 7.0666666666667215,
+          "wallSeconds": 10.0295,
+          "completedSteps": 848,
+          "discardedWallSeconds": 2.9662333333333337,
+          "frames": 106,
+          "viewSwitches": 0
+        },
+        {
+          "source": "before",
+          "scene": "two-interacting",
+          "batch": 1,
+          "ratio": 0.7067184486606146,
+          "physicalSeconds": 7.133333333333383,
+          "wallSeconds": 10.093599999904633,
+          "completedSteps": 856,
+          "discardedWallSeconds": 2.966266666666668,
+          "frames": 107,
+          "viewSwitches": 0
+        },
+        {
+          "source": "before",
+          "scene": "two-interacting",
+          "batch": 2,
+          "ratio": 0.7030389855081561,
+          "physicalSeconds": 7.066666666666736,
+          "wallSeconds": 10.051599999904633,
+          "completedSteps": 848,
+          "discardedWallSeconds": 2.982933333333331,
+          "frames": 106,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 2,
+          "ratio": 0.7022285820249262,
+          "physicalSeconds": 7.0666666666667215,
+          "wallSeconds": 10.063200000047683,
+          "completedSteps": 848,
+          "discardedWallSeconds": 2.9996333333333345,
+          "frames": 106,
+          "viewSwitches": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e2-final-morph",
+      "finalSource": false,
+      "environment": {
+        "date": "2026-10-29T16:09:41.210Z",
+        "mode": "plain",
+        "seconds": 15,
+        "batches": 2,
+        "view": "alternating"
+      },
+      "errors": [],
+      "groups": {
+        "two-interacting.after": {
+          "ratio": 0.9590243133987479,
+          "physicalSeconds": 28.816666666665697,
+          "wallSeconds": 30.047900000095368,
+          "fps": 31.915707919586936,
+          "callbackMedianMs": 23.5,
+          "callbackP95Ms": 59,
+          "gapMedianMs": 3.799999952316284,
+          "gapP95Ms": 15.800000190734863,
+          "completedSteps": 3458,
+          "discardedWallSeconds": 1.2005333333333303,
+          "capRate": 0.06047966631908238
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 0.919849011768905,
+          "physicalSeconds": 13.833333333332893,
+          "wallSeconds": 15.038700000047683,
+          "completedSteps": 1660,
+          "discardedWallSeconds": 1.2004999999999963,
+          "frames": 384,
+          "viewSwitches": 21
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 1,
+          "ratio": 0.9982766125633079,
+          "physicalSeconds": 14.983333333332803,
+          "wallSeconds": 15.009200000047684,
+          "completedSteps": 1798,
+          "discardedWallSeconds": 0.000033333333334065185,
+          "frames": 575,
+          "viewSwitches": 21
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e2-morph",
+      "finalSource": false,
+      "environment": {
+        "date": "2026-10-29T15:35:03.592Z",
+        "mode": "plain",
+        "seconds": 15,
+        "batches": 2,
+        "view": "alternating"
+      },
+      "errors": [],
+      "groups": {
+        "two-interacting.after": {
+          "ratio": 0.5912649429519204,
+          "physicalSeconds": 17.86666666666644,
+          "wallSeconds": 30.217700000047685,
+          "fps": 11.218590428770721,
+          "callbackMedianMs": 86.40000009536743,
+          "callbackP95Ms": 127.70000004768372,
+          "gapMedianMs": 10.299999952316284,
+          "gapP95Ms": 32.90000009536743,
+          "completedSteps": 2144,
+          "discardedWallSeconds": 12.248933333333333,
+          "capRate": 0.6932153392330384
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 0.6130491255209649,
+          "physicalSeconds": 9.266666666666481,
+          "wallSeconds": 15.115700000047683,
+          "completedSteps": 1112,
+          "discardedWallSeconds": 5.749533333333332,
+          "frames": 210,
+          "viewSwitches": 21
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 1,
+          "ratio": 0.5694609985432366,
+          "physicalSeconds": 8.599999999999959,
+          "wallSeconds": 15.102,
+          "completedSteps": 1032,
+          "discardedWallSeconds": 6.4994000000000005,
+          "frames": 129,
+          "viewSwitches": 21
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e2-morph-destination",
+      "finalSource": false,
+      "environment": {
+        "date": "2026-10-29T15:37:16.076Z",
+        "mode": "plain",
+        "seconds": 15,
+        "batches": 2,
+        "view": "alternating"
+      },
+      "errors": [],
+      "groups": {
+        "two-interacting.after": {
+          "ratio": 0.8852657848391066,
+          "physicalSeconds": 26.616666666665814,
+          "wallSeconds": 30.066299999952314,
+          "fps": 37.88294535748684,
+          "callbackMedianMs": 11.799999952316284,
+          "callbackP95Ms": 86.90000009536743,
+          "gapMedianMs": 5.799999952316284,
+          "gapP95Ms": 14.400000095367432,
+          "completedSteps": 3194,
+          "discardedWallSeconds": 3.366566666666664,
+          "capRate": 0.07638279192273925
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 0.9899759386982232,
+          "physicalSeconds": 14.866666666666163,
+          "wallSeconds": 15.017200000047684,
+          "completedSteps": 1784,
+          "discardedWallSeconds": 0.15006666666666635,
+          "frames": 747,
+          "viewSwitches": 21
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 1,
+          "ratio": 0.7807775880334449,
+          "physicalSeconds": 11.749999999999654,
+          "wallSeconds": 15.049099999904632,
+          "completedSteps": 1410,
+          "discardedWallSeconds": 3.2164999999999973,
+          "frames": 392,
+          "viewSwitches": 21
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e2-release-1d",
+      "finalSource": false,
+      "environment": {
+        "date": "2026-10-29T15:55:52.916Z",
+        "mode": "plain",
+        "seconds": 10,
+        "batches": 3,
+        "view": "1d"
+      },
+      "errors": [],
+      "groups": {
+        "two-interacting.after": {
+          "ratio": 1.000052109140594,
+          "physicalSeconds": 30.06666666666593,
+          "wallSeconds": 30.06510000014305,
+          "fps": 58.672680283505024,
+          "callbackMedianMs": 10.199999809265137,
+          "callbackP95Ms": 15.099999904632568,
+          "gapMedianMs": 6.200000047683716,
+          "gapP95Ms": 11.5,
+          "completedSteps": 3608,
+          "discardedWallSeconds": 0,
+          "capRate": 0
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 1.0007214503336237,
+          "physicalSeconds": 10.033333333333099,
+          "wallSeconds": 10.026100000143051,
+          "completedSteps": 1204,
+          "discardedWallSeconds": 0,
+          "frames": 562,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 1,
+          "ratio": 0.9996573553680517,
+          "physicalSeconds": 10.016666666666417,
+          "wallSeconds": 10.020100000143051,
+          "completedSteps": 1202,
+          "discardedWallSeconds": 0,
+          "frames": 601,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 2,
+          "ratio": 0.9997770879846525,
+          "physicalSeconds": 10.016666666666415,
+          "wallSeconds": 10.018899999856949,
+          "completedSteps": 1202,
+          "discardedWallSeconds": 0,
+          "frames": 601,
+          "viewSwitches": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e2-release-2d-ab",
+      "finalSource": false,
+      "environment": {
+        "date": "2026-10-29T15:46:13.932Z",
+        "mode": "plain",
+        "seconds": 10,
+        "batches": 5,
+        "view": "2d"
+      },
+      "errors": [],
+      "groups": {
+        "two-interacting.before": {
+          "ratio": 0.8877535216003963,
+          "physicalSeconds": 44.51666666666602,
+          "wallSeconds": 50.145299999952314,
+          "fps": 39.006646684771255,
+          "callbackMedianMs": 11.5,
+          "callbackP95Ms": 84.59999990463257,
+          "gapMedianMs": 4.700000047683716,
+          "gapP95Ms": 8.700000047683716,
+          "completedSteps": 5342,
+          "discardedWallSeconds": 5.599233333333332,
+          "capRate": 0.1114519427402863
+        },
+        "two-interacting.after": {
+          "ratio": 0.8943034333038447,
+          "physicalSeconds": 44.86666666666597,
+          "wallSeconds": 50.16939999985695,
+          "fps": 39.06763883972279,
+          "callbackMedianMs": 11.600000143051147,
+          "callbackP95Ms": 84.29999995231628,
+          "gapMedianMs": 4.200000047683716,
+          "gapP95Ms": 8.700000047683716,
+          "completedSteps": 5384,
+          "discardedWallSeconds": 5.215866666666667,
+          "capRate": 0.11632653061224489
+        }
+      },
+      "runs": [
+        {
+          "source": "before",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 0.9996972630536612,
+          "physicalSeconds": 10.016666666666438,
+          "wallSeconds": 10.019700000047683,
+          "completedSteps": 1202,
+          "discardedWallSeconds": 0,
+          "frames": 537,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 1.0007659772870834,
+          "physicalSeconds": 10.016666666666417,
+          "wallSeconds": 10.009,
+          "completedSteps": 1202,
+          "discardedWallSeconds": 0,
+          "frames": 600,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 1,
+          "ratio": 1.0001264719142007,
+          "physicalSeconds": 10.016666666666417,
+          "wallSeconds": 10.01539999985695,
+          "completedSteps": 1202,
+          "discardedWallSeconds": 0,
+          "frames": 601,
+          "viewSwitches": 0
+        },
+        {
+          "source": "before",
+          "scene": "two-interacting",
+          "batch": 1,
+          "ratio": 0.9997870669854764,
+          "physicalSeconds": 10.016666666666417,
+          "wallSeconds": 10.018799999952316,
+          "completedSteps": 1202,
+          "discardedWallSeconds": 0,
+          "frames": 601,
+          "viewSwitches": 0
+        },
+        {
+          "source": "before",
+          "scene": "two-interacting",
+          "batch": 2,
+          "ratio": 1.0003162397429886,
+          "physicalSeconds": 10.016666666666417,
+          "wallSeconds": 10.0135,
+          "completedSteps": 1202,
+          "discardedWallSeconds": 0,
+          "frames": 601,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 2,
+          "ratio": 0.9848198476109341,
+          "physicalSeconds": 9.899999999999757,
+          "wallSeconds": 10.052599999904633,
+          "completedSteps": 1188,
+          "discardedWallSeconds": 0.06660000000000038,
+          "frames": 535,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 3,
+          "ratio": 0.7363403882668054,
+          "physicalSeconds": 7.400000000000025,
+          "wallSeconds": 10.049700000047684,
+          "completedSteps": 888,
+          "discardedWallSeconds": 2.6496,
+          "frames": 111,
+          "viewSwitches": 0
+        },
+        {
+          "source": "before",
+          "scene": "two-interacting",
+          "batch": 3,
+          "ratio": 0.696843299854985,
+          "physicalSeconds": 7.000000000000053,
+          "wallSeconds": 10.045299999952316,
+          "completedSteps": 840,
+          "discardedWallSeconds": 3.0162999999999984,
+          "frames": 105,
+          "viewSwitches": 0
+        },
+        {
+          "source": "before",
+          "scene": "two-interacting",
+          "batch": 4,
+          "ratio": 0.7430997876857771,
+          "physicalSeconds": 7.466666666666689,
+          "wallSeconds": 10.048,
+          "completedSteps": 896,
+          "discardedWallSeconds": 2.5829333333333344,
+          "frames": 112,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 4,
+          "ratio": 0.7501302770467685,
+          "physicalSeconds": 7.533333333333352,
+          "wallSeconds": 10.042700000047684,
+          "completedSteps": 904,
+          "discardedWallSeconds": 2.4996666666666663,
+          "frames": 113,
+          "viewSwitches": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e2-release-2d-current",
+      "finalSource": false,
+      "environment": {
+        "date": "2026-10-29T15:58:41.298Z",
+        "mode": "plain",
+        "seconds": 60,
+        "batches": 1,
+        "view": "2d"
+      },
+      "errors": [],
+      "groups": {
+        "two-interacting.after": {
+          "ratio": 0.7431648826247967,
+          "physicalSeconds": 44.59999999999781,
+          "wallSeconds": 60.01360000014305,
+          "fps": 16.312969060307438,
+          "callbackMedianMs": 85.29999995231628,
+          "callbackP95Ms": 94.10000014305115,
+          "gapMedianMs": 4.699999809265137,
+          "gapP95Ms": 8.600000143051147,
+          "completedSteps": 5352,
+          "discardedWallSeconds": 15.347966666666675,
+          "capRate": 0.5699693564862104
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 0.7431648826247967,
+          "physicalSeconds": 44.59999999999781,
+          "wallSeconds": 60.01360000014305,
+          "completedSteps": 5352,
+          "discardedWallSeconds": 15.347966666666675,
+          "frames": 979,
+          "viewSwitches": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e2-release-2d-long",
+      "finalSource": false,
+      "environment": {
+        "date": "2026-10-29T15:42:24.081Z",
+        "mode": "plain",
+        "seconds": 60,
+        "batches": 1,
+        "view": "2d"
+      },
+      "errors": [],
+      "groups": {
+        "two-interacting.before": {
+          "ratio": 0.9942814241217798,
+          "physicalSeconds": 59.68333333333066,
+          "wallSeconds": 60.02660000014305,
+          "fps": 29.57022386734831,
+          "callbackMedianMs": 28.799999952316284,
+          "callbackP95Ms": 56.40000009536743,
+          "gapMedianMs": 3.299999952316284,
+          "gapP95Ms": 5.799999952316284,
+          "completedSteps": 7162,
+          "discardedWallSeconds": 0.3350333333333452,
+          "capRate": 0.05464788732394366
+        },
+        "two-interacting.after": {
+          "ratio": 0.8180449391919478,
+          "physicalSeconds": 49.13333333333087,
+          "wallSeconds": 60.06190000009537,
+          "fps": 20.47887262970447,
+          "callbackMedianMs": 27.899999856948853,
+          "callbackP95Ms": 93,
+          "gapMedianMs": 3.299999952316284,
+          "gapP95Ms": 6,
+          "completedSteps": 5896,
+          "discardedWallSeconds": 10.865166666666664,
+          "capRate": 0.3357723577235772
+        }
+      },
+      "runs": [
+        {
+          "source": "before",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 0.9942814241217798,
+          "physicalSeconds": 59.68333333333066,
+          "wallSeconds": 60.02660000014305,
+          "completedSteps": 7162,
+          "discardedWallSeconds": 0.3350333333333452,
+          "frames": 1775,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 0.8180449391919478,
+          "physicalSeconds": 49.13333333333087,
+          "wallSeconds": 60.06190000009537,
+          "completedSteps": 5896,
+          "discardedWallSeconds": 10.865166666666664,
+          "frames": 1230,
+          "viewSwitches": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e2-release-long-abba",
+      "finalSource": false,
+      "environment": {
+        "date": "2026-10-29T15:49:34.467Z",
+        "mode": "plain",
+        "seconds": 60,
+        "batches": 2,
+        "view": "2d"
+      },
+      "errors": [],
+      "groups": {
+        "two-interacting.before": {
+          "ratio": 0.7182329942823479,
+          "physicalSeconds": 86.31666666666263,
+          "wallSeconds": 120.1792000002861,
+          "fps": 13.022220151209813,
+          "callbackMedianMs": 86.40000009536743,
+          "callbackP95Ms": 100.29999995231628,
+          "gapMedianMs": 5.200000047683716,
+          "gapP95Ms": 7.3999998569488525,
+          "completedSteps": 10358,
+          "discardedWallSeconds": 33.795600000000015,
+          "capRate": 0.7686900958466454
+        },
+        "two-interacting.after": {
+          "ratio": 0.6994847129275555,
+          "physicalSeconds": 83.99999999999616,
+          "wallSeconds": 120.08840000009536,
+          "fps": 10.492270693913811,
+          "callbackMedianMs": 88.39999985694885,
+          "callbackP95Ms": 104.29999995231628,
+          "gapMedianMs": 4.900000095367432,
+          "gapP95Ms": 6.8999998569488525,
+          "completedSteps": 10080,
+          "discardedWallSeconds": 36.09530000000004,
+          "capRate": 1
+        }
+      },
+      "runs": [
+        {
+          "source": "before",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 0.7206736565610496,
+          "physicalSeconds": 43.316666666664595,
+          "wallSeconds": 60.10580000019073,
+          "completedSteps": 5198,
+          "discardedWallSeconds": 16.697900000000004,
+          "frames": 920,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 0.6885709986106185,
+          "physicalSeconds": 41.33333333333146,
+          "wallSeconds": 60.02770000004768,
+          "completedSteps": 4960,
+          "discardedWallSeconds": 18.697666666666684,
+          "frames": 620,
+          "viewSwitches": 0
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 1,
+          "ratio": 0.7103924307680535,
+          "physicalSeconds": 42.6666666666647,
+          "wallSeconds": 60.06070000004768,
+          "completedSteps": 5120,
+          "discardedWallSeconds": 17.397633333333353,
+          "frames": 640,
+          "viewSwitches": 0
+        },
+        {
+          "source": "before",
+          "scene": "two-interacting",
+          "batch": 1,
+          "ratio": 0.7157910156563432,
+          "physicalSeconds": 42.99999999999803,
+          "wallSeconds": 60.07340000009537,
+          "completedSteps": 5160,
+          "discardedWallSeconds": 17.09770000000001,
+          "frames": 645,
+          "viewSwitches": 0
+        }
+      ]
+    },
+    {
+      "directory": "D:/Temp/psi-5e2-release-morph",
+      "finalSource": false,
+      "environment": {
+        "date": "2026-10-29T15:56:44.025Z",
+        "mode": "plain",
+        "seconds": 15,
+        "batches": 2,
+        "view": "alternating"
+      },
+      "errors": [],
+      "groups": {
+        "two-interacting.after": {
+          "ratio": 0.958842996124074,
+          "physicalSeconds": 28.799999999999027,
+          "wallSeconds": 30.036199999809266,
+          "fps": 35.890026035478705,
+          "callbackMedianMs": 14.099999904632568,
+          "callbackP95Ms": 51.40000009536743,
+          "gapMedianMs": 4.5,
+          "gapP95Ms": 14.5,
+          "completedSteps": 3456,
+          "discardedWallSeconds": 1.2339333333333407,
+          "capRate": 0.04916512059369202
+        }
+      },
+      "runs": [
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 0,
+          "ratio": 0.9176958842393482,
+          "physicalSeconds": 13.783333333332891,
+          "wallSeconds": 15.0195,
+          "completedSteps": 1654,
+          "discardedWallSeconds": 1.233800000000008,
+          "frames": 472,
+          "viewSwitches": 21
+        },
+        {
+          "source": "after",
+          "scene": "two-interacting",
+          "batch": 1,
+          "ratio": 0.9999977802617666,
+          "physicalSeconds": 15.016666666666136,
+          "wallSeconds": 15.016699999809266,
+          "completedSteps": 1802,
+          "discardedWallSeconds": 0.00013333333333262476,
+          "frames": 606,
+          "viewSwitches": 21
+        }
+      ]
+    }
+  ],
+  "interpretation": "No real-time or universal speed improvement claim. Final short paired runs near 1.0, but final sustained comparison is unfavorable. Earlier candidates and slow controls retained. Host/JIT/order variability is not proof that every difference is environmental."
+}

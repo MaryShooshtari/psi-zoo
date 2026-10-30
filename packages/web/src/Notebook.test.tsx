@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { Notebook, ObservationExample, observerNotebook, parseNotebook } from './Notebook';
-import App from './App';
+import { Simulation1D } from './App';
 
 const observation = { index: 150, position: -5, resolution: 0.4, probability: 0.037125, time: 1.25 };
 
@@ -19,7 +19,8 @@ describe('Born-rule notebook content and view', () => {
     expect(html).toContain('No observation yet');
     expect(html).toContain('not a moving particle');
     expect(html).toContain('posterior need not be Gaussian');
-    expect(html).toContain('not a completed companion proof');
+    expect(html).toContain('not a verification of TypeScript');
+    expect(html).toContain('GaussianMeasurement.lean');
   });
 
   it('emits native MathML, not escaped markup, with accessible labels and balanced equation roots', () => {
@@ -49,7 +50,7 @@ describe('Born-rule notebook content and view', () => {
   });
 
   it('exposes a notebook dialog action next to observation controls without rendering side effects', () => {
-    const html = renderToStaticMarkup(<App />);
+    const html = renderToStaticMarkup(<Simulation1D />);
     expect(html).toContain('Why did it jump?');
     expect(html).toContain('aria-haspopup="dialog"');
     expect(html).toContain('aria-expanded="false"');

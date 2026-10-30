@@ -1,0 +1,737 @@
+{
+  "phase": "5E.1",
+  "scope": "Presentation only; no physics, grid, timestep or committed-step changes",
+  "baselineSourceRoot": "C:/Users/marys/AppData/Local/Temp/psi-5e1-before",
+  "methodology": "Production minified React UI, audit-only rAF registration, five-second warmup, free terrain, independent preset plus drives/social enabled, 128x128 dt=1/120, Chrome headless GPU disabled at 1280x1000 CPU throttle 1x. Plain final acceptance; deep probes are exploratory. No concurrent test/build load during acceptance.",
+  "caveat": "Uncontrolled host/JIT variability; initial unfavorable evidence retained. Hoisting palette invariants is not established as the sole cause. Bounded two-creature checks do not establish mobile, four-creature or multi-hour guarantees.",
+  "runs": [
+    {
+      "label": "initial-new-shell-minute",
+      "rawPath": "D:/Temp/psi-5e1-runtime/sessions.json",
+      "mode": "plain",
+      "measuredSecondsPerBatch": 60,
+      "batches": 1,
+      "startup1d": false,
+      "node": "v24.20.0",
+      "chrome": "Chrome/156.0.8078.48",
+      "os": "10.0.19045",
+      "cpu": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+      "errors": [],
+      "groups": [
+        {
+          "source": "after",
+          "batches": [
+            {
+              "batch": 0,
+              "physicalSeconds": 41.2999999999981,
+              "wallSeconds": 60.09979999995232
+            }
+          ],
+          "physicalSeconds": 41.2999999999981,
+          "wallSeconds": 60.09979999995232,
+          "throughput": 0.6871903067902201,
+          "frames": 640,
+          "fps": 10.648953906677024,
+          "callbackMedianMs": 88,
+          "callbackP95Ms": 120.79999995231628,
+          "completedSteps": 4956,
+          "discardedWallSeconds": 18.733900000000045
+        }
+      ]
+    },
+    {
+      "label": "initial-alternating-comparison",
+      "rawPath": "D:/Temp/psi-5e1-ab/sessions.json",
+      "mode": "plain",
+      "measuredSecondsPerBatch": 10,
+      "batches": 3,
+      "startup1d": false,
+      "node": "v24.20.0",
+      "chrome": "Chrome/156.0.8078.48",
+      "os": "10.0.19045",
+      "cpu": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+      "errors": [],
+      "groups": [
+        {
+          "source": "before",
+          "batches": [
+            {
+              "batch": 0,
+              "physicalSeconds": 9.766666666666529,
+              "wallSeconds": 10.03389999985695
+            },
+            {
+              "batch": 1,
+              "physicalSeconds": 9.866666666666461,
+              "wallSeconds": 10.04160000014305
+            },
+            {
+              "batch": 2,
+              "physicalSeconds": 9.333333333333183,
+              "wallSeconds": 10.057700000047683
+            }
+          ],
+          "physicalSeconds": 28.96666666666617,
+          "wallSeconds": 30.13320000004768,
+          "throughput": 0.9612874393234153,
+          "frames": 572,
+          "fps": 18.982384877779158,
+          "callbackMedianMs": 60.5,
+          "callbackP95Ms": 76.90000009536743,
+          "completedSteps": 3476,
+          "discardedWallSeconds": 1.1725666666666736
+        },
+        {
+          "source": "after",
+          "batches": [
+            {
+              "batch": 0,
+              "physicalSeconds": 8.199999999999962,
+              "wallSeconds": 10.064599999904633
+            },
+            {
+              "batch": 1,
+              "physicalSeconds": 8.399999999999942,
+              "wallSeconds": 10.090699999809265
+            },
+            {
+              "batch": 2,
+              "physicalSeconds": 8.19999999999995,
+              "wallSeconds": 10.015700000047683
+            }
+          ],
+          "physicalSeconds": 24.799999999999848,
+          "wallSeconds": 30.17099999976158,
+          "throughput": 0.8219813728479608,
+          "frames": 372,
+          "fps": 12.329720592719488,
+          "callbackMedianMs": 75.5,
+          "callbackP95Ms": 92.29999995231628,
+          "completedSteps": 2976,
+          "discardedWallSeconds": 5.337866666666667
+        }
+      ]
+    },
+    {
+      "label": "exploratory-deep-wrappers-not-acceptance",
+      "rawPath": "D:/Temp/psi-5e1-timed/sessions.json",
+      "mode": "deep",
+      "measuredSecondsPerBatch": 10,
+      "batches": 1,
+      "startup1d": false,
+      "node": "v24.20.0",
+      "chrome": "Chrome/156.0.8078.48",
+      "os": "10.0.19045",
+      "cpu": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+      "errors": [],
+      "groups": [
+        {
+          "source": "before",
+          "batches": [
+            {
+              "batch": 0,
+              "physicalSeconds": 7.333333333333307,
+              "wallSeconds": 10.015
+            }
+          ],
+          "physicalSeconds": 7.333333333333307,
+          "wallSeconds": 10.015,
+          "throughput": 0.7322349808620376,
+          "frames": 141,
+          "fps": 14.078881677483773,
+          "callbackMedianMs": 85.59999990463257,
+          "callbackP95Ms": 120.10000014305115,
+          "completedSteps": 880,
+          "discardedWallSeconds": 2.6002000000000005
+        },
+        {
+          "source": "after",
+          "batches": [
+            {
+              "batch": 0,
+              "physicalSeconds": 3.8000000000000735,
+              "wallSeconds": 10.128699999809266
+            }
+          ],
+          "physicalSeconds": 3.8000000000000735,
+          "wallSeconds": 10.128699999809266,
+          "throughput": 0.37517154225829885,
+          "frames": 57,
+          "fps": 5.627573133874374,
+          "callbackMedianMs": 170.19999980926514,
+          "callbackP95Ms": 184.30000019073486,
+          "completedSteps": 456,
+          "discardedWallSeconds": 6.3328999999999995
+        }
+      ]
+    },
+    {
+      "label": "exploratory-render-control-not-acceptance",
+      "rawPath": "D:/Temp/psi-5e1-render-ab/sessions.json",
+      "mode": "plain",
+      "measuredSecondsPerBatch": 10,
+      "batches": 2,
+      "startup1d": false,
+      "node": "v24.20.0",
+      "chrome": "Chrome/156.0.8078.48",
+      "os": "10.0.19045",
+      "cpu": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+      "errors": [],
+      "groups": [
+        {
+          "source": "before",
+          "batches": [
+            {
+              "batch": 0,
+              "physicalSeconds": 7.366666666666639,
+              "wallSeconds": 10.097399999856949
+            },
+            {
+              "batch": 1,
+              "physicalSeconds": 4.133333333333434,
+              "wallSeconds": 10.0975
+            }
+          ],
+          "physicalSeconds": 11.500000000000073,
+          "wallSeconds": 20.19489999985695,
+          "throughput": 0.5694507029042745,
+          "frames": 205,
+          "fps": 10.151077747423958,
+          "callbackMedianMs": 88.29999995231628,
+          "callbackP95Ms": 158.59999990463257,
+          "completedSteps": 1380,
+          "discardedWallSeconds": 8.633033333333334
+        },
+        {
+          "source": "after",
+          "batches": [
+            {
+              "batch": 0,
+              "physicalSeconds": 3.800000000000077,
+              "wallSeconds": 10.022200000047684
+            },
+            {
+              "batch": 1,
+              "physicalSeconds": 3.6666666666667336,
+              "wallSeconds": 10.180399999856949
+            }
+          ],
+          "physicalSeconds": 7.46666666666681,
+          "wallSeconds": 20.202599999904635,
+          "throughput": 0.3695893927861788,
+          "frames": 112,
+          "fps": 5.543840891792576,
+          "callbackMedianMs": 175.29999995231628,
+          "callbackP95Ms": 190,
+          "completedSteps": 896,
+          "discardedWallSeconds": 12.732633333333336
+        }
+      ]
+    },
+    {
+      "label": "exploratory-matched-legacy-startup-not-acceptance",
+      "rawPath": "D:/Temp/psi-5e1-startup-ab/sessions.json",
+      "mode": "plain",
+      "measuredSecondsPerBatch": 10,
+      "batches": 3,
+      "startup1d": true,
+      "node": "v24.20.0",
+      "chrome": "Chrome/156.0.8078.48",
+      "os": "10.0.19045",
+      "cpu": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+      "errors": [],
+      "groups": [
+        {
+          "source": "before",
+          "batches": [
+            {
+              "batch": 0,
+              "physicalSeconds": 9.61666666666644,
+              "wallSeconds": 10.031099999904633
+            },
+            {
+              "batch": 1,
+              "physicalSeconds": 9.874999999999808,
+              "wallSeconds": 10.033700000047684
+            },
+            {
+              "batch": 2,
+              "physicalSeconds": 9.749999999999774,
+              "wallSeconds": 10.039200000047684
+            }
+          ],
+          "physicalSeconds": 29.24166666666602,
+          "wallSeconds": 30.104,
+          "throughput": 0.9713548587119991,
+          "frames": 842,
+          "fps": 27.96970502258836,
+          "callbackMedianMs": 28.200000047683716,
+          "callbackP95Ms": 70.60000014305115,
+          "completedSteps": 3509,
+          "discardedWallSeconds": 0.8189666666666708
+        },
+        {
+          "source": "after",
+          "batches": [
+            {
+              "batch": 0,
+              "physicalSeconds": 9.68333333333313,
+              "wallSeconds": 10.0215
+            },
+            {
+              "batch": 1,
+              "physicalSeconds": 8.899999999999833,
+              "wallSeconds": 10.0215
+            },
+            {
+              "batch": 2,
+              "physicalSeconds": 9.283333333333148,
+              "wallSeconds": 10.046100000143051
+            }
+          ],
+          "physicalSeconds": 27.866666666666113,
+          "wallSeconds": 30.08910000014305,
+          "throughput": 0.9261382582574298,
+          "frames": 633,
+          "fps": 21.037518569747537,
+          "callbackMedianMs": 40.799999952316284,
+          "callbackP95Ms": 85.5,
+          "completedSteps": 3344,
+          "discardedWallSeconds": 2.1524999999999967
+        }
+      ]
+    },
+    {
+      "label": "hoisted-palette-alternating-comparison",
+      "rawPath": "D:/Temp/psi-5e1-hoisted-ab/sessions.json",
+      "mode": "plain",
+      "measuredSecondsPerBatch": 10,
+      "batches": 3,
+      "startup1d": false,
+      "node": "v24.20.0",
+      "chrome": "Chrome/156.0.8078.48",
+      "os": "10.0.19045",
+      "cpu": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+      "errors": [],
+      "groups": [
+        {
+          "source": "before",
+          "batches": [
+            {
+              "batch": 0,
+              "physicalSeconds": 9.983333333333087,
+              "wallSeconds": 10.016
+            },
+            {
+              "batch": 1,
+              "physicalSeconds": 9.999999999999757,
+              "wallSeconds": 10.0235
+            },
+            {
+              "batch": 2,
+              "physicalSeconds": 7.983333333333201,
+              "wallSeconds": 10.144900000095367
+            }
+          ],
+          "physicalSeconds": 27.966666666666043,
+          "wallSeconds": 30.184400000095366,
+          "throughput": 0.9265271685565287,
+          "frames": 1508,
+          "fps": 49.95958177055815,
+          "callbackMedianMs": 11.5,
+          "callbackP95Ms": 27.5,
+          "completedSteps": 3356,
+          "discardedWallSeconds": 2.100166666666667
+        },
+        {
+          "source": "after",
+          "batches": [
+            {
+              "batch": 0,
+              "physicalSeconds": 10.033333333333083,
+              "wallSeconds": 10.020699999809265
+            },
+            {
+              "batch": 1,
+              "physicalSeconds": 10.033333333333083,
+              "wallSeconds": 10.017200000047684
+            },
+            {
+              "batch": 2,
+              "physicalSeconds": 7.941666666666721,
+              "wallSeconds": 10.03560000014305
+            }
+          ],
+          "physicalSeconds": 28.008333333332885,
+          "wallSeconds": 30.073499999999996,
+          "throughput": 0.9313293541933226,
+          "frames": 1332,
+          "fps": 44.29148585964388,
+          "callbackMedianMs": 13.400000095367432,
+          "callbackP95Ms": 67,
+          "completedSteps": 3361,
+          "discardedWallSeconds": 2.2004666666666606
+        }
+      ]
+    },
+    {
+      "label": "hoisted-palette-minute",
+      "rawPath": "D:/Temp/psi-5e1-final-long/sessions.json",
+      "mode": "plain",
+      "measuredSecondsPerBatch": 60,
+      "batches": 1,
+      "startup1d": false,
+      "node": "v24.20.0",
+      "chrome": "Chrome/156.0.8078.48",
+      "os": "10.0.19045",
+      "cpu": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+      "errors": [],
+      "groups": [
+        {
+          "source": "before",
+          "batches": [
+            {
+              "batch": 0,
+              "physicalSeconds": 56.04999999999714,
+              "wallSeconds": 60.0085
+            }
+          ],
+          "physicalSeconds": 56.04999999999714,
+          "wallSeconds": 60.0085,
+          "throughput": 0.9340343451343917,
+          "frames": 1655,
+          "fps": 27.57942624794821,
+          "callbackMedianMs": 25.200000047683716,
+          "callbackP95Ms": 81.10000014305115,
+          "completedSteps": 6726,
+          "discardedWallSeconds": 3.9536999999999973
+        },
+        {
+          "source": "after",
+          "batches": [
+            {
+              "batch": 0,
+              "physicalSeconds": 59.899999999997675,
+              "wallSeconds": 60.02230000019073
+            }
+          ],
+          "physicalSeconds": 59.899999999997675,
+          "wallSeconds": 60.02230000019073,
+          "throughput": 0.9979624239625494,
+          "frames": 2841,
+          "fps": 47.332408121497714,
+          "callbackMedianMs": 12.599999904632568,
+          "callbackP95Ms": 38.10000014305115,
+          "completedSteps": 7188,
+          "discardedWallSeconds": 0.13430000000000303
+        }
+      ]
+    },
+    {
+      "label": "final-release-alternating-comparison",
+      "rawPath": "D:/Temp/psi-5e1-release-ab/sessions.json",
+      "mode": "plain",
+      "measuredSecondsPerBatch": 10,
+      "batches": 3,
+      "startup1d": false,
+      "node": "v24.20.0",
+      "chrome": "Chrome/156.0.8078.48",
+      "os": "10.0.19045",
+      "cpu": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+      "errors": [],
+      "groups": [
+        {
+          "source": "before",
+          "batches": [
+            {
+              "batch": 0,
+              "physicalSeconds": 9.699999999999768,
+              "wallSeconds": 10.0185
+            },
+            {
+              "batch": 1,
+              "physicalSeconds": 10.016666666666417,
+              "wallSeconds": 10.015900000095368
+            },
+            {
+              "batch": 2,
+              "physicalSeconds": 10.016666666666417,
+              "wallSeconds": 10.011200000047683
+            }
+          ],
+          "physicalSeconds": 29.733333333332602,
+          "wallSeconds": 30.04560000014305,
+          "throughput": 0.9896069086052879,
+          "frames": 1706,
+          "fps": 56.78036051840794,
+          "callbackMedianMs": 10.900000095367432,
+          "callbackP95Ms": 13.700000047683716,
+          "completedSteps": 3568,
+          "discardedWallSeconds": 0.31676666666666703
+        },
+        {
+          "source": "after",
+          "batches": [
+            {
+              "batch": 0,
+              "physicalSeconds": 10.016666666666417,
+              "wallSeconds": 10.0135
+            },
+            {
+              "batch": 1,
+              "physicalSeconds": 10.016666666666417,
+              "wallSeconds": 10.0155
+            },
+            {
+              "batch": 2,
+              "physicalSeconds": 10.016666666666417,
+              "wallSeconds": 10.013700000047685
+            }
+          ],
+          "physicalSeconds": 30.04999999999925,
+          "wallSeconds": 30.042700000047684,
+          "throughput": 1.0002429874795393,
+          "frames": 1803,
+          "fps": 60.014579248773856,
+          "callbackMedianMs": 11,
+          "callbackP95Ms": 12.100000143051147,
+          "completedSteps": 3606,
+          "discardedWallSeconds": 0
+        }
+      ]
+    },
+    {
+      "label": "final-release-minute",
+      "rawPath": "D:/Temp/psi-5e1-release-long/sessions.json",
+      "mode": "plain",
+      "measuredSecondsPerBatch": 60,
+      "batches": 1,
+      "startup1d": false,
+      "node": "v24.20.0",
+      "chrome": "Chrome/156.0.8078.48",
+      "os": "10.0.19045",
+      "cpu": "Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz",
+      "errors": [],
+      "groups": [
+        {
+          "source": "before",
+          "batches": [
+            {
+              "batch": 0,
+              "physicalSeconds": 57.21666666666374,
+              "wallSeconds": 60.03839999985695
+            }
+          ],
+          "physicalSeconds": 57.21666666666374,
+          "wallSeconds": 60.03839999985695,
+          "throughput": 0.9530011903515095,
+          "frames": 2410,
+          "fps": 40.14097644183959,
+          "callbackMedianMs": 13,
+          "callbackP95Ms": 64.30000019073486,
+          "completedSteps": 6866,
+          "discardedWallSeconds": 2.800999999999997
+        },
+        {
+          "source": "after",
+          "batches": [
+            {
+              "batch": 0,
+              "physicalSeconds": 59.54999999999737,
+              "wallSeconds": 60.02669999980927
+            }
+          ],
+          "physicalSeconds": 59.54999999999737,
+          "wallSeconds": 60.02669999980927,
+          "throughput": 0.9920585339554996,
+          "frames": 2378,
+          "fps": 39.61570434502573,
+          "callbackMedianMs": 16.40000009536743,
+          "callbackP95Ms": 51.299999952316284,
+          "completedSteps": 7146,
+          "discardedWallSeconds": 0.48526666666667295
+        }
+      ]
+    }
+  ],
+  "physicsSources": [
+    {
+      "path": "packages/sim-core/src/adi2d.ts",
+      "identical": true,
+      "sha256": "3b89a34ff96cfb1746d5454143ec81b7ae9e57f9b52a39cdd952971104add424"
+    },
+    {
+      "path": "packages/sim-core/src/crankNicolson.ts",
+      "identical": true,
+      "sha256": "d8ffc407be235be9725103a77bc084db9cc15630dab5a57b310dfcefc724870c"
+    },
+    {
+      "path": "packages/sim-core/src/gaussian.ts",
+      "identical": true,
+      "sha256": "f5359312ddbc96cc31d62f63dee2a304867bdfcb53c770c55ec6f12800c62b44"
+    },
+    {
+      "path": "packages/sim-core/src/gaussian2d.ts",
+      "identical": true,
+      "sha256": "eccbd41009d35234311384701eff0b81bb26dafdac530959270c857008b5a493"
+    },
+    {
+      "path": "packages/sim-core/src/grid.ts",
+      "identical": true,
+      "sha256": "dff48343bc91dc999d93b1a16e2a35a1b89a44c1be32e9aec04daf78400a9291"
+    },
+    {
+      "path": "packages/sim-core/src/grid2d.ts",
+      "identical": true,
+      "sha256": "faffdf33d52c6eeaf52a0a28a4e1494a8c2eba7e25a8ace1560d250ff266f84d"
+    },
+    {
+      "path": "packages/sim-core/src/hamiltonian.ts",
+      "identical": true,
+      "sha256": "b5dfb490e8b28bbc2da6f8ba312d3c33f0b52990ae3d2e63f1fe505ebf80dced"
+    },
+    {
+      "path": "packages/sim-core/src/index.ts",
+      "identical": true,
+      "sha256": "79562034a8adb1548a0c5a25506c21dc91913c68113bbd5cdbf64d0f99646ea0"
+    },
+    {
+      "path": "packages/sim-core/src/interaction2d.ts",
+      "identical": true,
+      "sha256": "6ce5d0ee9e87dd277ccd614acffeefa7632297d9fdc31302402258a9c185c21f"
+    },
+    {
+      "path": "packages/sim-core/src/joint-qubit.ts",
+      "identical": true,
+      "sha256": "afa6736eff2b94a8bf6e722bdc7de154360c7d7e5f4e3ef103d4aecca2112f6e"
+    },
+    {
+      "path": "packages/sim-core/src/math.ts",
+      "identical": true,
+      "sha256": "c5f564d9a0e0ba6c9444c5bb675c79a11f52c778d645ec81acb4d82b5ab6badd"
+    },
+    {
+      "path": "packages/sim-core/src/measurement.ts",
+      "identical": true,
+      "sha256": "5f03c6ba8ca128538025f8bb46d224edfd2b68979519dc0d19810a0fbf62f000"
+    },
+    {
+      "path": "packages/sim-core/src/observables2d.ts",
+      "identical": true,
+      "sha256": "59bcb1ed0ccd261fe6603ab471c7d9c9663fba2fbc930cd5ce1c38efa85e08f3"
+    },
+    {
+      "path": "packages/sim-core/src/potential.ts",
+      "identical": true,
+      "sha256": "d8ab5824d45e166841e19c858a56298e14384b5d9646d26828dd4d3c4747324b"
+    },
+    {
+      "path": "packages/sim-core/src/potential2d.ts",
+      "identical": true,
+      "sha256": "a022832ca8fa6b4cfbc9a8dda56f96bbd5c0b108d9290e9a1f586e58d9eec38b"
+    },
+    {
+      "path": "packages/sim-core/src/qubit.ts",
+      "identical": true,
+      "sha256": "9bfa32fadb3c3b9d945ac8114461518abc6bf27a7d9bdaedc996276900571820"
+    },
+    {
+      "path": "packages/sim-core/src/regions.ts",
+      "identical": true,
+      "sha256": "9b57e773f79972a507c39f8ecce482b70ff5fc79ac3b91504b02d618566bca57"
+    },
+    {
+      "path": "packages/sim-core/src/scatteringExperiment.ts",
+      "identical": true,
+      "sha256": "a89709749f6ebf2ba3284b3497d567b77d9e45de801c9e65408452a020545149"
+    },
+    {
+      "path": "packages/sim-core/src/stepper.ts",
+      "identical": true,
+      "sha256": "a484780fd431487748cde3bda621abfe229ca8d82f5288dfa2a10c89cdd62697"
+    },
+    {
+      "path": "packages/sim-core/src/tridiagonal.ts",
+      "identical": true,
+      "sha256": "5fb0432d688a65fd36823b8596f287696db67b6f7b979ba4758862585c813b93"
+    },
+    {
+      "path": "packages/web/src/simulation2d.ts",
+      "identical": true,
+      "sha256": "2c92ee2020ddfc64f3aff29da7ea0d42f365860375fcca629b44832bba817ed2"
+    },
+    {
+      "path": "packages/web/src/world/world2d.ts",
+      "identical": true,
+      "sha256": "66bb7bbcab9053d1cd4113b629a810a67d284d4eb022795e5a5cb4084cf44919"
+    },
+    {
+      "path": "packages/web/src/world/moodRegistry2d.ts",
+      "identical": true,
+      "sha256": "bf79b2a266eb23bd6ee6071231b873f94ce56082e243113f3867e2313600ba46"
+    },
+    {
+      "path": "packages/web/src/world/worldPresets2d.ts",
+      "identical": true,
+      "sha256": "01e60e9207ad3ef82e53d89f82d8df7e75e37a232bece568d2ee4d53f0eb5481"
+    },
+    {
+      "path": "packages/web/src/random.ts",
+      "identical": true,
+      "sha256": "12fbedcf532e58c58cb784e401d9cbc991b251740d610ebab64a4b9d02fc9674"
+    },
+    {
+      "path": "packages/web/src/terrainBrush.ts",
+      "identical": true,
+      "sha256": "8ef3d3c7e60d03fd0044d83e02a0281f0a5feb560e5e9fc79be6fb8988e5f277"
+    },
+    {
+      "path": "packages/web/src/terrainPresets.ts",
+      "identical": true,
+      "sha256": "db4a7076512a9409b8aa2a2dd9178c6c61d5fe0cf5d550a9c5b281a590d57f65"
+    }
+  ],
+  "presentationSources": [
+    {
+      "path": "packages/web/src/App.tsx",
+      "sha256": "0161bd73ab85df9bdde49e80d3270c05129d912ebfc211408d3b499783e0665f"
+    },
+    {
+      "path": "packages/web/src/Gaussian2DDemo.tsx",
+      "sha256": "1efcba9784b2d00d9238f26665bcc1a4b3c1aa48ea6acd3ce760adad5a0f937e"
+    },
+    {
+      "path": "packages/web/src/TerrariumShell.tsx",
+      "sha256": "2ae671904c7c5ec06fc1e10cf7545324d478bbe212e8adacfd379c99ebef1e18"
+    },
+    {
+      "path": "packages/web/src/WorldControls2D.tsx",
+      "sha256": "98c9bb6b824a089196ffcf8806bbe1ba920154d448faab937e553a22dcf216f7"
+    },
+    {
+      "path": "packages/web/src/style.css",
+      "sha256": "d414173052611bbf97ba6f69f7d15925a9fcb0e1744c8edea6c2f7cf5bb45417"
+    },
+    {
+      "path": "packages/web/src/render/creatures2d.ts",
+      "sha256": "876f84afb17130df91e10519493be4a6fec3babe1f5aebd124c80b2942f2de5e"
+    },
+    {
+      "path": "packages/web/src/render/density2d.ts",
+      "sha256": "5485d4f33475c6c5d559a9f2a41cda8b6d8bf6562132b47a463b8431ff1d2b07"
+    }
+  ],
+  "checks": {
+    "tests": 384,
+    "testFiles": 35,
+    "shellBrowser": 36,
+    "worldBrowser": 30,
+    "gaussianTerrainBrowser": 21,
+    "legacyCreatureBrowser": 22,
+    "observerBrowser": 14,
+    "typecheck": "pass",
+    "build": "pass",
+    "domFreeWorldCompile": "pass",
+    "auditTypecheck": "pass"
+  }
+}

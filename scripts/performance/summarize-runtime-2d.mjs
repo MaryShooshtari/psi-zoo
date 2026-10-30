@@ -1,0 +1,20 @@
+// Process audit outputs only; do not run while measuring acceptance latencies.
+import {readFile,writeFile,readdir} from 'node:fs/promises';
+import {resolve,join,basename} from 'node:path';
+import {TraceMap,originalPositionFor} from '@jridgewell/trace-mapping';
+const dir=resolve(process.argv[2]);
+const load=async p=>JSON.parse(await readFile(p,'utf8'));
+const stats=a=>{const v=[...a].sort((x,y)=>x-y);return {count:v.length,median:v[Math.ceil(v.length*.5)-1]??null,p95:v[Math.ceil(v.length*.95)-1]??null,sum:v.reduce((x,y)=>x+y,0)};};
+const raw=await load(join(dir,'sessions.json')),groups={};
+for(const s of raw.sessions){const key=s.name+'.'+(s.source??'captured'),g=groups[key]??={batches:[],frames:[],steps:[],phases:{}};const v=s.end.record,wall=(s.end.wall-s.start.wall)/1000;
+ g.batches.push({batch:s.batch,wall,physical:s.end.time-s.start.time,ratio:(s.end.time-s.start.time)/wall,frames:v.frames.length,requested:v.requests,completed:v.completed,discarded:v.discarded,capHits:v.capHits});g.frames.push(...v.frames);g.steps.push(...v.steps);for(const k of ['potential','mean','moments','snapshot','draw','publish','spatial','phase','overlay','density']){g.phases[k]??=[];g.phases[k].push(...v[k]);}
+}
+for(const g of Object.values(groups)){g.frameMs=stats(g.frames.map(x=>x.duration));g.gapMs=stats(g.frames.flatMap(x=>x.gap===null?[]:[x.gap]));g.timestampLagMs=stats(g.frames.map(x=>x.start-x.stamp));g.stepsPerFrame=stats(g.frames.map(x=>x.steps));g.stepMs=stats(g.steps);g.wall=g.batches.reduce((n,b)=>n+b.wall,0);g.physical=g.batches.reduce((n,b)=>n+b.physical,0);g.ratio=g.physical/g.wall;g.fps=g.frames.length/g.wall;g.requested=g.batches.reduce((n,b)=>n+b.requested,0);g.completed=g.batches.reduce((n,b)=>n+b.completed,0);g.discarded=g.batches.reduce((n,b)=>n+b.discarded,0);g.capHits=g.batches.reduce((n,b)=>n+b.capHits,0);g.capRate=g.capHits/g.frames.length;for(const k in g.phases)g.phases[k]=stats(g.phases[k]);delete g.frames;delete g.steps;}
+const traces={};for(const file of (await readdir(dir)).filter(x=>x.endsWith('-trace.json'))){const t=(await load(join(dir,file))).traceEvents,totals=new Map();for(const e of t)if(e.name==='FireAnimationFrame'&&e.ph==='X')totals.set(e.pid+':'+e.tid,(totals.get(e.pid+':'+e.tid)||0)+e.dur);const main=[...totals].sort((a,b)=>b[1]-a[1])[0]?.[0];// Chrome emits Profile on the renderer thread but ProfileChunk on a
+ // sampler thread: associate by process + profile id, not chunk thread id.
+ const profiles=new Set(t.filter(e=>e.name==='Profile'&&e.pid+':'+e.tid===main).map(e=>e.pid+':'+e.id));const nodes=new Map(),weights=new Map();let total=0;for(const e of t)if(e.name==='ProfileChunk'&&profiles.has(e.pid+':'+e.id)){ const d=e.args.data;for(const n of d.cpuProfile?.nodes||[])nodes.set(n.id,n);(d.cpuProfile?.samples||[]).forEach((id,i)=>{const v=d.timeDeltas?.[i]||0;weights.set(id,(weights.get(id)||0)+v);total+=v;});}
+ const maps=new Map();for(const build of ['ui','before','after']){let files;try{files=await readdir(join(dir,build,'assets'));}catch{continue;}for(const f of files.filter(f=>f.endsWith('.js.map')))maps.set(f.slice(0,-4),new TraceMap(await load(join(dir,build,'assets',f))));}
+ const cpu=[...weights].sort((a,b)=>b[1]-a[1]).map(([id,w])=>{const c=nodes.get(id)?.callFrame??{},map=maps.get(basename(c.url||''));let p;if(map&&c.lineNumber>=0)p=originalPositionFor(map,{line:c.lineNumber+1,column:c.columnNumber});return {function:c.functionName,source:p?.source?.replace(/^.*?(packages\/)/,'$1'),originalName:p?.name,line:p?.line,milliseconds:w/1000,percent:w/total*100};});
+ const events={};for(const e of t)if(e.ph==='X'&&e.pid+':'+e.tid===main){const key=e.name==='EventDispatch'?e.name+':'+e.args?.data?.type:e.name;(events[key]??=[]).push(e.dur/1000);}for(const k in events)events[k]=stats(events[k]);traces[file]={sampledMilliseconds:total/1000,cpu,events};
+}
+const result={environment:raw.environment,groups,traces,errors:raw.errors};await writeFile(join(dir,'summary.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(groups,null,2));

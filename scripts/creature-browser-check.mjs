@@ -56,6 +56,8 @@ try {
       if(key && this.__path?.length===401) __paths[key]=this.__path.slice();return stroke.apply(this,args);};
   ` });
   await send('Page.navigate', { url: 'http://127.0.0.1:5186' });
+  await retry(() => evaluate(`!!document.querySelector('.dimension-controls')`));
+  await evaluate(`[...document.querySelectorAll('button')].find(b=>b.textContent==='1D simulations').click()`);
   await retry(() => evaluate(`window.__paths.a?.length===401 && window.__paths.b?.length===401 && !document.querySelector('button').disabled`));
   await evaluate(`
     window.button=text=>[...document.querySelectorAll('button')].find(b=>b.textContent.startsWith(text));
@@ -77,9 +79,9 @@ try {
   await evaluate(`document.querySelector('input[name="creature"][value="b"]').click()`);
   check('Selecting B changes inspection without replacing either physical state', await evaluate(`document.querySelector('.creature-inspector h2').textContent.startsWith('Creature B') && Math.abs(Number(diagnostic('Position expectation'))-stats('b').mean)<0.0001 && savedPaths===JSON.stringify([__paths.a,__paths.b]) && savedTime===diagnostic('Physical time')`));
   await evaluate(`(() => {const input=document.querySelector('input[aria-label="Social coupling"]');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'-3');input.dispatchEvent(new Event('input',{bubbles:true}));})()`);
-  check('React slider rerender changes only pending coupling, not active world/time', await evaluate(`document.body.innerText.includes('Pending g = -3.0') && document.body.innerText.includes('Active g = 1.5') && savedPaths===JSON.stringify([__paths.a,__paths.b]) && savedTime===diagnostic('Physical time')`));
+  check('React slider rerender changes only pending coupling, not active world/time', await evaluate(`document.body.textContent.includes('Pending g = -3.0') && document.body.textContent.includes('Active g = 1.5') && savedPaths===JSON.stringify([__paths.a,__paths.b]) && savedTime===diagnostic('Physical time')`));
   await evaluate(`button('Apply coupling').click()`);
-  check('Applying coupling resets identical packets and changes active coupling', await evaluate(`diagnostic('Physical time')==='0.00' && document.body.innerText.includes('Active g = -3.0') && savedInitial===JSON.stringify([__paths.a,__paths.b])`));
+  check('Applying coupling resets identical packets and changes active coupling', await evaluate(`diagnostic('Physical time')==='0.00' && document.body.textContent.includes('Active g = -3.0') && savedInitial===JSON.stringify([__paths.a,__paths.b])`));
   await evaluate(`document.querySelector('input[name="interaction"]').click();document.querySelector('canvas').scrollIntoView({block:'center'})`);
   const point = await evaluate(`(()=>{const r=document.querySelector('canvas').getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+160};})()`);
   const paintBefore = await evaluate(`JSON.stringify(__paths.terrain)`);
@@ -89,24 +91,24 @@ try {
   await evaluate(`window.painted=JSON.stringify(__paths.terrain);button('Reset').click()`);
   check('Reset preserves terrain', await evaluate(`painted===JSON.stringify(__paths.terrain)`));
   await evaluate(`button('Clear Terrain').click();document.querySelectorAll('input[name="interaction"]')[1].click();window.partnerBefore=JSON.stringify(__paths.a);button('Observe particle').click()`);
-  await retry(() => evaluate(`document.body.innerText.includes('observation #1')`));
-  check('Selected B observation leaves A untouched, normalizes B, preserves time', await evaluate(`partnerBefore===JSON.stringify(__paths.a) && Math.abs(stats('b').norm-1)<1e-12 && diagnostic('Physical time')==='0.00' && __paths.b && document.body.innerText.includes('Observed x =')`));
+  await retry(() => evaluate(`document.body.textContent.includes('observation #1')`));
+  check('Selected B observation leaves A untouched, normalizes B, preserves time', await evaluate(`partnerBefore===JSON.stringify(__paths.a) && Math.abs(stats('b').norm-1)<1e-12 && diagnostic('Physical time')==='0.00' && __paths.b && document.body.textContent.includes('Observed x =')`));
   const variance = await evaluate(`stats('b').variance`);
   await evaluate(`window.sampled=JSON.stringify(__paths.b);window.sampleText=[...document.querySelectorAll('[role="status"]')].find(e=>e.textContent.startsWith('Observed x =')).textContent;button('Reset').click();button('Observe particle').click()`);
-  check('Reset rewinds seeded observation deterministically', await evaluate(`sampled===JSON.stringify(__paths.b) && document.body.innerText.includes(sampleText)`));
+  check('Reset rewinds seeded observation deterministically', await evaluate(`sampled===JSON.stringify(__paths.b) && document.body.textContent.includes(sampleText)`));
   await evaluate(`button('Play').click()`);
   await retry(() => evaluate(`Number(diagnostic('Physical time'))>=1`));
   await evaluate(`button('Pause').click()`);
   check('Measured B re-spreads under real evolution', await evaluate(`stats('b').variance`) > variance * 2);
   await evaluate(`document.querySelector('input[name="creature"][value="a"]').click()`);
-  check('Per-creature observation history follows selection', await evaluate(`document.body.innerText.includes('No position observed yet') && button('Observe particle').textContent.includes('Creature A')`));
-  await evaluate(`button('Why did it jump?').click()`);
+  check('Per-creature observation history follows selection', await evaluate(`document.body.textContent.includes('No position observed yet') && button('Observe particle').textContent.includes('Creature A')`));
+  await evaluate(`button('Menu').click();button('Physics notebook').click();button('Why did it jump?').click()`);
   await retry(() => evaluate(`document.querySelector('dialog')?.open`));
   check('Existing notebook opens and pauses', await evaluate(`!button('Play').disabled && document.querySelectorAll('dialog math').length===6`));
   await evaluate(`button('Close notebook').click();button('Load free exploration').click()`);
-  check('Single-packet exploration retained', await evaluate(`!document.querySelector('.creature-inspector') && document.body.innerText.includes('Initial momentum') && document.body.innerText.includes('Energy drift since last update')`));
+  check('Single-packet exploration retained', await evaluate(`!document.querySelector('.creature-inspector') && document.body.textContent.includes('Initial momentum') && document.body.textContent.includes('Energy drift since last update')`));
   await evaluate(`button('Load tunnelling demo').click()`);
-  check('Validated tunnelling preset retained', await evaluate(`document.body.innerText.includes('2401 points') && document.body.innerText.includes('Provisional')`));
+  check('Validated tunnelling preset retained', await evaluate(`document.body.textContent.includes('2401 points') && document.body.textContent.includes('Provisional')`));
   await evaluate(`window.scatteringCanvas=document.querySelector('canvas').toDataURL();button('Play').click()`);
   await retry(() => evaluate(`Number(diagnostic('Physical time'))>=0.2`));
   await evaluate(`button('Pause').click()`);
@@ -121,7 +123,7 @@ try {
   const comparisons = [];
   for (const g of [-3, 0, 3]) {
     await evaluate(`(() => {const input=document.querySelector('input[aria-label="Social coupling"]');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'${g}');input.dispatchEvent(new Event('input',{bubbles:true}));})()`);
-    await retry(() => evaluate(`document.body.innerText.includes('Pending g = ${g.toFixed(1)}')`));
+    await retry(() => evaluate(`document.body.textContent.includes('Pending g = ${g.toFixed(1)}')`));
     await evaluate(`button('Apply coupling').click()`);
     assert.ok(await evaluate(`savedInitial===JSON.stringify([__paths.a,__paths.b]) && diagnostic('Physical time')==='0.00'`));
     await evaluate(`button('Play').click()`);

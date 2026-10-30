@@ -12,7 +12,52 @@ import { SCATTERING_CONFIG } from '@psi-zoo/sim-core';
 import { Notebook } from './Notebook';
 import { CreatureInspector } from './CreatureInspector';
 
+import { Simulation2D } from './Gaussian2DDemo';
+import { PlaybackBar, SettingsPopover, SettingsPage } from './TerrariumShell';
+import type { ReactNode } from 'react';
+import type { TerrariumViewMode } from './terrariumView';
+import { MuseumDialog, NotebookLauncher, type MuseumPanel } from './Museum';
+import { guideWasCompleted, rememberGuideCompletion } from './museumGuide';
+import type { MuseumScene, Topic } from './museumScience';
+
 export default function App() {
+  const [dimension, setDimension] = useState<'1d' | '2d' | 'world2d'>('world2d');
+  const [viewMode, setViewMode] = useState<TerrariumViewMode>('2d');
+  const [gaussianPreset, setGaussianPreset] = useState<'barrier' | undefined>();
+  const [experimentKey, setExperimentKey] = useState(0);
+  const [guideSession, setGuideSession] = useState(0), [guideActive, setGuideActive] = useState(false);
+  const [invitation, setInvitation] = useState(() => !guideWasCompleted());
+  const [panel, setPanel] = useState<MuseumPanel | null>(null);
+  const scene = useRef<MuseumScene | null>(null), returnFocus = useRef<HTMLElement | null>(null), museumTrigger = useRef<HTMLButtonElement>(null);
+  const [readingScene, setReadingScene] = useState<MuseumScene | null>(null);
+  const openScience = (next: MuseumPanel) => { returnFocus.current = document.activeElement as HTMLElement; setReadingScene(scene.current); setPanel(next); };
+  const openChapter = (topic: Topic) => openScience({ kind: 'notebook', topic });
+  const closeScience = () => { setPanel(null); requestAnimationFrame(() => { const target = returnFocus.current; (target?.isConnected && target.getClientRects().length ? target : museumTrigger.current)?.focus(); }); };
+  const finishGuide = () => { rememberGuideCompletion(); setGuideActive(false); setInvitation(false); setViewMode('2d'); setDimension('world2d'); setGuideSession(n => n + 1); };
+  const beginGuide = (skip: boolean) => { setPanel(null); setInvitation(false); setViewMode('2d'); setDimension('world2d'); setGuideSession(n => n + 1); setGuideActive(!skip); if (skip) rememberGuideCompletion(); };
+  const scattering = <button disabled={guideActive} onClick={() => { setExperimentKey(key => key + 1); setGaussianPreset('barrier'); setDimension('2d'); }}>Watch scattering</button>;
+  const view = (mode: TerrariumViewMode) => { setViewMode(mode); setDimension('world2d'); };
+  const demonstrations = <section aria-label="Advanced and legacy demonstrations">
+    <h3>Advanced / Legacy demonstrations</h3>
+    <p>These are separate experiments. Entering or leaving a demonstration starts a fresh simulation. The main 1D/2D switch instead changes only the terrarium view.</p>
+    <fieldset className="controls experiment-choices" disabled={guideActive}>
+      <button onClick={() => { setViewMode('2d'); setDimension('world2d'); }} aria-pressed={dimension === 'world2d'}>2D creature world</button>
+      <button onClick={() => setDimension('1d')} aria-pressed={dimension === '1d'}>1D simulations</button>
+      <button onClick={() => { setGaussianPreset(undefined); setDimension('2d'); }} aria-pressed={dimension === '2d'}>2D Gaussian demo</button>
+    </fieldset>
+  </section>;
+  return <div className="terrarium-shell">
+    <header className="shell-header"><nav className="dimension-controls controls" aria-label="Terrarium view">
+      <button aria-pressed={dimension === 'world2d' && viewMode === '1d'} onClick={() => view('1d')}>1D view</button>
+      <button aria-pressed={dimension === 'world2d' && viewMode === '2d'} onClick={() => view('2d')}>2D view</button>
+    </nav><div className="shell-brand">Psi Zoo <span>A quantum terrarium</span></div><button className="museum-trigger" ref={museumTrigger} aria-haspopup="dialog" onClick={() => openScience({ kind: 'help' })}>What am I seeing?</button></header>
+    {dimension === '1d' ? <Simulation1D demonstrations={demonstrations} onScene={next => { scene.current = next; }} openChapter={openChapter} /> : <Simulation2D key={dimension === '2d' ? `${dimension}-${experimentKey}` : `${dimension}-${guideSession}`} worldMode={dimension === 'world2d'} viewMode={viewMode} demonstrations={demonstrations} experiments={scattering} initialPreset={dimension === '2d' ? gaussianPreset : undefined} guideSession={guideSession} guideActive={guideActive} finishGuide={finishGuide} onScene={next => { scene.current = next; }} openChapter={openChapter} />}
+    {invitation && !guideActive && <aside className="guide-invitation" aria-label="First visit invitation"><strong>New to the terrarium?</strong><p>Try three real interactions, with science along the way.</p><button onClick={() => openScience({ kind: 'confirm' })}>Start three-step guide…</button><button onClick={() => setInvitation(false)}>Not now</button></aside>}
+    {panel && <MuseumDialog panel={panel} scene={readingScene} view={viewMode} close={closeScience} chapter={topic => setPanel({ kind: 'notebook', topic })} replay={() => setPanel({ kind: 'confirm' })} start={beginGuide} />}
+  </div>;
+}
+
+export function Simulation1D({ demonstrations, onScene, openChapter }: { demonstrations?: ReactNode; onScene?: (scene: MuseumScene) => void; openChapter?: (topic: Topic) => void } = {}) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const playbackRef = useRef<SimulationPlayback | null>(null);
   const paintingRef = useRef<PaintingBinding | null>(null);
@@ -44,7 +89,7 @@ export default function App() {
     const publish = () => {
       if (publishTimer !== undefined) clearTimeout(publishTimer);
       publishTimer = undefined;
-      setSnapshot(latest); lastPublish = performance.now();
+      setSnapshot(latest); onScene?.({ kind: 'legacy', snapshot: latest }); lastPublish = performance.now();
     };
     const draw = () => {
       // Logical canvas size is independent of CSS transforms and DPR. The canvas
@@ -196,29 +241,30 @@ export default function App() {
   const number = (value: number | undefined, digits: number) => value !== undefined && Number.isFinite(value) ? value.toFixed(digits) : '—';
 
   return (
-    <main>
-      <div className="heading">
-        <div className="eyebrow">PSI ZOO · SLICE 4D</div>
-        <h1>A little world for wavefunctions.</h1>
-        <p>Two quantum creatures, one shared landscape. Watch their densities respond to mood-driven forces and mean-field attraction or repulsion — no scripted motion.</p>
-      </div>
-      <canvas className={`terrarium ${interactionMode === 'paint' ? 'painting' : 'observing'}`} ref={canvasRef} role="img"
+    <main className="simulation-stage legacy-stage">
+      <div className="playground"><canvas className={`terrarium ${interactionMode === 'paint' ? 'painting' : 'observing'}`} ref={canvasRef} role="img"
         aria-label={`Numerically evolved ${creatures ? 'Creature A cyan solid and Creature B rose dashed independent densities, and shared terrain' : 'density and potential'}, x from −${extent} to ${extent}. Density left axis 0 to 10.5, square-root spaced; terrain right axis 0 to 5, linear.`}
-        aria-describedby="painting-help observation-help" />
-      <div className="controls" aria-label="Simulation controls">
+        aria-describedby="painting-help observation-help" /></div>
+      <PlaybackBar><div className="controls" aria-label="Simulation controls">
         <button onClick={() => control('play')} disabled={!snapshot || snapshot.playing || !!error}>Play</button>
         <button onClick={() => control('pause')} disabled={!snapshot?.playing}>Pause</button>
         <button onClick={() => control('reset')} disabled={!snapshot || !!setupError}>Reset</button>
-        <button onClick={() => control('clearTerrain')} disabled={!snapshot || !!setupError}>Clear Terrain</button>
         <span role="status">{error ? 'Stopped — numerical or rendering error' : snapshot?.playing ? 'Playing' : 'Paused'}</span>
       </div>
-      <div className="controls" aria-label="Reproducible experiment selection">
+        <span className="time-readout">Time {number(snapshot?.time, 2)}</span>
+        {creatures && <label className="selected-creature">Creature <select aria-label="Selected creature" value={snapshot?.selectedCreature ?? 'a'} onChange={e => { playbackRef.current?.selectCreature(e.currentTarget.value as 'a' | 'b'); refreshRef.current?.(); }}><option value="a">A</option><option value="b">B</option></select></label>}
+        {error && <span className="error" role="alert">{error}</span>}
+      </PlaybackBar>
+      <SettingsPopover navigation>
+      <SettingsPage section="Simulation"><div className="heading"><h2>Standalone 1D demonstrations</h2><p>These are separate 1D simulations, not projections of the 2D world. Entering or leaving a demonstration starts a fresh experiment.</p></div></SettingsPage>
+      <SettingsPage section="Terrain"><button onClick={() => control('clearTerrain')} disabled={!snapshot || !!setupError}>Clear Terrain</button></SettingsPage>
+      <SettingsPage section="Experiments"><div className="controls" aria-label="Reproducible experiment selection">
         <button onClick={() => control('loadCreatureDemo')} disabled={!snapshot || !!setupError}>Load two-creature demo</button>
         <button onClick={() => control('loadScatteringDemo')} disabled={!snapshot || !!setupError}>Load tunnelling demo</button>
         <button onClick={() => control('loadFreeExploration')} disabled={!snapshot || !!setupError}>Load free exploration</button>
-      </div>
+      </div></SettingsPage>
       {creatures && <>
-        <fieldset className="brush-controls" disabled={!snapshot || !!setupError}>
+        <SettingsPage section="Moods & friendships"><fieldset className="brush-controls" disabled={!snapshot || !!setupError}>
           <legend>Social coupling · applies on Reset</legend>
           <label>Pending g = {coupling.toFixed(1)}
             <input aria-label="Social coupling" type="range" min={-SOCIAL_COUPLING_LIMIT} max={SOCIAL_COUPLING_LIMIT} step="0.5"
@@ -227,16 +273,17 @@ export default function App() {
           <button onClick={() => control('reset')}>Apply coupling &amp; Reset</button>
           <span>Active g = {number(snapshot?.coupling, 1)} · {snapshot?.coupling === 0 ? 'independent' : (snapshot?.coupling ?? 0) < 0 ? 'attractive' : 'repulsive'}</span>
         </fieldset>
-        <p className="plot-note">g &lt; 0 attracts · g = 0 is independent · g &gt; 0 repels. Select −3, 0, or +3 and Apply coupling &amp; Reset to compare identical starting packets with the same terrain. Reset pauses, preserves terrain, and rewinds observations. Load two-creature demo clears terrain too.</p>
-        <CreatureInspector selected={snapshot?.selectedCreature ?? 'a'} inspection={snapshot?.inspection}
-          onSelect={id => { playbackRef.current?.selectCreature(id); refreshRef.current?.(); }} />
+        <p className="plot-note">g &lt; 0 attracts · g = 0 is independent · g &gt; 0 repels. Select −3, 0, or +3 and Apply coupling &amp; Reset to compare identical starting packets with the same terrain. Reset pauses, preserves terrain, and rewinds observations. Load two-creature demo clears terrain too.</p></SettingsPage>
+        <SettingsPage section="Creatures"><CreatureInspector selected={snapshot?.selectedCreature ?? 'a'} inspection={snapshot?.inspection}
+          onSelect={id => { playbackRef.current?.selectCreature(id); refreshRef.current?.(); }} /></SettingsPage>
       </>}
-      <p className="plot-note">Loading a preset pauses and replaces states, terrain and time; interaction returns to Paint and the observation RNG rewinds. {creatures
+      {!creatures && <><SettingsPage section="Creatures"><p>This legacy experiment has one spatial packet. Choose the two-creature experiment in Experiments for a creature list.</p></SettingsPage><SettingsPage section="Moods & friendships"><p>This single-packet experiment has no moods. The legacy two-creature experiment has independent moods, not entangled friendships.</p></SettingsPage></>}
+      <SettingsPage section="Experiments"><p className="plot-note">Loading a preset pauses and replaces states, terrain and time; interaction returns to Paint and the observation RNG rewinds. {creatures
         ? 'Two-creature preset: x ∈ [−20,20], centers −1.5 and +1.5, density σ=0.8, momenta +0.5 and −0.5. Opposite initial rz, mood H=0.6σx+0.15σz and drive F0=0.12. The densities meet through numerical evolution.'
         : demo
         ? 'Validated preset reference: x ∈ [−120,120], packet xc=−24, σ=3, p₀=1.5; Gaussian barrier A=1.8, width=0.6, center=0. Initial mean kinetic energy ≈1.137, momentum spread Δp=1/6; its incident over-barrier tail is less than 1% but is not zero. Keep the loaded preset unchanged for quantitative R/T. Reset uses selected momentum and preserves terrain rather than reloading the barrier.'
-        : 'Free exploration: x ∈ [−20,20], packet xc=−5, σ=1, initial p₀=0.75 and no terrain.'}</p>
-      {!creatures && <fieldset className="brush-controls" disabled={!snapshot || !!setupError}>
+        : 'Free exploration: x ∈ [−20,20], packet xc=−5, σ=1, initial p₀=0.75 and no terrain.'}</p></SettingsPage>
+      <SettingsPage section="Simulation">{!creatures && <fieldset className="brush-controls" disabled={!snapshot || !!setupError}>
         <legend>Initial wave packet · applies on Reset</legend>
         <label>Initial momentum p₀ = {initialMomentum.toFixed(2)} (ℏ = m = 1)
           <input type="range" min={-INITIAL_MOMENTUM_LIMIT} max={INITIAL_MOMENTUM_LIMIT} step="0.25"
@@ -244,8 +291,8 @@ export default function App() {
             onChange={event => changeInitialMomentum(event.currentTarget.valueAsNumber)} />
         </label>
         <span id="momentum-help" className="plot-note">Negative: left · zero: spreading without drift · positive: right (free motion). Select, then Reset to apply. Selection does not change the live packet or terrain. Default p₀ = 0.75; |p₀Δx| ≤ 0.15.</span>
-      </fieldset>}
-      <fieldset className="brush-controls" disabled={!snapshot || !!error}>
+      </fieldset>}</SettingsPage>
+      <SettingsPage section="Experiments"><fieldset className="brush-controls" disabled={!snapshot || !!error}>
         <legend>Interaction mode</legend>
         <label className="painting-toggle"><input type="radio" name="interaction" checked={interactionMode === 'paint'}
           onChange={() => changeInteractionMode('paint')} /> Paint</label>
@@ -260,16 +307,16 @@ export default function App() {
             onChange={event => changeResolution(event.currentTarget.valueAsNumber)} />
         </label>
         <button onClick={() => control('observe')} disabled={interactionMode !== 'observe'}>Observe particle{creatures ? ` · Creature ${(snapshot?.selectedCreature ?? 'a').toUpperCase()}` : ''}</button>
-        <button ref={notebookTrigger} onClick={openNotebook} aria-haspopup="dialog"
-          aria-controls="observer-notebook" aria-expanded={notebookOpen}>Why did it jump?</button>
         <span role="status">{snapshot?.observation
           ? `Observed x = ${snapshot.observation.position.toFixed(2)} at t = ${snapshot.observation.time.toFixed(2)} (σ = ${snapshot.observation.resolution.toFixed(1)}); observation #${snapshot.measurementCount}`
           : 'No position observed yet.'}</span>
-      </fieldset>
+      </fieldset></SettingsPage>
+      <SettingsPage section="Physics notebook">{openChapter && <NotebookLauncher open={openChapter} />}<button ref={notebookTrigger} onClick={openNotebook} aria-haspopup="dialog" aria-controls="observer-notebook" aria-expanded={notebookOpen}>Why did it jump?</button></SettingsPage>
       {notebookOpen && <Notebook observation={snapshot?.observation ?? null} onClose={closeNotebook} />}
+      <SettingsPage section="Physics notebook">
       {creatures && <p className="plot-note">Observation targets only the selected creature. Its partner and both moods are unchanged; the next social potential responds to the new density. This mean-field model is not entangled. The white line/diamond marks the selected creature’s last sampled position, not a tracked particle.</p>}
-      <p id="observation-help" className="plot-note">In Observe mode, click anywhere inside the plot or activate Observe particle with the keyboard. The click only triggers measurement: the Born distribution samples the outcome, not the click location. Lower resolution σ means a sharper finite-resolution Gaussian measurement, not exact coordinate projection. The marker line and diamond mark the last sampled position, not a tracked particle. Observe while paused or playing; Play continues evolution and re-spreading. Reset clears the result and rewinds the seeded random sequence; the selected resolution is retained.</p>
-      <fieldset className="brush-controls" disabled={!snapshot || !!error}>
+      <p id="observation-help" className="plot-note">In Observe mode, click anywhere inside the plot or activate Observe particle with the keyboard. The click only triggers measurement: the Born distribution samples the outcome, not the click location. Lower resolution σ means a sharper finite-resolution Gaussian measurement, not exact coordinate projection. The marker line and diamond mark the last sampled position, not a tracked particle. Observe while paused or playing; Play continues evolution and re-spreading. Reset clears the result and rewinds the seeded random sequence; the selected resolution is retained.</p></SettingsPage>
+      <SettingsPage section="Terrain"><fieldset className="brush-controls" disabled={!snapshot || !!error}>
         <legend>Potential painting</legend>
         <label>Brush width σ = {brush.sigma.toFixed(1)} (x units)
           <input type="range" min={BRUSH_LIMITS.minSigma} max={BRUSH_LIMITS.maxSigma} step="0.1" value={brush.sigma}
@@ -280,9 +327,9 @@ export default function App() {
             onChange={event => changeBrush('amplitude', event.currentTarget.valueAsNumber)} />
         </label>
       </fieldset>
-      <p id="painting-help" className="plot-note">Select Paint mode, then press and drag inside the plot with mouse, touch, or pen. Horizontal position sets the barrier location; vertical position does not set its height. Painting raises terrain, never adds repeatedly. Brush changes apply to the next stroke. Reset pauses and restores the initial states/time (and selected momentum in single-packet modes), preserving terrain. Clear Terrain removes only the barriers.</p>
+      <p id="painting-help" className="plot-note">Select Paint mode, then press and drag inside the plot with mouse, touch, or pen. Horizontal position sets the barrier location; vertical position does not set its height. Painting raises terrain, never adds repeatedly. Brush changes apply to the next stroke. Reset pauses and restores the initial states/time (and selected momentum in single-packet modes), preserving terrain. Clear Terrain removes only the barriers.</p></SettingsPage>
       {error && <p className="error" role="alert">{error} {snapshot?.error && 'Reset to restore the initial state.'}</p>}
-      <div className="diagnostics" aria-label="Simulation diagnostics">
+      <SettingsPage section="Advanced"><div className="diagnostics" aria-label="Simulation diagnostics">
         <span><strong>Physical time:</strong> {number(snapshot?.time, 2)}</span>
         <span><strong>Probability norm:</strong> {number(snapshot?.norm, 10)}</span>
         {!creatures && <><span><strong>Energy ⟨ψ|H|ψ⟩:</strong> {number(snapshot?.energy, 8)}</span>
@@ -302,13 +349,15 @@ export default function App() {
           <span><strong>T estimate:</strong> {number(snapshot?.transmission ?? undefined, 4)}</span>
         </div>
         <p className="plot-note">All masses come from the actual wavefunction, with disjoint dx-weighted samples. P_left includes the incident packet before collision; it is not then reflection. Only the unchanged left-incident demo, after separation and before wall returns, supplies R/T estimates. Gray dotted lines mark the reference cuts, not hard walls. The demo's transmitted mass exceeds a conservative incident over-barrier-tail bound; a below-peak mean energy alone would not establish tunnelling.</p>
-      </section>}
-      <footer>
+      </section>}</SettingsPage>
+      <SettingsPage section="Physics notebook"><footer>
         <span><strong>Evolution:</strong> Crank–Nicolson · Δt = {demo ? SCATTERING_CONFIG.dt : 0.01} · ℏ = m = 1</span>
         <span><strong>Grid:</strong> {demo ? 2401 : 401} points · Δx = 0.1 · fixed zero endpoints</span>
-      </footer>
-      {creatures ? <p className="plot-note">Cyan solid: |ψA|². Rose short-dashed: |ψB|². Translucent fills identify each density, not phase, extra probability, or interference. Curves share a fixed square-root-spaced density axis; geometric screen area is not probability. Amber long-dashed: shared terrain only, not mood/social potentials. Dotted gray lines are reference positions, not walls. Density overlap is not coherent quantum interference: no amplitudes are summed. Social feedback uses g times the other density, a deterministic mean-field approximation, not entanglement. Each norm is preserved to roundoff, not each energy. Frozen-density coupling is first-order in time; strong coupling, sharp measurements, finite spacing and wall reflections limit accuracy. World snapshots/potentials are copied for safe ownership. Background tabs pause; stalls never enlarge physics dt.</p>
+      </footer></SettingsPage>
+      <SettingsPage section="Display">{creatures ? <p className="plot-note">Cyan solid: |ψA|². Rose short-dashed: |ψB|². Translucent fills identify each density, not phase, extra probability, or interference. Curves share a fixed square-root-spaced density axis; geometric screen area is not probability. Amber long-dashed: shared terrain only, not mood/social potentials. Dotted gray lines are reference positions, not walls. Density overlap is not coherent quantum interference: no amplitudes are summed. Social feedback uses g times the other density, a deterministic mean-field approximation, not entanglement. Each norm is preserved to roundoff, not each energy. Frozen-density coupling is first-order in time; strong coupling, sharp measurements, finite spacing and wall reflections limit accuracy. World snapshots/potentials are copied for safe ownership. Background tabs pause; stalls never enlarge physics dt.</p>
         : <p className="plot-note">Cyan: probability density, fixed square-root-spaced left scale 0–10.5 (not linear). Dashed amber: V(x), independent linear right scale 0–5. Density ticks are actual |ψ|² values; screen area under this nonlinear curve is not probability. The fixed density range includes the normalized-grid maximum 1/Δx = 10 with headroom, so sharp measurement peaks remain visible without autoscaling. Norm is conserved up to roundoff; energy is conserved during evolution with fixed V, not during measurement, painting or clearing. The energy-drift reference resets after these updates and Reset. At long times the packet reflects from the Dirichlet walls. Playback pauses in background tabs; long frame stalls slow simulated time rather than skipping physics steps.</p>}
+      </SettingsPage><SettingsPage section="Advanced">{demonstrations}</SettingsPage>
+      </SettingsPopover>
     </main>
   );
 }
