@@ -7,7 +7,7 @@ const load=async p=>JSON.parse(await readFile(p,'utf8'));
 const stats=a=>{const v=[...a].sort((x,y)=>x-y);return {count:v.length,median:v[Math.ceil(v.length*.5)-1]??null,p95:v[Math.ceil(v.length*.95)-1]??null,sum:v.reduce((x,y)=>x+y,0)};};
 const raw=await load(join(dir,'sessions.json')),groups={};
 for(const s of raw.sessions){const key=s.name+'.'+(s.source??'captured'),g=groups[key]??={batches:[],frames:[],steps:[],phases:{}};const v=s.end.record,wall=(s.end.wall-s.start.wall)/1000;
- g.batches.push({batch:s.batch,wall,physical:s.end.time-s.start.time,ratio:(s.end.time-s.start.time)/wall,frames:v.frames.length,requested:v.requests,completed:v.completed,discarded:v.discarded,capHits:v.capHits});g.frames.push(...v.frames);g.steps.push(...v.steps);for(const k of ['potential','mean','moments','snapshot','draw','publish','spatial','phase','overlay','density']){g.phases[k]??=[];g.phases[k].push(...v[k]);}
+ g.batches.push({batch:s.batch,wall,physical:s.end.time-s.start.time,ratio:(s.end.time-s.start.time)/wall,actions:(v.actions||[]).filter(a=>a.status==='applied').length,scheduledActionSlots:s.end.scheduledActionSlots??0,frames:v.frames.length,requested:v.requests,completed:v.completed,discarded:v.discarded,capHits:v.capHits});g.frames.push(...v.frames);g.steps.push(...v.steps);for(const k of ['potential','mean','moments','snapshot','draw','publish','spatial','phase','overlay','density']){g.phases[k]??=[];g.phases[k].push(...v[k]);}
 }
 for(const g of Object.values(groups)){g.frameMs=stats(g.frames.map(x=>x.duration));g.gapMs=stats(g.frames.flatMap(x=>x.gap===null?[]:[x.gap]));g.timestampLagMs=stats(g.frames.map(x=>x.start-x.stamp));g.stepsPerFrame=stats(g.frames.map(x=>x.steps));g.stepMs=stats(g.steps);g.wall=g.batches.reduce((n,b)=>n+b.wall,0);g.physical=g.batches.reduce((n,b)=>n+b.physical,0);g.ratio=g.physical/g.wall;g.fps=g.frames.length/g.wall;g.requested=g.batches.reduce((n,b)=>n+b.requested,0);g.completed=g.batches.reduce((n,b)=>n+b.completed,0);g.discarded=g.batches.reduce((n,b)=>n+b.discarded,0);g.capHits=g.batches.reduce((n,b)=>n+b.capHits,0);g.capRate=g.capHits/g.frames.length;for(const k in g.phases)g.phases[k]=stats(g.phases[k]);delete g.frames;delete g.steps;}
 const traces={};for(const file of (await readdir(dir)).filter(x=>x.endsWith('-trace.json'))){const t=(await load(join(dir,file))).traceEvents,totals=new Map();for(const e of t)if(e.name==='FireAnimationFrame'&&e.ph==='X')totals.set(e.pid+':'+e.tid,(totals.get(e.pid+':'+e.tid)||0)+e.dur);const main=[...totals].sort((a,b)=>b[1]-a[1])[0]?.[0];// Chrome emits Profile on the renderer thread but ProfileChunk on a
@@ -17,4 +17,21 @@ const traces={};for(const file of (await readdir(dir)).filter(x=>x.endsWith('-tr
  const cpu=[...weights].sort((a,b)=>b[1]-a[1]).map(([id,w])=>{const c=nodes.get(id)?.callFrame??{},map=maps.get(basename(c.url||''));let p;if(map&&c.lineNumber>=0)p=originalPositionFor(map,{line:c.lineNumber+1,column:c.columnNumber});return {function:c.functionName,source:p?.source?.replace(/^.*?(packages\/)/,'$1'),originalName:p?.name,line:p?.line,milliseconds:w/1000,percent:w/total*100};});
  const events={};for(const e of t)if(e.ph==='X'&&e.pid+':'+e.tid===main){const key=e.name==='EventDispatch'?e.name+':'+e.args?.data?.type:e.name;(events[key]??=[]).push(e.dur/1000);}for(const k in events)events[k]=stats(events[k]);traces[file]={sampledMilliseconds:total/1000,cpu,events};
 }
-const result={environment:raw.environment,groups,traces,errors:raw.errors};await writeFile(join(dir,'summary.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(groups,null,2));
+const pairedComparisons=[];
+const median=a=>stats(a).median;
+for(const name of new Set(raw.sessions.map(s=>s.name))){
+ const before=groups[name+'.before'],after=groups[name+'.after'];if(!before||!after)continue;
+ const pairs=before.batches.map(b=>({batch:b.batch,before:b.ratio,after:after.batches.find(a=>a.batch===b.batch)?.ratio}));
+ if(pairs.some(p=>p.after===undefined))throw Error('Missing paired source window');
+ const ratio=median(pairs.map(p=>p.after))/median(pairs.map(p=>p.before)),resampled=[];
+ // Exact paired resampling of the five predeclared windows (5^5 outcomes).
+ // Descriptive percentile uncertainty only; not an independent-device CI.
+ if(pairs.length===5)for(let code=0;code<5**5;code++){let n=code,draw=[];for(let i=0;i<5;i++){draw.push(pairs[n%5]);n=Math.floor(n/5);}resampled.push(median(draw.map(p=>p.after))/median(draw.map(p=>p.before)));}
+ resampled.sort((a,b)=>a-b);
+ const interval=resampled.length?[resampled[Math.ceil(resampled.length*.025)-1],resampled[Math.ceil(resampled.length*.975)-1]]:null;
+ const sessions=raw.sessions.filter(s=>s.name===name),geometry=sessions.map(s=>s.start.canvas),first=geometry[0];
+ const geometryMatched=geometry.every(c=>c.width===first.width&&c.height===first.height&&c.cssWidth===first.cssWidth&&c.cssHeight===first.cssHeight&&c.fits);
+ pairedComparisons.push({name,pairs,medianBefore:median(pairs.map(p=>p.before)),medianAfter:median(pairs.map(p=>p.after)),ratioOfMedians:ratio,budget:.95,observedMedianPassed:ratio>=.95,pairedResamplingPercentile95:interval,geometryMatched,
+  conclusion:!geometryMatched?'invalid geometry':!interval?'pilot only':interval[0]>=.95&&ratio>=.95?'measured pass':interval[1]<.95&&ratio<.95?'measured failure':'inconclusive around budget; do not call acceptance passed'});
+}
+const result={environment:raw.environment,groups,pairedComparisons,traces,errors:raw.errors};await writeFile(join(dir,'summary.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(groups,null,2));

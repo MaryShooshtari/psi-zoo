@@ -45,8 +45,8 @@ export async function checkMuseum({ evaluate, send, check, retry, sleep, out }) 
   check('Back revisits guide instructions without resetting or undoing physical state', await evaluate(`document.querySelector('.guide-panel h2').textContent.includes('Step 1')&&same(guideBeforeShadow)`));
   await activate('2D view'); await retry(() => evaluate(`stable()`)); await activate('Next'); await activate('1D view'); await retry(() => evaluate(`stable()&&!button('Next').disabled`)); await activate('Next');
   check('Landscape step asks the visitor to return to 2D; it does not switch automatically', await evaluate(`button('1D view').getAttribute('aria-pressed')==='true'&&button('Finish guide').disabled`));
-  await activate('2D view'); await retry(() => evaluate(`stable()`)); await menu('Terrain');
-  await evaluate(`document.querySelector('[name="terrain-tool"][value="barrier"]').focus()`); await key(' ', 'Space', 32); await key('Escape'); await sleep(80);
+  await activate('2D view'); await retry(() => evaluate(`stable()`)); await menu('Draw terrain');
+  await evaluate(`document.querySelector('[name="terrain-tool"][value="barrier"]').focus()`); await key(' ', 'Space', 32); await activate('Paint on canvas'); await sleep(80);
   await evaluate(`window.guideBeforePaint=capture();window.guideBeforePaintRevision=__controller.terrainRevision`);
   const p = await evaluate(`(()=>{const r=document.querySelector('.density-2d').getBoundingClientRect();return{x:r.left+r.width*.47,y:r.top+r.height*.5,d:r.width*.06}})()`);
   await send('Input.dispatchMouseEvent', { type: 'mousePressed', x:p.x,y:p.y,button:'left',clickCount:1 });
@@ -69,8 +69,8 @@ export async function checkMuseum({ evaluate, send, check, retry, sleep, out }) 
   await send('Emulation.setEmulatedMedia', { features: [{name:'prefers-reduced-motion',value:'reduce'}] });
   await start(); await spread(); await activate('1D view');
   check('Reduced-motion guide uses an immediate 1D view, not a disabled learning step', await evaluate(`stable()&&getComputedStyle(document.querySelector('.terrain-canvas-wrap')).transitionDuration==='0s'&&!button('Next').disabled`));
-  await activate('Next'); await activate('2D view'); await menu('Terrain');
-  await evaluate(`document.querySelector('[name="terrain-tool"][value="barrier"]').focus()`); await key(' ', 'Space', 32); await key('Escape'); await sleep(80);
+  await activate('Next'); await activate('2D view'); await menu('Draw terrain');
+  await evaluate(`document.querySelector('[name="terrain-tool"][value="barrier"]').focus()`); await key(' ', 'Space', 32); await activate('Paint on canvas'); await sleep(80);
   await activate('Paint a short central barrier (keyboard alternative)'); await retry(() => evaluate(`!button('Finish guide').disabled`));
   check('Keyboard-only terrain alternative performs the actual signed potential edit', await evaluate(`__controller.snapshot().potentialMax>0&&document.querySelector('.guide-panel h2').textContent.includes('Step 3')`));
   for (const [width,height] of [[1920,1080],[1440,900],[1366,768],[1280,720],[1024,600]]) {
@@ -92,9 +92,11 @@ export async function checkMuseum({ evaluate, send, check, retry, sleep, out }) 
     await key('Escape'); await sleep(60);
   }
   await send('Emulation.setDeviceMetricsOverride',{width:1366,height:768,deviceScaleFactor:1,mobile:false});
+  await menu('Creatures');
   const ax = await send('Accessibility.getFullAXTree');
   const namedButtons = ax.nodes.filter(n => !n.ignored && n.role?.value === 'button');
-  check('Accessible primary buttons have names and creature selection has a canvas alternative', namedButtons.length >= 6 && namedButtons.every(n => n.name?.value?.trim()) && ax.nodes.some(n => !n.ignored && n.role?.value === 'combobox' && n.name?.value === 'Selected creature'));
+  check('Accessible primary buttons have names and creature selection has a canvas alternative', namedButtons.length >= 6 && namedButtons.every(n => n.name?.value?.trim()) && ax.nodes.some(n => !n.ignored && n.role?.value === 'radio' && n.name?.value?.includes('Creature A')));
+  await key('Escape'); await sleep(60);
   check('Theme text and focus colors meet sampled WCAG contrast thresholds', await evaluate(`(()=>{const style=getComputedStyle(document.documentElement),rgb=k=>style.getPropertyValue(k).trim().match(/[a-f0-9]{2}/gi).map(v=>parseInt(v,16)/255),lum=a=>a.map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((n,v,i)=>n+v*[.2126,.7152,.0722][i],0),ratio=(a,b)=>{a=lum(rgb(a));b=lum(rgb(b));return(Math.max(a,b)+.05)/(Math.min(a,b)+.05)};return ratio('--ink','--panel')>=4.5&&ratio('--ink-muted','--panel')>=4.5&&ratio('--ink-muted','--sky-deep')>=4.5&&ratio('--focus','--panel')>=3;})()`));
   await activate('What am I seeing?'); await activate('Open full physics notebook'); await activate('Explore the mathematics'); await shot('museum-notebook'); await key('Escape');
   await writeFile(join(out,'museum-results.json'),JSON.stringify({topics:chapters,guide:'native Play/view/paint and keyboard alternative; confirmed destructive replay; clean skip/finish',storage:'minimal optional preference; blocked writes tested',sourceChecks:'exact spatial/mood/terrain/controller continuity on reading and replay cancellation',viewports:[[1920,1080],[1440,900],[1366,768],[1280,720],[1024,600],[512,300]]},null,2));

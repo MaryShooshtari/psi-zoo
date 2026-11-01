@@ -13,6 +13,8 @@ A marginal probability distribution answers a question while ignoring another co
 
 This is not a standalone 1D wavefunction, an independent 1D Schrödinger solver or a measurement. A mixed x reduced state and even a pure separable one can have the same marginal; the diagonal density does not specify the full reduced density operator.
 
+An explicitly armed Measure position action is different from viewing this marginal. In 1D view it samples an x-only finite-resolution detector and multiplies the full 2D amplitudes by a positive x-dependent Gaussian response mask across every y, then normalizes. It does not reconstruct a 1D wavefunction, choose a y or report a y coordinate. Conditioning on x can change the y marginal of a correlated spatial state; “no measured y” does not mean “unchanged y density.” Returning to 2D shows that same updated full state. The result line remains historical at its recorded time.
+
 ## Explore the mathematics
 
 The continuous marginal integrates over y. Grid cells need their y spacing; the second sum then reproduces the complete spatial norm.

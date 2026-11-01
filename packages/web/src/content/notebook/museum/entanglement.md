@@ -5,7 +5,7 @@ contexts: "pair"
 ---
 ## Observe
 
-Use Moods & friendships → Entangle moods on two independent creatures, or load World: entangled friendship. This is an explicit global preparation, replacing both previous moods with a Bell state; it leaves their spatial amplitudes alone. Inspect local purity 1/2 and entropy 1 bit initially. Local rotations change measurement statistics in some bases, so pause/reset for the initial reference.
+Use Menu → Experiments → Entangle moods to choose two independent creatures in order and explicitly Apply. Then use Measure mood to choose the registered pair, target and basis. Compare records across fresh preparations, not repeated measurements of one already measured pair. Use Measure & Release under Creatures → Advanced simulation settings before preparing a new pair, or explicitly load World: entangled friendship under “Replace the creature setup…”. This is an explicit global preparation, replacing both previous moods with a Bell state; it leaves their spatial amplitudes alone. Inspect local purity 1/2 and entropy 1 bit initially. Local rotations change measurement statistics in some bases, so pause before preparation for the initial reference. Reset restores saved initial moods, which need not be this newly prepared Bell state.
 
 ## Understand
 

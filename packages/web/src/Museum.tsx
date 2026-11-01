@@ -12,9 +12,10 @@ function Paragraph({ text, chapter }: { text: string; chapter: (topic: Topic) =>
       : <a key={i} href={link[2]} target="_blank" rel="noreferrer">{link[1]}</a>;
   })}</p>;
 }
-export function MuseumDialog({ panel, scene, view, close, chapter, replay, start }: {
+export function MuseumDialog({ panel, scene, view, close, chapter, replay, start, learn, learningActive = false }: {
   panel: MuseumPanel; scene: MuseumScene | null; view: TerrariumViewMode; close: () => void;
   chapter: (id: Topic) => void; replay: () => void; start: (skip: boolean) => void;
+  learn?: () => void; learningActive?: boolean;
 }) {
   const dialog = useRef<HTMLDialogElement>(null), heading = useRef<HTMLHeadingElement>(null), body = useRef<HTMLDivElement>(null);
   useEffect(() => { const d = dialog.current!; d.showModal(); return () => { if (d.open) d.close(); }; }, []);
@@ -28,9 +29,13 @@ export function MuseumDialog({ panel, scene, view, close, chapter, replay, start
         <p>Start with one normalized creature in clean 2D. Finish or Skip also returns to that same deterministic, paused one-creature scene at time zero. Only the completion preference is stored locally.</p>
         <div className="controls"><button onClick={() => start(false)}>Replace scene and start guide</button><button onClick={() => start(true)}>Replace scene and skip guide</button><button onClick={close}>Cancel — keep my scene</button></div>
       </section> : panel.kind === 'help' ? <>
-        <p className="plot-note">Based on the published experiment at time {scene?.snapshot.time.toFixed(2) ?? '—'}. Playback is not paused by reading; reopen for updated context.</p>
-        {contextualScience(scene, view).map((card, i) => <section key={i}><h3>{card.title}</h3><p>{card.explanation}</p><button onClick={() => chapter(card.topic)}>Read chapter: {museumChapters.find(c => c.id === card.topic)!.title}</button></section>)}
-        <div className="controls"><button onClick={() => chapter('probability')}>Open full physics notebook</button><button onClick={replay}>Replay three-step guide…</button></div>
+        <section className="learning-launcher"><h3>A little science, one discovery at a time</h3><p>Seven steps from probability clouds to entangled moods. Use your current playground; entry, Back, Next and Exit never reset it. You choose when to apply an action.</p><button disabled={!learn} onClick={learn}>{learningActive ? 'Continue learning path' : 'Start learning path'}</button></section>
+        <h3>Help with the current scene</h3>
+        <p className="plot-note">Based on the published experiment at time {scene?.snapshot.time.toFixed(2) ?? '—'}. Live context · reading does not pause evolution.</p>
+        {contextualScience(scene, view).map((card, i) => i === 0 ? <section key={card.title}><h3>{card.title}</h3><p>{card.explanation}</p><button onClick={() => chapter(card.topic)}>Explore the science →</button></section> : <details key={card.title}><summary>{card.title}</summary><p>{card.explanation}</p><button onClick={() => chapter(card.topic)}>Read the notebook →</button></details>)}
+        <details><summary>Spreading, measurement & terrain</summary><p>A localized wave contains a range of momenta, so a free packet can spread. Position measurement applies a finite-resolution Gaussian filter and renormalizes the state—not an exact orthogonal position projection.</p><p>Barriers raise potential energy; wells lower it. A wave can reflect, interfere with its own reflected amplitude, or transmit through a barrier, including tunnelling components below the barrier energy. Separate creatures do not interfere just by overlapping.</p><p>The 1D view sums the same 2D probability density along y. Faces express mood qubits; shared mood states are not spatial entanglement.</p><button onClick={() => chapter('measurement')}>Measurement notebook →</button></details>
+        <div className="controls"><button onClick={() => chapter('probability')}>Open full physics notebook</button></div>
+        <details><summary>Legacy three-step demonstration</summary><p>This older, separately prepared example replaces the scene only after confirmation.</p><button onClick={replay}>Replay three-step guide…</button></details>
       </> : <>
         <nav className="chapter-list" aria-label="Physics notebook chapters">{museumChapters.map(c => <button key={c.id} aria-current={current?.id === c.id ? 'page' : undefined} onClick={() => chapter(c.id)}>{c.title}</button>)}</nav>
         <p className="plot-note">Locally bundled Markdown and native MathML: no service or downloaded equation fonts. Proof links concern specific exact models, not formal verification of the TypeScript or the entire game.</p>
@@ -38,7 +43,8 @@ export function MuseumDialog({ panel, scene, view, close, chapter, replay, start
           const blocks = s.blocks.map((b, i) => b.kind === 'math' ? <div key={i} className="notebook-equation" dangerouslySetInnerHTML={{ __html: b.text }} /> : <Paragraph key={i} text={b.text} chapter={chapter} />);
           return index === 0 ? <section key={s.heading}><h3>{s.heading}</h3>{blocks}</section> : <details key={`${current!.id}-${s.heading}`} open={index === 1}><summary>{s.heading}</summary>{blocks}</details>;
         })}</article>
-        <p><button onClick={replay}>Replay guide (confirmation required)…</button></p>
+        <p><button disabled={!learn} onClick={learn}>{learningActive ? 'Continue learning path' : 'Start learning path'}</button></p>
+        <details><summary>Legacy three-step demonstration</summary><button onClick={replay}>Replay guide (confirmation required)…</button></details>
       </>}
     </div>
   </dialog>;
@@ -58,7 +64,7 @@ export function GuideCard({ step, ready, view, setStep, finish, paint, canPaint 
     <h2 ref={heading} tabIndex={-1}>Step {step} of 3 · {titles[step - 1]}</h2>
     {step === 1 ? <p>In 2D, activate Play. Watch the actual cloud widen: brighter density means more position probability per unit area. Its total probability stays near one. Next unlocks after a real Play action and at least 20% growth in a computed width, not elapsed wall time.</p>
       : step === 2 ? <p>Activate the top-left 1D view. The mirror reveals probability summed along y: a quantum shadow of this same 2D world, not a physical conversion to a one-dimensional system. Reduced motion uses an immediate view change.</p>
-      : <><p>Use 2D view to return. Open the top-right Menu → Terrain, choose Barrier (+), then drag a short stroke in the cloud's field. You are changing potential energy in the Hamiltonian—the rule for subsequent evolution—not measuring or moving probability.</p><button disabled={!canPaint} onClick={paint}>Paint a short central barrier (keyboard alternative)</button><p className="plot-note">This explicit action applies the same positive brush at five nearby points. It unlocks after you choose Barrier (+) in clean 2D; it never runs automatically.</p></>}
+      : <><p>Use 2D view to return. Open the top-right Menu → Terrain and choose Barrier. The menu closes; drag a short stroke in the cloud's field. You are changing potential energy in the Hamiltonian—the rule for subsequent evolution—not measuring or moving probability.</p><button disabled={!canPaint} onClick={paint}>Paint a short central barrier (keyboard alternative)</button><p className="plot-note">This explicit action applies the same positive brush at five nearby points. It unlocks after you choose Barrier (+) in clean 2D; it never runs automatically.</p></>}
     <p role="status">{ready ? 'Interaction observed. You can continue.' : 'Waiting for your interaction with the simulation.'}</p>
     <div className="controls">{step > 1 && <button onClick={() => setStep(step - 1)}>Back</button>}{step < 3 ? <button disabled={!ready} onClick={() => setStep(step + 1)}>Next</button> : <button disabled={!ready} onClick={finish}>Finish guide</button>}<button onClick={finish}>Skip guide</button></div>
     <p className="plot-note">Finish or Skip restores one initial creature, clean terrain, 2D and time zero.</p>

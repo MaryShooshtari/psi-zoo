@@ -1,13 +1,13 @@
 import type { PsiGrid2D } from '@psi-zoo/sim-core';
 
-/** Fixed mapping: f=1-exp(-rho/0.08). No frame-wise autoscaling or phase color.
+/** Fixed mapping: f=sqrt(rho/(rho+0.012)). No frame-wise autoscaling or phase color.
  * The UI uses dusky sky to pastel cloud; the pixel helper also retains its
  * legacy palette default. Brightness is not probability mass; area-weighted
  * probabilities belong in diagnostics.
  */
 export function densityBrightness2D(rho: number): number {
   if (!Number.isFinite(rho) || rho < 0) throw new RangeError('Density must be finite and nonnegative');
-  return -Math.expm1(-rho / 0.08);
+  return Math.sqrt(rho / (rho + 0.012));
 }
 export function densityViewport2D(g: PsiGrid2D, width: number, height: number) {
   const scale = Math.min(width / (g.xmax - g.xmin), height / (g.ymax - g.ymin));

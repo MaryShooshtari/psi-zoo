@@ -1,6 +1,7 @@
 import { useEffect, useRef, type KeyboardEvent } from 'react';
 import type { Observation } from './simulation';
 import source from './content/notebook/observer.md?raw';
+import { visibleControl } from './visibleControl';
 
 /** Small authored-content format: flat frontmatter, ## sections, paragraphs,
  * HTTPS links and native MathML blocks. Not a general Markdown/HTML renderer.
@@ -46,7 +47,7 @@ export function ObservationExample({ observation }: { observation: Observation |
 
 export function containDialogFocus(event: KeyboardEvent<HTMLDialogElement>) {
   if (event.key !== 'Tab') return;
-  const controls = [...event.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], summary, input:not(:disabled), select:not(:disabled), [tabindex="0"]')].filter(el => el.getClientRects().length > 0);
+  const controls = [...event.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], summary, input:not(:disabled), select:not(:disabled), [tabindex="0"]')].filter(visibleControl);
   const first = controls[0], last = controls[controls.length - 1], active = document.activeElement;
   if (event.shiftKey && (active === first || !controls.includes(active as HTMLElement))) { event.preventDefault(); last?.focus(); }
   else if (!event.shiftKey && (active === last || !controls.includes(active as HTMLElement))) { event.preventDefault(); first?.focus(); }

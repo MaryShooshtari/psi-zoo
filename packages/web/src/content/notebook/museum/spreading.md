@@ -5,13 +5,13 @@ contexts: "free-gaussian,guide-spread"
 ---
 ## Observe
 
-Start the guide's single free creature, press Play, then Pause and inspect σx and σy in Advanced. These are widths: square roots of position variances. A variance is the mean squared distance from the mean position. The central peak can fall while the total norm stays near one. Compare early times, before the packet reaches the boundary. A painted well or reflected packet need not widen monotonically.
+Open What am I seeing? → Start learning path and visit “Why does it spread?”. Press Play, watch, and Pause. The path preserves your current scene, so terrain and approximate feedback may also affect its width. It never silently prepares a free packet. Inspect σx and σy in Science notebook → Advanced diagnostics & legacy experiments. These are widths: square roots of position variances. A variance is the mean squared distance from the mean position. The central peak can fall while the total norm stays near one. Compare early times, before the packet reaches the boundary. A painted well or reflected packet need not widen monotonically.
 
 ## Understand
 
 A Gaussian is a smooth bell-shaped distribution. Even an initially stationary free Gaussian spreads: different momentum components, which describe different contributions to motion, accumulate different phases. Free means no potential or feedback force in this experiment; it does not mean the state is frozen.
 
-The density is the body. Eye and mouth motion is decorative and cannot cause spreading. The guide waits for a real Play action and a change in the committed state's width, not a wall-clock animation timer. Its initial condition has zero mean momentum, not exactly zero momentum for every possible measurement.
+The density is the body. Eye and mouth motion is decorative and cannot cause spreading. Learning feedback reads computed widths, never scripted face movement. Next remains available and does not certify a free-packet experiment. The separately confirmed legacy three-step demonstration prepares a clean, free, zero-mean-momentum packet and requires a real Play action plus 20% computed width growth; zero mean momentum is not exactly zero momentum for every possible measurement.
 
 ## Explore the mathematics
 

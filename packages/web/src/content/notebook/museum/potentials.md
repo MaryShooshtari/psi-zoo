@@ -5,7 +5,7 @@ contexts: "barrier,well,terrain,guide-landscape"
 ---
 ## Observe
 
-In 2D open Menu → Terrain. Choose Barrier (+) or Well (−) and paint, then Play. Clear terrain removes the landscape without resetting the wavefunction. Reset evolution restores initial states but normally retains terrain; loading an experiment is a separate operation. The guide's explicitly labeled finish/skip cleanup is intentionally stronger.
+In 2D open Menu → Terrain. Choose Barrier (+) or Well (−) and paint, then Play. Clear terrain removes the landscape without resetting the wavefunction. Reset evolution restores initial states but normally retains terrain; loading an experiment is a separate operation. The legacy three-step demonstration's explicitly labeled finish/skip cleanup is intentionally stronger.
 
 ## Understand
 
@@ -21,7 +21,7 @@ In ℏ=m=1 units (Planck's reduced constant and mass set to one), i is the imagi
 
 The Laplacian is the sum of second spatial derivatives; the app approximates each by centered differences. Taking a conjugate transpose swaps matrix rows/columns and conjugates its complex entries. With Hermitian (conjugate-transpose symmetric) H, 1D Crank–Nicolson solves (I+iΔtH/2)ψnext=(I−iΔtH/2)ψold. Here I is identity. It is unitary in exact arithmetic: it preserves the norm, not necessarily continuum accuracy for large steps.
 
-The 2D method is symmetric splitting, NOT unsplit 2D CN: PV(Δt/2) Cx(Δt/2) Cy(Δt) Cx(Δt/2) PV(Δt/2). PV multiplies by exp(−iVτ); each C is a directional Cayley solve. V is frozen over a whole committed step. For static real terrain this has second-order time accuracy; split energy has discretization error and is not exactly the full-H conserved energy. Fixed dt=1/120 and 128×128 interior points remain unchanged. The mean-field feedback scheme has a separate, generally first-order limitation.
+The 2D method is symmetric splitting, NOT unsplit 2D CN: PV(Δt/2) Cx(Δt/2) Cy(Δt) Cx(Δt/2) PV(Δt/2). PV multiplies by exp(−iVτ); each C is a directional Cayley solve. V is frozen over a whole committed step. For static real terrain this has second-order time accuracy; split energy has discretization error and is not exactly the full-H conserved energy. Fixed dt=1/120 and spacing Δx=Δy=20/129 remain unchanged. The main terrarium uses an aspect-matched rectangular grid with approximately 128² interior points; all four boundaries remain zero Dirichlet. A shorter vertical domain can reflect a spreading packet earlier than the previous square, so use the current bounds when interpreting evolution. The mean-field feedback scheme has a separate, generally first-order limitation.
 
 A sudden terrain edit changes energy by the current density-weighted ΔV without changing the state. Subsequent time-dependent-H evolution need not conserve energy. Gaussian brush stamps have finite support and bounded signed height; they are additive in 2D, with the existing cap. The legacy 1D maximum-stamping rule is different.
 

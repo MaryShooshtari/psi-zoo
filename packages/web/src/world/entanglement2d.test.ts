@@ -6,6 +6,69 @@ import { MoodRegistry2D } from './moodRegistry2d';
 const g=createPsiGrid2D({nx:24,ny:21});
 const make=(preset:'bell'|'mood'='mood')=>new QuantumWorld2D(g,createWorldPreset2D(g,preset));
 const spatial=(w:QuantumWorld2D)=>w.ids.map(id=>w.spatialState(id).values);
+
+it('chronological frozen receipts copy actual mood events while preserving all existing method returns', () => {
+ const w=make(); expect(w.lastAction).toBeNull();
+ expect(w.prepareBellPair('p','b','a')).toBeUndefined();
+ const prepared=w.lastAction!;
+ expect(prepared).toMatchObject({kind:'mood-prepare',sequence:1,time:0,pairId:'p',creatureAId:'b',creatureBId:'a',events:[{type:'prepare',pairId:'p',creatureAId:'b',creatureBId:'a'}]});
+ const event=w.measureMood('p','a','Z'), single=w.lastAction!;
+ expect(single).toMatchObject({kind:'mood-measure',sequence:2,targetId:'a',basis:'Z',events:[event]});
+ if(single.kind!=='mood-measure')throw new Error('Expected mood receipt');
+ expect(single.events[0]).not.toBe(event);
+ w.measureSpatial('b','x',.4);expect(w.lastAction).toMatchObject({kind:'spatial-measurement',sequence:3,spatialSequence:1});
+ const pair=w.measurePair('p','X'), both=w.lastAction!;
+ expect(pair).toHaveLength(2);expect(pair.map(e=>e.creatureId)).toEqual(['b','a']);
+ expect(both).toMatchObject({kind:'mood-measure-pair',sequence:4,events:pair,basis:'X'});
+ const beforeRelease=w.getSnapshot().moodHistory.length;
+ expect(w.measureAndRelease('p','Z')).toBeUndefined();const released=w.lastAction!;
+ expect(released).toMatchObject({kind:'mood-release',sequence:5,events:w.getSnapshot().moodHistory.slice(beforeRelease)});
+ if(released.kind!=='mood-release')throw new Error('Expected release receipt');
+ expect(released.events.map(e=>e.type)).toEqual(['release']); // product factorization, no invented measurement
+ for(const receipt of [prepared,single,both,released]) {
+  expect(Object.isFrozen(receipt)).toBe(true);
+  if(receipt.kind==='spatial-measurement')throw new Error('Expected mood receipt');
+  expect(Object.isFrozen(receipt.events)).toBe(true);expect(receipt.events.every(Object.isFrozen)).toBe(true);
+ }
+ expect(()=>{(released as unknown as {sequence:number}).sequence=99;}).toThrow();
+ const retained=w.lastAction;expect(()=>w.measureMood('p','a','Z')).toThrow();expect(w.lastAction).toBe(retained);
+ expect(w.getSnapshot()).toMatchObject({spatialMeasurementCount:1,spatialDrawCount:1});
+});
+
+it('initial Bell preparation is not a visitor action, and entangled release includes its actual measurement', () => {
+ const w=make('bell');expect(w.lastAction).toBeNull();expect(w.getSnapshot().moodHistory).toHaveLength(1);
+ w.step(new Float64Array(g.nx*g.ny),.03);w.measureAndRelease('friendship','X');
+ expect(w.lastAction).toMatchObject({kind:'mood-release',sequence:1,time:.03,pairId:'friendship',creatureAId:'a',creatureBId:'b',basis:'X',events:[{type:'measure',creatureId:'a'},{type:'release'}]});
+ const release=w.lastAction!;w.step(new Float64Array(g.nx*g.ny),.01);expect(w.lastAction).toBe(release);expect(w.lastAction!.time).toBe(.03);
+ w.resetEvolution();expect(w.lastAction).toBeNull();expect(w.getSnapshot().moodHistory).toHaveLength(0);
+ w.measureMood('friendship','b','Z');expect(w.lastAction).toMatchObject({kind:'mood-measure',sequence:1,time:0});
+});
+
+it('mood draws do not advance spatial RNG, and spatial draws do not advance mood RNG', () => {
+ const a=make('bell'),b=make('bell');
+ a.measureSpatial('b','xy',.4);a.measureSpatial('a','x',.2);
+ expect(a.measureMood('friendship','a','X')).toEqual(b.measureMood('friendship','a','X'));
+ expect(a.measurePair('friendship','Z')).toEqual(b.measurePair('friendship','Z'));
+ for(const w of [a,b])w.measureAndRelease('friendship','Z');
+ const c=make('bell'),d=make('bell');
+ c.measureMood('friendship','a','Z');c.measurePair('friendship','X');c.measureAndRelease('friendship','Z');
+ const x=c.measureSpatial('b','xy',.4),y=d.measureSpatial('b','xy',.4);
+ expect(x.status).toBe('committed');expect(y.status).toBe('committed');expect(spatial(c)).toEqual(spatial(d));
+ if(x.status!=='committed'||y.status!=='committed')throw new Error('Expected spatial success');
+ expect({...x.receipt,sequence:0}).toEqual({...y.receipt,sequence:0});
+ expect(c.getSnapshot().spatialDrawCount).toBe(2);
+});
+it('rejected mood commands preserve the chronological receipt, physics and both streams', () => {
+ const a=make('bell'),b=make('bell');
+ a.measureSpatial('a','x',.4);b.measureSpatial('a','x',.4);
+ const before=a.getSnapshot(),values=spatial(a),receipt=a.lastAction;
+ for(const command of [()=>a.prepareBellPair('q','a','b'),()=>a.measureMood('friendship','missing','Z'),()=>a.measurePair('friendship','bad' as 'Z'),()=>a.measureAndRelease('friendship','bad' as 'Z'),()=>a.measureMood('missing','a','Z')]) {
+  expect(command).toThrow();expect(a.lastAction).toBe(receipt);expect(a.getSnapshot()).toEqual(before);expect(spatial(a)).toEqual(values);
+ }
+ expect(a.measureMood('friendship','b','X')).toEqual(b.measureMood('friendship','b','X'));
+ expect(a.measureSpatial('b','xy',.4)).toEqual(b.measureSpatial('b','xy',.4));
+});
+
 it('global preparation changes ownership only, validates IDs and prevents overlap',()=>{
  const w=make(), before=spatial(w); w.prepareBellPair('p','b','a'); expect(spatial(w)).toEqual(before); expect(w.time).toBe(0);
  expect(w.getSnapshot().pairs[0]).toMatchObject({id:'p',creatureAId:'b',creatureBId:'a',entropy:1});

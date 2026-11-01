@@ -13,12 +13,14 @@ import { Notebook } from './Notebook';
 import { CreatureInspector } from './CreatureInspector';
 
 import { Simulation2D } from './Gaussian2DDemo';
-import { PlaybackBar, SettingsPopover, SettingsPage } from './TerrariumShell';
+import { PlaybackBar, SettingsPopover, SettingsPage, type SettingsSection } from './TerrariumShell';
 import type { ReactNode } from 'react';
 import type { TerrariumViewMode } from './terrariumView';
 import { MuseumDialog, NotebookLauncher, type MuseumPanel } from './Museum';
 import { guideWasCompleted, rememberGuideCompletion } from './museumGuide';
 import type { MuseumScene, Topic } from './museumScience';
+import { LearningJourney } from './LearningJourney';
+import type { LearningStep } from './learningPath';
 
 export default function App() {
   const [dimension, setDimension] = useState<'1d' | '2d' | 'world2d'>('world2d');
@@ -30,11 +32,29 @@ export default function App() {
   const [panel, setPanel] = useState<MuseumPanel | null>(null);
   const scene = useRef<MuseumScene | null>(null), returnFocus = useRef<HTMLElement | null>(null), museumTrigger = useRef<HTMLButtonElement>(null);
   const [readingScene, setReadingScene] = useState<MuseumScene | null>(null);
+  const [lesson, setLesson] = useState<{ step: number; baseline: MuseumScene | null } | null>(null);
+  const [learningResume, setLearningResume] = useState(0);
+  const [requestedPage, setRequestedPage] = useState<{ sequence: number; page: SettingsSection } | null>(null);
+  // Read published diagnostics only while help or the learning path is open.
+  useEffect(() => {
+    if (panel?.kind !== 'help' && !lesson) return;
+    const timer = setInterval(() => setReadingScene(scene.current), 500);
+    return () => clearInterval(timer);
+  }, [panel?.kind, lesson !== null]);
   const openScience = (next: MuseumPanel) => { returnFocus.current = document.activeElement as HTMLElement; setReadingScene(scene.current); setPanel(next); };
   const openChapter = (topic: Topic) => openScience({ kind: 'notebook', topic });
   const closeScience = () => { setPanel(null); requestAnimationFrame(() => { const target = returnFocus.current; (target?.isConnected && target.getClientRects().length ? target : museumTrigger.current)?.focus(); }); };
   const finishGuide = () => { rememberGuideCompletion(); setGuideActive(false); setInvitation(false); setViewMode('2d'); setDimension('world2d'); setGuideSession(n => n + 1); };
-  const beginGuide = (skip: boolean) => { setPanel(null); setInvitation(false); setViewMode('2d'); setDimension('world2d'); setGuideSession(n => n + 1); setGuideActive(!skip); if (skip) rememberGuideCompletion(); };
+  const beginGuide = (skip: boolean) => { setPanel(null); setLesson(null); setRequestedPage(null); setInvitation(false); setViewMode('2d'); setDimension('world2d'); setGuideSession(n => n + 1); setGuideActive(!skip); if (skip) rememberGuideCompletion(); };
+  const startLearning = () => {
+    setPanel(null); setInvitation(false); setReadingScene(scene.current);
+    setLesson(current => current ?? { step: 0, baseline: scene.current });
+    setLearningResume(n => n + 1);
+  };
+  const tryLearning = (action: LearningStep['action']) => {
+    if (action === 'playback') document.querySelector<HTMLButtonElement>('.playback-bar button:nth-child(1):not(:disabled), .playback-bar button:nth-child(2):not(:disabled)')?.focus();
+    else setRequestedPage(previous => ({ sequence: (previous?.sequence ?? 0) + 1, page: action }));
+  };
   const scattering = <button disabled={guideActive} onClick={() => { setExperimentKey(key => key + 1); setGaussianPreset('barrier'); setDimension('2d'); }}>Watch scattering</button>;
   const view = (mode: TerrariumViewMode) => { setViewMode(mode); setDimension('world2d'); };
   const demonstrations = <section aria-label="Advanced and legacy demonstrations">
@@ -44,20 +64,25 @@ export default function App() {
       <button onClick={() => { setViewMode('2d'); setDimension('world2d'); }} aria-pressed={dimension === 'world2d'}>2D creature world</button>
       <button onClick={() => setDimension('1d')} aria-pressed={dimension === '1d'}>1D simulations</button>
       <button onClick={() => { setGaussianPreset(undefined); setDimension('2d'); }} aria-pressed={dimension === '2d'}>2D Gaussian demo</button>
+      {scattering}
     </fieldset>
   </section>;
+  const helpControl = <div className="science-bar"><button className="museum-trigger" ref={museumTrigger} aria-haspopup="dialog" onClick={() => openScience({ kind: 'help' })}>What am I seeing?</button></div>;
   return <div className="terrarium-shell">
     <header className="shell-header"><nav className="dimension-controls controls" aria-label="Terrarium view">
       <button aria-pressed={dimension === 'world2d' && viewMode === '1d'} onClick={() => view('1d')}>1D view</button>
       <button aria-pressed={dimension === 'world2d' && viewMode === '2d'} onClick={() => view('2d')}>2D view</button>
-    </nav><div className="shell-brand">Psi Zoo <span>A quantum terrarium</span></div><button className="museum-trigger" ref={museumTrigger} aria-haspopup="dialog" onClick={() => openScience({ kind: 'help' })}>What am I seeing?</button></header>
-    {dimension === '1d' ? <Simulation1D demonstrations={demonstrations} onScene={next => { scene.current = next; }} openChapter={openChapter} /> : <Simulation2D key={dimension === '2d' ? `${dimension}-${experimentKey}` : `${dimension}-${guideSession}`} worldMode={dimension === 'world2d'} viewMode={viewMode} demonstrations={demonstrations} experiments={scattering} initialPreset={dimension === '2d' ? gaussianPreset : undefined} guideSession={guideSession} guideActive={guideActive} finishGuide={finishGuide} onScene={next => { scene.current = next; }} openChapter={openChapter} />}
-    {invitation && !guideActive && <aside className="guide-invitation" aria-label="First visit invitation"><strong>New to the terrarium?</strong><p>Try three real interactions, with science along the way.</p><button onClick={() => openScience({ kind: 'confirm' })}>Start three-step guide…</button><button onClick={() => setInvitation(false)}>Not now</button></aside>}
-    {panel && <MuseumDialog panel={panel} scene={readingScene} view={viewMode} close={closeScience} chapter={topic => setPanel({ kind: 'notebook', topic })} replay={() => setPanel({ kind: 'confirm' })} start={beginGuide} />}
+    </nav><div className="shell-brand">Psi Zoo <span>A quantum terrarium</span></div></header>
+    {dimension === '1d' ? <Simulation1D helpControl={helpControl} demonstrations={demonstrations} onScene={next => { scene.current = next; }} openChapter={openChapter} /> : <Simulation2D helpControl={helpControl} key={dimension === '2d' ? `${dimension}-${experimentKey}` : `${dimension}-${guideSession}`} worldMode={dimension === 'world2d'} viewMode={viewMode} demonstrations={demonstrations} requestedPage={dimension === 'world2d' ? requestedPage : undefined} initialPreset={dimension === '2d' ? gaussianPreset : undefined} guideSession={guideSession} guideActive={guideActive} finishGuide={finishGuide} onScene={next => { scene.current = next; }} openChapter={openChapter} />}
+    {invitation && !guideActive && !lesson && <aside className="guide-invitation" aria-label="First visit invitation"><strong>New to the terrarium?</strong><p>Explore seven short lessons in your current playground. Nothing resets when you begin.</p><button onClick={startLearning}>Start learning path</button><button onClick={() => setInvitation(false)}>Not now</button></aside>}
+    {lesson && <LearningJourney step={lesson.step} resumeKey={learningResume} scene={readingScene} baseline={lesson.baseline}
+      move={step => { setReadingScene(scene.current); setLesson({ step, baseline: scene.current }); }}
+      exit={finished => { if (finished) rememberGuideCompletion(); setLesson(null); requestAnimationFrame(() => museumTrigger.current?.focus()); }} tryAction={tryLearning} openChapter={openChapter} />}
+    {panel && <MuseumDialog learn={guideActive ? undefined : startLearning} learningActive={!!lesson} panel={panel} scene={readingScene} view={viewMode} close={closeScience} chapter={topic => setPanel({ kind: 'notebook', topic })} replay={() => setPanel({ kind: 'confirm' })} start={beginGuide} />}
   </div>;
 }
 
-export function Simulation1D({ demonstrations, onScene, openChapter }: { demonstrations?: ReactNode; onScene?: (scene: MuseumScene) => void; openChapter?: (topic: Topic) => void } = {}) {
+export function Simulation1D({ demonstrations, onScene, openChapter, helpControl }: { demonstrations?: ReactNode; onScene?: (scene: MuseumScene) => void; openChapter?: (topic: Topic) => void; helpControl?: ReactNode } = {}) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const playbackRef = useRef<SimulationPlayback | null>(null);
   const paintingRef = useRef<PaintingBinding | null>(null);
@@ -254,6 +279,7 @@ export function Simulation1D({ demonstrations, onScene, openChapter }: { demonst
         <span className="time-readout">Time {number(snapshot?.time, 2)}</span>
         {creatures && <label className="selected-creature">Creature <select aria-label="Selected creature" value={snapshot?.selectedCreature ?? 'a'} onChange={e => { playbackRef.current?.selectCreature(e.currentTarget.value as 'a' | 'b'); refreshRef.current?.(); }}><option value="a">A</option><option value="b">B</option></select></label>}
         {error && <span className="error" role="alert">{error}</span>}
+        {helpControl}
       </PlaybackBar>
       <SettingsPopover navigation>
       <SettingsPage section="Simulation"><div className="heading"><h2>Standalone 1D demonstrations</h2><p>These are separate 1D simulations, not projections of the 2D world. Entering or leaving a demonstration starts a fresh experiment.</p></div></SettingsPage>

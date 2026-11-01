@@ -5,7 +5,7 @@ contexts: "interaction,multiple"
 ---
 ## Observe
 
-Try the attraction and repulsion world presets under Experiments, or enable Mood drives and Social interactions under Moods & friendships. Compare with both controls off using the same initial spatial packets. Inspect the selected force and social potential. Pair preparation suspends mood-dependent spatial feedback for both registered members, even after a measurement makes the joint mood a product state.
+Use Menu → Creatures to select or explicitly add an independent spatial state. Under Advanced simulation settings, enable Mood drives or Social interactions to change their approximate potentials live. “Replace the creature setup…” offers attraction and repulsion presets: each explicitly replaces the roster and moods at time zero, preserving terrain. Compare with both controls off using the same initial spatial packets. Inspect the selected force and social potential. Pair preparation suspends mood-dependent spatial feedback for both registered members, even after a measurement makes the joint mood a product state.
 
 ## Understand
 

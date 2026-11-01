@@ -5,11 +5,11 @@ contexts: "mood"
 ---
 ## Observe
 
-Select a creature and open Advanced. Watch its Bloch components as you Play. These are expectation values, not repeatedly sampled mood choices. The small face reflects published values but never rolls a random mood. Compare an independent mood with a Bell-pair member's local purity.
+Select a creature in Menu → Creatures and open Advanced simulation settings for local mood diagnostics. Experiments → Measure mood offers Z (0 or 1) and X (+ or −) measurement bases. This detector currently acts on shared pair members; if there is no pair, prepare one explicitly in Entangle moods first. Watch its Bloch components as you Play. These are expectation values, not repeatedly sampled mood choices. The small face reflects published values but never rolls a random mood. Compare an independent mood with a Bell-pair member's local purity.
 
 ## Understand
 
-A qubit is a quantum system with two basis states, here called 0 and 1. A pure state is described by two complex amplitudes up to an irrelevant common phase. A mixed state describes local statistics that cannot be represented by one pure-state vector, for example when a qubit is part of an entangled pair.
+A mood is a playful qubit metaphor, not a literal emotion. A qubit is a quantum system with two basis states, here called 0 and 1. A superposition combines their amplitudes, not just ignorance of a preselected label; a measurement basis chooses which pair of alternatives you ask about. A pure state is described by two complex amplitudes up to an irrelevant common phase. A mixed state describes local statistics that cannot be represented by one pure-state vector, for example when a qubit is part of an entangled pair.
 
 The Bloch vector contains expectations for three measurement directions called X, Y and Z. For a pure normalized qubit its length is one. A mixed qubit can lie inside the sphere; the maximally mixed state is at its center. A zero local vector is not a zero-norm state or missing qubit. Purity measures how far a density matrix is from being mixed; density matrix here means the matrix that encodes all measurement probabilities of that subsystem.
 

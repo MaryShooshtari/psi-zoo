@@ -1,3 +1,7 @@
+export {
+  measurePosition2D, PositionMeasurement2DError,
+  type PositionMeasurement2DResult, type PositionMeasurement2DAxes, type PositionMeasurement2DStage,
+} from './measurement2d';
 export * from './joint-qubit';
 export { composeEffectivePotential2D, createInteractionWorkspace2D, type InteractionWorkspace2D, drivePotentialAt2D, socialPotentialAt2D, creatureParameters2D, validateInteractionSettings2D,
   type CreatureParameters2D, type InteractionSettings2D, type InteractionSource2D } from './interaction2d';

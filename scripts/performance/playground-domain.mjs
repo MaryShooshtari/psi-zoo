@@ -1,0 +1,11 @@
+import { build } from 'vite';
+import { mkdtemp, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+const out = await mkdtemp(join(tmpdir(),'psi-domain-cost-'));
+await build({configFile:false,logLevel:'error',resolve:{alias:{'@psi-zoo/sim-core':resolve('packages/sim-core/src/index.ts')}},build:{outDir:out,emptyOutDir:false,minify:false,lib:{entry:resolve('scripts/performance/playground-domain.ts'),formats:['es'],fileName:()=> 'domain.mjs'}}});
+const { benchmarkDomains } = await import(pathToFileURL(join(out,'domain.mjs')).href);
+const result = { environment: {node:process.version, date:new Date().toISOString()}, note:'24 warmup + five 36-step batches; two mood-driven creatures; unchanged h and dt. Node solver cost only.',results:benchmarkDomains() };
+await writeFile(join(out,'results.json'),JSON.stringify(result,null,2));
+console.log(JSON.stringify(result,null,2)); console.log('Evidence:',out);

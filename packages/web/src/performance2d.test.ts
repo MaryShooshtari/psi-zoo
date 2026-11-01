@@ -23,11 +23,11 @@ it('cached spatial diagnostics remain current through commit/reset/selection/pre
  for(let k=0;k<20;k++){w.step(v,1/120);check();}w.select('b');w.setInteractions({social:true});check();w.prepareBellPair('ab','a','b');check();w.measureMood('ab','a','X');check();w.measureAndRelease('ab','Z');check();w.addTemplate();check();w.remove('c');check();w.resetEvolution();check();
  const saved=w.spatialState('a').values;v[0]=NaN;expect(()=>w.step(v,.01)).toThrow();expect(w.spatialState('a').values).toEqual(saved);check();
 });
-it('layer-major mapping matches the original scalar pixel formula bit for bit, without per-layer clipping',()=>{
+it('layer-major mapping matches the bounded scalar screen blend bit for bit with reused buffers',()=>{
  const g=createPsiGrid2D({nx:31,ny:27}),cells=g.nx*g.ny,rgb=new Float64Array(3*cells),pixels=new Uint8ClampedArray(4*cells);let seed=42;
  for(let count=0;count<=4;count++){
   const layers=Array.from({length:count},(_,n)=>({density:Float64Array.from({length:cells},()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/2**32*.8;}),color:creatureColor2D('abcd'[n]!)}));
-  const expected=new Uint8ClampedArray(4*cells);for(let j=0;j<g.ny;j++)for(let i=0;i<g.nx;i++){const k=j*g.nx+i,p=4*((g.ny-j-1)*g.nx+i);let r=8,green=14,b=25;for(const layer of layers){const f=densityBrightness2D(layer.density[k]!);r+=(layer.color[0]!-8)*f;green+=(layer.color[1]!-14)*f;b+=(layer.color[2]!-25)*f;}expected[p]=r;expected[p+1]=green;expected[p+2]=b;expected[p+3]=255;}
+  const expected=new Uint8ClampedArray(4*cells);for(let j=0;j<g.ny;j++)for(let i=0;i<g.nx;i++){const k=j*g.nx+i,p=4*((g.ny-j-1)*g.nx+i);let r=8,green=14,b=25;for(const layer of layers){const f=densityBrightness2D(layer.density[k]!);r+=(layer.color[0]!-8)*f*(255-r)/247;green+=(layer.color[1]!-14)*f*(255-green)/241;b+=(layer.color[2]!-25)*f*(255-b)/230;}expected[p]=r;expected[p+1]=green;expected[p+2]=b;expected[p+3]=255;}
   fillCreatureDensityPixels2D(g,layers,pixels,rgb);expect(pixels).toEqual(expected);
  }
  expect(()=>fillCreatureDensityPixels2D(g,[],pixels,new Float64Array(1))).toThrow();

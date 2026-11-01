@@ -5,7 +5,7 @@ contexts: "release,conditional,no-signalling"
 ---
 ## Observe
 
-Reset a Bell example while paused and compare Z or X measurement records. Correlations become visible only when you compare outcomes from repeated preparations. Inspect a selected conditional partner state after a known result. Then use Measure & Release to restore independent ownership; this is a coordinated global operation, not a local communication button.
+Prepare a fresh Bell pair explicitly while paused and compare Z or X measurement records. Measure & Release before another preparation; Reset restores saved initial moods, not necessarily your latest Bell preparation. Correlations become visible only when you compare outcomes from repeated preparations. Inspect a selected conditional partner state after a known result. Then use Measure & Release to restore independent ownership; this is a coordinated global operation, not a local communication button.
 
 ## Understand
 

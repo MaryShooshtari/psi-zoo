@@ -1,12 +1,14 @@
 import type { PsiGrid2D } from '@psi-zoo/sim-core';
-import { densityBrightness2D, interiorViewport2D, TERRARIUM_SKY_RGB } from './density2d';
-export const CREATURE_COLORS_2D = [[120, 185, 176], [228, 133, 174], [227, 179, 100], [163, 137, 207]] as const;
+import { densityBrightness2D, interiorViewport2D } from './density2d';
+/** Owner-selected P1 twilight palette. Legacy Gaussian colors stay separate. */
+export const WORLD_SKY_RGB = [45, 51, 75] as const;
+export const CREATURE_COLORS_2D = [[126, 222, 207], [248, 161, 191], [249, 213, 132], [190, 174, 246]] as const;
 export function creatureColor2D(id: string): readonly number[] {
   const index = ['a', 'b', 'c', 'd'].indexOf(id);
   return CREATURE_COLORS_2D[index >= 0 ? index : [...id].reduce((a, c) => a + c.charCodeAt(0), 0) % 4]!;
 }
-/** Independent brightness layers, NOT complex amplitudes. Add RGB contributions
- * of f(rho)=1-exp(-rho/.08), clamped for display only. No aggregate probability
+/** Independent brightness layers, NOT complex amplitudes. Blend RGB contributions
+ * of f(rho)=sqrt(rho/(rho+.012)), screen-composited for display only. No aggregate probability
  * is normalized, and overlap cannot generate a cross-amplitude interference term.
  */
 export function fillCreatureDensityPixels2D(g: PsiGrid2D, layers: readonly { density: Float64Array; color: readonly number[] }[], pixels: Uint8ClampedArray,
@@ -16,14 +18,13 @@ export function fillCreatureDensityPixels2D(g: PsiGrid2D, layers: readonly { den
     || layers.some(l => l.density.length !== cells || l.density.buffer === rgb.buffer)) throw new RangeError('Creature density image size/alias mismatch');
   const skyR = sky[0]!, skyG = sky[1]!, skyB = sky[2]!;
   for (let k = 0; k < cells; k++) { rgb[3*k] = skyR; rgb[3*k+1] = skyG; rgb[3*k+2] = skyB; }
-  // Layer-major traversal hoists color/index lookups out of the cell loop. Each
-  // channel still adds layers in the identical order, in Float64 (not clamped
-  // after each layer); expm1 and the final Uint8 conversion are unchanged.
+  // Bounded screen blending keeps overlapping identities tinted instead of
+  // clipping their sum to white. This is color compositing, never probability.
   for (const layer of layers) {
     const r = layer.color[0]! - skyR, green = layer.color[1]! - skyG, b = layer.color[2]! - skyB;
     for (let k = 0; k < cells; k++) {
       const f = densityBrightness2D(layer.density[k]!);
-      rgb[3*k]! += r*f; rgb[3*k+1]! += green*f; rgb[3*k+2]! += b*f;
+      rgb[3*k]! += r*f*(255-rgb[3*k]!)/(255-skyR); rgb[3*k+1]! += green*f*(255-rgb[3*k+1]!)/(255-skyG); rgb[3*k+2]! += b*f*(255-rgb[3*k+2]!)/(255-skyB);
     }
   }
   for (let j = 0; j < g.ny; j++) for (let i = 0; i < g.nx; i++) {
@@ -43,8 +44,8 @@ export function createCreatureRenderer2D(g: PsiGrid2D, source: { readonly ids: r
       source.copyDensity(id, density); return { id, density, color: creatureColor2D(id) };
     });
     draw.layers = layers;
-    fillCreatureDensityPixels2D(g, layers, image.data, rgb, TERRARIUM_SKY_RGB); staging!.putImageData(image, 0, 0);
-    context.fillStyle = '#c7d9ed'; context.fillRect(0, 0, width, height); context.imageSmoothingEnabled = false;
+    fillCreatureDensityPixels2D(g, layers, image.data, rgb, WORLD_SKY_RGB); staging!.putImageData(image, 0, 0);
+    context.fillStyle = '#2d334b'; context.fillRect(0, 0, width, height); context.imageSmoothingEnabled = true;
     const v = interiorViewport2D(g, width, height); context.drawImage(surface, v.x, v.y, v.width, v.height);
   }
   // Read-only borrowed display buffers, valid until the next draw. Not psi.

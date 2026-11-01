@@ -1,4 +1,4 @@
 {
   "extends": "../../packages/web/tsconfig.json",
-  "include": ["audit2d.ts"]
+  "include": ["audit2d.ts", "playground-domain.ts"]
 }

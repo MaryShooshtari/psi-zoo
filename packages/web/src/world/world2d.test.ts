@@ -112,6 +112,36 @@ describe('owned synchronous independent 2D creatures', () => {
   });
 });
 
+describe('roster revision and action reset boundaries', () => {
+  it('increments once per successful add/remove, including construction; never selection, steps, failed edits or reset', () => {
+    const g = geometry(), w = world('mood', g), initial = w.state('a');
+    expect(w.rosterRevision).toBe(2); expect(w.getSnapshot().rosterRevision).toBe(2);
+    w.select('b'); w.setInteractions({ social: true }); w.step(new Float64Array(g.nx * g.ny), 0.01);
+    expect(w.rosterRevision).toBe(2);
+    expect(() => w.add(initial)).toThrow(); expect(() => w.remove('missing')).toThrow();
+    expect(w.rosterRevision).toBe(2);
+    expect(w.addTemplate()).toBe('c'); expect(w.rosterRevision).toBe(3);
+    w.remove('c'); expect(w.rosterRevision).toBe(4);
+    expect(w.addTemplate()).toBe('c'); expect(w.rosterRevision).toBe(5); // reused ID, new lifetime
+    w.addTemplate(); expect(w.rosterRevision).toBe(6);
+    expect(() => w.addTemplate()).toThrow(); expect(w.rosterRevision).toBe(6);
+    w.prepareBellPair('p', 'a', 'b'); expect(() => w.remove('a')).toThrow(/Release/);
+    expect(w.rosterRevision).toBe(6);
+    w.measureSpatial('c', 'xy', 0.4); expect(w.lastAction).not.toBeNull();
+    w.resetEvolution(); expect(w.rosterRevision).toBe(6);
+    expect(w.getSnapshot()).toMatchObject({ lastAction: null, spatialDrawCount: 0, spatialMeasurementCount: 0 });
+    w.measureSpatial('c', 'x', 0.4); expect(w.lastAction).toMatchObject({ sequence: 1, spatialSequence: 1 });
+  });
+
+  it('failed removal of the last member leaves revision and action data untouched', () => {
+    const g = geometry(), w = world('independent', g); w.remove('b');
+    const revision = w.rosterRevision; w.measureSpatial('a', 'x', 0.4);
+    const before = w.getSnapshot(), receipt = w.lastAction;
+    expect(() => w.remove('a')).toThrow(/remain/);
+    expect(w.rosterRevision).toBe(revision); expect(w.lastAction).toBe(receipt); expect(w.getSnapshot()).toEqual(before);
+  });
+});
+
 describe('behavioral and numerical evidence, not scripted movement', () => {
   it('default-grid mood/attraction/repulsion examples differ from the identical free reference before wall returns', () => {
     const g = createPsiGrid2D(), v = new Float64Array(g.nx * g.ny), results: Record<string, ReturnType<QuantumWorld2D['getSnapshot']>> = {};

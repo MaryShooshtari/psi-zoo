@@ -1,7 +1,7 @@
 # Psi Zoo: cloud creatures, direct actions and spatial measurement
 
 * **Author:** Psi Zoo project owner; draft prepared with coding assistant
-* **Status:** Draft — Opening sections and Technical Plan approved in conversation, including decisions T1–T3 and the stated acceptance budgets. Alternatives Considered drafted and awaiting approval. Detailed Implementation Plan not yet drafted.
+* **Status:** Approved in conversation — Opening sections, Technical Plan (including T1–T3 and acceptance budgets), Alternatives Considered, and Detailed Implementation Plan approved by the owner. Implementation-readiness round 1 identified six Major findings and two Nits; the owner approved all eight documentation corrections, now applied below. Independent re-audit and feature implementation have not been performed.
 * **Date:** 2026-10-30
 * **Source:** [Approved concepts brief](./concepts_brief.md), approved in conversation before starting this draft.
 * **Authorization:** Design documentation only. Section approval does not authorize application implementation.
@@ -438,10 +438,334 @@ This section carries forward the brief's Alternatives Weighed and the owner's la
 - **Cons:** Requires state-version checks, transfer/copy policy and coordination with a world that may evolve while the result is computed. It does not automatically reduce total numerical work.
 - **Disposition:** Deferred, not declared invalid. First test the bounded synchronous conditional algorithm against the approved latency budgets. If it fails, present the evidence and obtain a new architecture decision rather than silently introducing concurrency.
 
+## Detailed Implementation Plan
+
+**Approval boundary.** The owner approved Alternatives Considered, the Detailed Implementation Plan and the eight documentation corrections recorded in [the annotated resolution report](./goldfish_review_report.md). This is the approved execution contract, not permission to implement. Work through the numbered list in order, one focused slice at a time; do not expose an incomplete default measurement action.
+
+**Activation boundary.** Steps 1–3 are separate reviewable baseline/numerical/world slices. Steps 4–8 are one UI integration slice with ordered internal tasks, not independently shippable action-activation slices. Create and test helpers and forms unmounted; keep existing mounted actions until a single final wiring change installs the executor, forms, corrected provenance, chronological science and current instructions together. Do not mount a usable position-action entry during steps 4–6. An isolated audit fixture may mount the new forms/executor to test integration, but is not shipped UI activation. Run build/type/unit checks at each internal task; complete integration and browser checks must pass before offering that slice for acceptance. No environment/global feature switch is introduced.
+
+Before final mounted wiring, demonstrate core/world checks, no-randomness rejection, one/two-draw success, time-zero provenance invalidation, correct latest-action science, axes-correct x-only content and no-pause publication recovery in the audit integration build. Activation does not close later visual/device/performance gates or authorize deployment. Preserve the owner visual-sample stop during this slice.
+
+### 1. Establish the actual-source baseline and protected scope
+
+The assessment preceding this section ran `npm run test`, `npm run typecheck` and `npm run build`: all passed, including **421 tests in 40 files**. The Git working tree was clean at assessment. These checks establish the existing baseline only. No new measurement, browser acceptance or latency measurement ran. The roadmap still records Slice 5E.4 as implemented for review, with sustained performance and human acceptance open.
+
+Before implementation, inspect Git status again and preserve the **then-current filesystem**, including tracked modifications and untracked project source. Copy root manifests/configuration, `packages`, `scripts`, `docs`, README, brief and draft into a fresh external baseline directory. Exclude dependency trees, build output, Git internals and secrets. Save a relative-path SHA-256 inventory and environment record alongside the copy. Do not use HEAD, a stash, checkout or reset as a substitute. Baseline copies, browser profiles, screenshots, JSON samples and audit builds belong outside the repository. Record their absolute locations in the eventual validation report; do not assume another machine has this session's paths.
+
+Protected implementation files include the legacy `measurement.ts`, grid factories, steppers, Hamiltonian, projection mathematics, qubit operations, `random.ts`, `moodRegistry2d.ts`, standalone 1D controller, and terrain stamping/binding mathematics. They are read dependencies, not planned edits. Keep 128×128 interior sites, bounds [−10,10], dx=dy=20/129, hbar=m=1, dt=1/120, unstored zero boundaries and the eight-step scheduling policy. No dependencies, package versions, lockfiles, configuration changes, source deletions, Lean work, commits or pushes are planned. If an implementation requires an unlisted file or a protected behavior change, amend this plan and obtain approval first.
+
+### 2. Add the pure detector, with independent references before implementation
+
+| File | Operation and reason |
+| --- | --- |
+| `packages/sim-core/tests/helpers/measurement2dReference.ts` | Create a test-only brute-force detector reference. Enumerate each input/outcome pair directly using physical coordinates and per-input boundary normalization; derive conditional references from the complete joint table rather than the production algorithm. |
+| `packages/sim-core/tests/measurement2d.test.ts` | Create the probability, posterior, validation, draw-count, phase, immutability and failure tests described below before adding the detector. |
+| `packages/sim-core/tests/measurement2dContinuation.test.ts` | Create default-grid width/repetition/continuation tests through the unchanged Cayley solver, keeping discrete validity separate from continuum claims. |
+| `packages/sim-core/src/measurement2d.ts` | Create the DOM-free conditional detector and its result/error types. It owns temporary calculation arrays only; it does not own world state or random streams. |
+| [packages/sim-core/src/index.ts](./packages/sim-core/src/index.ts) | Export only the new detector function and named public result/error types. Preserve every existing export and legacy implementation. |
+
+**Public call.** Retain the approved positional API `measurePosition2D(psi, resolution, axes, rng)`. `axes` is the string union `x | xy`; RNG is a required callback returning a number. Return `PositionMeasurement2DResult`, a discriminated union with `axes`, newly allocated `state`, `resolution`, `probability`, `inputNormSquared` and `posteriorNormSquared`. Both variants contain `xIndex` and `x`; only `xy` contains `yIndex` and `y`. Indices are zero-based interior indices. `probability` is the selected discrete outcome mass, never a density, and must be finite and strictly positive on success. Under the owner's IR-01 option A, an unrepresentable selected joint mass fails the attempt; no log-probability or underflow-flag fields are added. `posteriorNormSquared` is the measured norm after final normalization. Keep work vectors, response arrays and the complete outcome distribution out of the result.
+
+**Failures.** Add `PositionMeasurement2DError`, extending `RangeError`, with a stable `stage` of `input`, `x-distribution`, `x-draw`, `y-distribution`, `y-draw` or `posterior`. Stages identify the failing operation, not the number of draws. Wrap an RNG callback exception with the relevant draw stage and retain its cause. Input validation checks axes, callback type, positive finite sigma, safe positive dimensions/storage length, finite increasing bounds, factory-consistent dx/dy, representable spacings/area and finite complex entries. Match the factory convention without allocating a throwaway full grid merely for metadata validation. Reject a nonpositive, underflowed or nonfinite input norm before any draw. No input or geometry error may be delayed until RNG invocation.
+
+**Numerical sequence.** Use row-major input order and ascending detector index order throughout. Evaluate response offset zero as exactly one; compute nonzero offsets using distance/sigma before squaring, avoiding `sigma*sigma` underflow. Maintain separate x/y distance-response and per-input normalization vectors, not axis-pair matrices. X-only does not prepare a y detector or request a y draw. Form area-weighted probability masses from normalized amplitudes; use scale-aware accumulation so an avoidable intermediate square does not overflow when the true input norm is representable. Reject genuinely unrepresentable norms rather than silently accepting arbitrary rescaling.
+
+Accumulate input-x masses, normalize the computed x sampling vector by its finite positive total, and sample with a strict CDF comparison and last-positive-bin roundoff fallback. For `xy`, after detector x is sampled, accumulate the unnormalized conditional input-y vector `c[j]` in row-major order and its sum `C` in ascending j order. Reject nonfinite or nonpositive `C` at `y-distribution`, retaining the one x draw. Normalize each `c[j]` by `C` **before** multiplying by y-response values or convolving with the y detector. Construct the y-outcome vector from that normalized conditional input distribution, verify its finite positive total, then normalize the sampling vector before requesting the y draw. Do not multiply a subnormal unnormalized conditional mass by a y response before dividing by `C`, or assume separately summed totals are bit-identical. Retain the normalized selected x and y masses as separate scalars. Preserve the approved exact formulas and compare the reported joint mass with the independent joint reference. Request one draw per selected axis even for deterministic distributions. Never skip a draw, silently resample or commit an intermediate x-only state.
+
+**Selected-mass underflow policy — IR-01 option A.** After both `xy` draws, calculate the product of the selected normalized axis masses. Before constructing/returning a posterior, require this joint mass to be finite and strictly positive. If it rounds to zero, throw `PositionMeasurement2DError` at `posterior` with a message identifying an unrepresentable selected outcome mass. The attempt retains both draws, changes no committed amplitudes and does not replace the previous successful receipt, even if a scaled posterior could otherwise be normalized. X-only likewise requires its selected mass to be finite and positive after its one draw. There is no probability floor, hidden resampling, successful zero-mass receipt or expanded log-probability API. A retry is a new explicit attempt under T3.
+
+Construct the full complex posterior with separately evaluated square-root x/y masks applied to normalized input amplitudes. Avoid taking the square root of an already-underflowed product of responses or dividing by an underflowed joint mass. Scale and normalize the candidate with dx*dy; check positive representable norm and finite entries before returning. A thrown error returns no result and leaves the input byte-identical, although callback side effects cannot be undone. Gaussian tails may underflow; do not invent a floor or truncate representable tails deliberately. Auxiliary axis storage is O(nx+ny); candidate storage is O(nx*ny); work is O(nx*ny+nx²+ny²). No full joint probability grid is built in production.
+
+**Reference fixtures and tolerances.** Use non-square grids with unequal spacings, complex correlated two-lobe states, boundary/corner mass, interior edge rows/columns, separable Gaussians, and 1×1, 1×n and n×1 cases. Enumerate all selected outcomes using draws placed within reference CDF bins. Compare x-only masses/posteriors and joint masses/posteriors; verify the conditional joint law rather than only a sampling histogram. Include zero draws, the largest representable draw below one, zero-mass leading/trailing bins, deterministic branches, global phase and non-unit input scaling. Compare phases only where masks remain representable. Assert per-input response completeness independently, unchanged input arrays on success/failure, and absence of y properties on x-only results.
+
+Cover malformed metadata/storage, inconsistent spacings, invalid axes/sigma/RNG, NaN/Infinity, zero/underflowed/overflowed norms and large but representable states. Assert zero callbacks for predictable failures; one callback for x-only success; two for joint success. A throwing/invalid first callback has one invocation; a throwing/invalid second callback has two and returns no posterior. Do not label callback-failure tests as evidence that every numerical underflow branch has been naturally reached.
+
+Add real core fixtures, separate from mocked world failures, for a positive subnormal x bin selected by draw zero, conditional normalization before convolution, and separately positive selected axis masses whose product rounds to zero. The last case must produce the selected `posterior` failure after two draws with input unchanged. Cover an invalid conditional total before y sampling (one draw, `y-distribution`) and an invalid y callback (two invocations, `y-draw`). Include a positive-mask posterior whose direct unscaled norm underflows but scaled normalization is representable; distinguish representable selected-mass success from option A's earlier joint-mass refusal. Record exact geometry, entries and observed values in tests/report. The review's underflow example was analytical; this plan does not claim these fixtures have already been reproduced.
+
+For well-scaled tiny references use absolute probability/norm error ≤1e-12 and area-weighted complex error ≤1e-11, after fixing global phase convention consistently. Compare directly here: positive masks should not introduce a new global phase. At 128² require posterior norm error ≤1e-11 and record observed maxima. Continue sigma 0.2/0.4/2 states, including ten repeated measurements of each axis mode and wall-adjacent cases, for 240 ordinary steps per fixture. Require finite amplitudes and norm change from the normalized posterior ≤1e-10 during that bounded run; this accumulation allowance is looser than one normalization and must be reported with observed drift. Do not assert energy conservation across measurement or continuum spreading at the sharp minimum. A continuum claim requires a separately documented refinement study, not widening these discrete tolerances.
+
+**Slice gate:** detector tests and the full existing unit/type/build checks pass before adding world integration. Record actual errors and unresolved sharp-width limits; no UI action yet.
+
+### 3. Add the authoritative world command, stream and bounded receipts
+
+| File | Operation and reason |
+| --- | --- |
+| [packages/web/src/world/world2d.ts](./packages/web/src/world/world2d.ts) | Add spatial RNG ownership, the owned-state measurement command, roster revision, counters and chronological last-action data. Invalidate both target spatial caches at commit. Wrap existing mood commands only to publish their bounded command receipts without changing registry semantics. |
+| `packages/web/src/world/spatialMeasurement2d.test.ts` | Create world integration tests for seeds, commit boundaries, paired targets, caches, invariants, receipts and reset. |
+| `packages/web/src/world/spatialMeasurementFailure2d.test.ts` | Create isolated, partial-module-mock tests of precommit numerical failure and retained draws. Keep fault injection out of production. |
+| [packages/web/src/world/entanglement2d.test.ts](./packages/web/src/world/entanglement2d.test.ts) | Extend compatibility checks for chronological mood receipts and spatial/mood stream isolation while retaining the existing mood probabilities/draw policies. |
+| [packages/web/src/world/world2d.test.ts](./packages/web/src/world/world2d.test.ts) | Extend add/remove revision and reset regression checks. Existing no-action spatial evolution must remain unchanged. |
+| [packages/web/src/simulation2d.test.ts](./packages/web/src/simulation2d.test.ts) | Add scheduler tests using the real world command between fake-scheduler callbacks, including a nonzero fractional accumulator. No production controller mutation API is needed. |
+
+**Seed contract.** Add `WorldOptions2D.spatialMeasurementSeed`, checked as an unsigned 32-bit integer, with default **0x53504154**. Export `DEFAULT_SPATIAL_MEASUREMENT_SEED` from the world module so tests and diagnostics can name it. This is a fixed reproducibility constant, not cryptographic randomness. `measurementSeed` remains mood-only. Reuse `createSeededRandom` unchanged; one world-owned spatial closure serves all targets and both axes modes. Store the configured initial seed, cumulative draw count and successful spatial-action count. Increment the draw count at each actual request to the world RNG, not from axes or the number of successful actions. Reset recreates the closure and zeroes both counts; new worlds begin their own sequence. No per-view/per-creature stream, RNG rewind or generator injection option is added.
+
+**World API.** Add `measureSpatial(targetId, axes, resolution)` returning `SpatialMeasurementCommandResult`, discriminated by `status`. Freeze each result and receipt. Rejection precedence is axes, resolution, then target existence; all run before detector invocation. UI guide/morph/stale-token validation remains outside the DOM-free world and runs before this method. Only a recognized `PositionMeasurement2DError` becomes a staged handled failure. Do not mislabel an unrelated programming exception as a numerical failure; the UI contains it as a non-solver command error without automatic retry or fabricated success. Existing mood method return values and exception behavior remain unchanged.
+
+| `SpatialMeasurementCommandResult.status` | Required fields |
+| --- | --- |
+| `committed` | `receipt: SpatialMeasurementReceipt2D`, `drawsConsumed: 1 or 2`, `spatialDrawCount: number` |
+| `rejected` | `reason: target-missing or invalid-axes or invalid-resolution`, `message: string`, `drawsConsumed: 0`, `spatialDrawCount: number` |
+| `failed` | `stage: PositionMeasurement2DError.stage`, `message: string`, `drawsConsumed: number`, `spatialDrawCount: number` |
+
+`SpatialMeasurementReceipt2D` is the spatial member of `WorldAction2D`. A core state/distribution/posterior error reports its actual draw delta, including zero; option A's joint-mass refusal is a `posterior` failure with two retained draws.
+
+**Width-validation boundary.** Keep numerical validity distinct from the main UI's controls:
+
+| Layer | Resolution validity |
+| --- | --- |
+| sim-core | Positive finite number; separate geometry/state representability checks remain required. No UI min/max or step restriction. |
+| World | Same positive-finite resolution rule; reject invalid values before RNG. Headless tests may exercise widths outside the UI range. |
+| Main UI executor | Finite value in inclusive [0.2, 2]. Slider step 0.1, default 0.4. No floating-point modulo test or rounding of an already in-range request; native and canvas requests share the same check. |
+
+The UI range is not a continuum-accuracy claim. Test positive-finite core/world widths outside that range and UI out-of-range rejection without draws.
+
+Obtain `member(targetId).psi`, not `state(id)`, a renderer buffer, `controller.psi` or the defensive `spatialState` copy. Calculate a complete candidate and allocate/freeze its receipt and committed result before writing amplitudes. Copy candidate values into the existing committed target buffer, delete its entries in `spatialMeans` and `spatialDiagnostics`, increment success counters, and install the already-prepared receipt/result references. No further fallible calculation belongs between the amplitude copy and receipt installation. Saved reset initials, evolution candidate/stepper ownership, time, terrain, other members and moods remain untouched. An ordinary next step still copies committed state into the existing solver candidate.
+
+**Receipt types.** Export `WorldAction2D` and `SpatialMeasurementReceipt2D` from the world module. Every receipt has common `sequence: number`, increasing within the current experiment, and physical `time: number`. The following tables are field contracts, not production code. IDs are strings; axes, indices, coordinates, resolution, probability and norms use the core types; `basis` uses existing `MoodBasis`; counters are numbers.
+
+| Receipt | Fields in addition to `sequence` and `time` |
+| --- | --- |
+| Spatial | `kind: spatial-measurement`, `targetId`, `axes`, `xIndex`, `x`, `resolution`, `probability`, `inputNormSquared`, `posteriorNormSquared`, `spatialSequence`, `spatialDrawCount`; `yIndex` and `y` only in the `xy` variant. Probability is finite and strictly positive on success; no log/underflow fields. |
+| Mood preparation | `kind: mood-prepare`, `pairId`, `creatureAId`, `creatureBId`, `events`: one copied preparation event |
+| Single mood measurement | `kind: mood-measure`, `pairId`, `creatureAId`, `creatureBId`, `targetId`, `basis`, `events`: one copied measurement event |
+| Sequential mood measurement | `kind: mood-measure-pair`, `pairId`, `creatureAId`, `creatureBId`, `basis`, `events`: two copied measurement events in A-then-B order |
+| Mood release | `kind: mood-release`, `pairId`, `creatureAId`, `creatureBId`, `basis`, `events`: the command's actual zero/one measurement event followed by its release event |
+
+`events` uses the existing `MoodEvent2D` shapes without editing the registry or replay format. Freeze copied arrays/events; do not retain states or probability grids. Sequential pair measurement is one command receipt, not two. Do not invent a sampled release result when factorization required no draw. Add a read-only `world.lastAction` getter returning the already-frozen receipt or null so the executor can capture successful mood receipts without a diagnostic snapshot. Keep existing mood method return values unchanged. Constructor/reset receipt-clearing rules remain as below.
+
+Extend snapshots with nullable `lastAction`, `spatialMeasurementCount`, `spatialDrawCount`, configured `spatialMeasurementSeed` and `rosterRevision`. A failed spatial attempt preserves the previous successful receipt and success sequence even if cumulative draws change. The UI's transient failure announcement is not a successful world action. Reset clears receipts and both action sequences while preserving current reset/terrain behavior. Initial Bell preparation supplied during construction is initialization, not a newly announced visitor action: clear last-action/sequence after constructor setup without deleting existing mood history. Existing mood history/replay is unchanged. Do not retrofit transactional rollback onto mood commands; keep their existing successful-call semantics and test them.
+
+Add a monotonic read-only roster revision, incremented once per successful `add`/`remove` (including constructor adds), never for failed edits, selection or ordinary stepping. Reset does not reuse that counter to identify a new interaction lifetime: UI epoch invalidation handles reset even if the roster is unchanged. IDs reused after deletion have a different revision.
+
+**Integration checks.** Warm diagnostics and means, then measure and compare immediate snapshot/effective potential and the next step to a reference world initialized from the independently measured state. Cover independent targets, both members of a registered pair and mixed rosters. Compare all non-target spatial values, terrain, clock and full paired mood data exactly at commit; check saved initials via reset, cache freshness and continued pair-feedback suspension. Test every mood receipt, failed-command receipt preservation, reset/replacement, unsigned-seed limits and reproducible mixed command scripts. Show that mood draws do not advance spatial draws and spatial draws do not advance mood RNG.
+
+Use the existing fake scheduler at timestamps yielding a half-step remainder: establish a previous callback, accumulate dt/2, measure synchronously, then deliver another dt/2. Require the same pending callback identity/request count, no cancels, preserved controller/world identity, and exactly one next committed step. Repeat while paused and for failure/rejection; compare the resulting amplitudes to a measured reference stepped the same number of times. Avoid testing only `playing` or reading a private accumulator as the sole evidence.
+
+For hard-to-reach failures, a dedicated test module partially mocks only the new sim-core detector export: request zero, one or two values from the supplied callback and throw a staged error. Assert actual retained generator advancement, unchanged target/caches/initials/receipts and reset reproduction. Core tests cover real callback failures and real representable fixtures separately. No shipped global hooks or new public fault-injection API are allowed.
+
+**Slice gate:** world/cache/RNG/scheduler tests and full checks pass. Numerical integration is reviewable without activating a menu button.
+
+### 4. Define one interaction owner, strict picking and shared execution
+
+| File | Operation and reason |
+| --- | --- |
+| `packages/web/src/creatureActionState2d.ts` | Create the small pure interaction transition/eligibility helper, gesture-token checks and the request/result contracts below. No timers, DOM, React or random draws in this helper. |
+| `packages/web/src/creatureActionState2d.test.ts` | Create transition, token, cancellation, eligibility, each request/result branch, stale-native-draft and clear/ambiguous/miss tests. |
+| [packages/web/src/render/creatureDecoration.ts](./packages/web/src/render/creatureDecoration.ts) | Add a read-only action-candidate classifier beside existing inspection picking. Later appearance changes in step 6 use this same file; retain ordinary inspection's tie policy. |
+| [packages/web/src/creatureDesign.test.ts](./packages/web/src/creatureDesign.test.ts) | Extend classifier tests now; update identity/decoration expectations in step 6. |
+| [packages/web/src/Gaussian2DDemo.tsx](./packages/web/src/Gaussian2DDemo.tsx) | Prepare the interaction record/executor beside the existing controller for isolated audit testing; mount them only at the final steps-4–8 wiring boundary with provenance/science ready. Then replace selection-only dispatch on the same listeners. Keep the controller effect independent of main view changes. |
+| `packages/web/src/CreatureActions2D.tsx` | Create a presentational action/target form and armed-instruction/result region. It receives intent and callbacks; it never owns a second controller, selection fallback or physical mutation path. |
+| `packages/web/src/CreatureActions2D.test.tsx` | Create server-rendered form checks for labels, disabled states, explicit targets, axes/width text and result shapes. Native behavior is verified in the browser, not claimed from static markup. |
+| [packages/web/src/EntanglementControls2D.tsx](./packages/web/src/EntanglementControls2D.tsx) | Route existing mood controls into typed shared requests, retain diagnostics/history and remove the disappearing-partner fallback. Pair preparation uses the explicit ordered targets owned by the new interaction record. |
+
+**Integration staging and imports.** Keep the new helpers/forms unmounted in the normal application until the activation boundary above; the new step-8 audit fixture can exercise them earlier. Import the helper from `./creatureActionState2d` and component from `./CreatureActions2D`. Do not introduce extensionless TS/TSX module basenames that differ only by case: the earlier proposed helper/component names would collide on Windows. Only proposed paths change here; no existing source file is renamed.
+
+**Interaction state.** Use a discriminated record with modes `inspect`, `terrain`, `spatial`, `mood`, and `entangle`; entangle has zero or one confirmed canvas target and separate explicit native A/B choices. Armed spatial state captures axes and sigma; mood captures basis and registered pair. Keep one mutable current ref and React publication of that same record, not competing booleans. Store an increasing tool epoch and a lifetime token containing the actual world reference and roster revision. Native drafts begin with empty target choices; a change in world/roster does not select a replacement automatically. A persisted width preference may remain 0.2–2/default 0.4/step 0.1, but a view change cancels arming before a different observable can be applied.
+
+Only terrain mode supplies a non-View tool to `bindTerrainPainting2D`. Do not add another measurement pointer binding. Existing primary-pointer/button checks and ≤6 CSS-pixel displacement remain. Down captures pointer ID, canvas, view and epoch; up validates all plus current world/revision and gesture ownership. Cancel on pointercancel, pointerleave, blur, lost capture if applicable, reset, view/tool changes, world/guide replacement and roster edits. Ownership-changing commands cancel pending target drafts. Morph blocks creature execution as well as painting. An unrelated secondary pointer must not replace the active primary gesture.
+
+**Strict candidates.** Add `actionCandidates(layers, index)` returning all eligible visible IDs in layer order. Compute the threshold from the largest peak of **all visible layers before** marginal under-curve filtering; then require local density ≥max(1e-8, 0.01*peak). In 1D additionally require the pointer between the plotted baseline and that creature's actual curve, within the plotting viewport. In 2D require a valid cell from existing physical mapping. Do not prefilter by mood eligibility to click through an ineligible foreground creature. Exactly one candidate allows eligibility validation; multiple candidates explain ambiguity and expose native choices; zero candidates explains a miss and leaves the tool armed. Neither miss nor ambiguity uses selected ID, largest local contribution or lexical order. Hidden layers can be named in native forms with a hidden-density note but cannot supply canvas candidates.
+
+**Shared request envelope.** Define these closed local types in `creatureActionState2d.ts`; no command bus, persistent log or replay platform is added:
+
+- `ActionToken2D`: `world: QuantumWorld2D`, `rosterRevision: number`, `epoch: number`, `view: 1d or 2d`. The world reference is used for identity comparison, never as a copied snapshot. No browser type is needed.
+- `WorldUIRequest2D`: `token: ActionToken2D`, `source: canvas or native`, and `command` from the table below. Copy/freeze request data, including a copied interactions payload, so a later form edit cannot mutate a captured request. Shallow-freeze the token, not its referenced world.
+- Native forms capture the token when a draft opens or a deliberate target/parameter change is made. Apply uses the stored token, not one regenerated opportunistically in the submit handler. Invalidated native drafts must be explicitly changed/reopened, not silently repaired.
+- Canvas down captures its token; qualified up submits that token. The first entanglement target stores it for the second. Direct non-draft native controls such as selection capture their current token in the deliberate activation event.
+
+| `command.kind` | Payload | Call after validation |
+| --- | --- | --- |
+| `spatial` | `targetId`, `axes`, `resolution` | `world.measureSpatial` |
+| `entangle` | `creatureAId`, `creatureBId` | Generate unused `pair-N` after validation, then `world.prepareBellPair` in that order |
+| `mood-single` | `pairId`, `targetId`, `basis` | `world.measureMood` |
+| `mood-pair` | `pairId`, `basis` | `world.measurePair` |
+| `mood-release` | `pairId`, `basis` | `world.measureAndRelease` |
+| `select` | `targetId` | `world.select` |
+| `add` | No additional payload | `world.addTemplate` |
+| `remove` | Explicit `targetId`; no execution-time selection default | `world.remove(targetId)` |
+| `interactions` | Copied `Partial<InteractionSettings2D>` | `world.setInteractions` |
+| `preset` | `preset: WorldPreset2D` | `controller.loadWorldPreset`, an intentional world replacement |
+
+Play/Pause/Reset/Clear keep the existing `control` path; Reset and replacement invalidate drafts/reactions through the same lifetime routine. First-target selection, arming, cancellation, ambiguity and misses are pure interaction transitions, not world command requests.
+
+**Shared executor.** Prepare one local executor in `Simulation2D` and mount it at final wiring. Validate, in order: mounted world/controller, token world/revision/epoch/view, active solver health, guide restriction, transition, executing guard, then payload and target eligibility. Reject all shared requests during active guided stages; the guide retains its dedicated Play/view/terrain paths. A refusal changes no physics or RNG. Spatial targets may have either mood ownership type; mood requests require the named registered pair; entanglement requires two distinct independent moods and preserves A/B order. Generate an unused pair ID only after both targets validate. First-target entanglement changes no physics. Native selectors choose; Apply executes; clear canvas hits use the same executor. Do not accept arbitrary callback closures. Protect against reentry/repeated events with a synchronous executing guard and consume/disarm the successful creature-tool epoch before publication.
+
+Define `WorldUIResult2D`, discriminated by `status`, with these fields:
+
+| Status | Fields and meaning |
+| --- | --- |
+| `applied` | `receipt: WorldAction2D or null`, `addedTargetId: string or null`, `publication: published or display-failed`, `message: string or null`. Only add returns a nonnull addedTargetId. Only spatial, entangle, mood-single, mood-pair and mood-release return a nonnull receipt. A postcommit display failure remains applied and can redraw without rerunning. |
+| `rejected` | `reason`, `message: string`, `drawsConsumed: 0`. Reasons: `no-world`, `stale-intent`, `guide-forbidden`, `morphing`, `solver-stopped`, `busy`, `invalid-parameters`, `target-missing`, `pair-mismatch`, `requires-independent`, `same-target`, `roster-limit`, `release-required`. |
+| `failed` | `stage: PositionMeasurement2DError.stage`, `message: string`, `drawsConsumed: number`, `spatialDrawCount: number`; only a recognized handled spatial failure produces this branch. |
+| `command-error` | `message: string`; an unexpected non-solver exception. Never claim RNG rollback or numerical success, pause/resume or retry automatically. Retain the original error locally for diagnosis, not as a successful action receipt. |
+
+After receipt-producing creature success, advance/disarm the epoch before publication. Add/remove/preset/release/preparation also invalidate other ownership/roster-sensitive drafts. Capture `world.lastAction` immediately after a successful receipt-producing call; do not manufacture it from a potentially failing snapshot. Ordinary inspection creates no measurement receipt. Construct the second-target entanglement command only once both targets are explicit and valid.
+
+Expected refusal leaves playback and RNG intact and explains why; ordinary misses remain armed. A handled numerical spatial failure disarms, announces no state update plus consumed draws, and preserves the prior success line. Success disarms and publishes once. Snapshot/render/help publication is a separate try boundary after commit: retain a local receipt and a display-error message, offer redraw, and never call the numerical command again from that recovery. Clear any pending throttled publication before publishing the new committed snapshot, preventing an old scene from overwriting it. Do not call play/pause or the generic pause-on-exception handler for these paths. Existing solver failures keep their current stop behavior.
+
+### 5. Wire action-first navigation, help and reachable result controls
+
+| File | Operation and reason |
+| --- | --- |
+| [packages/web/src/TerrariumShell.tsx](./packages/web/src/TerrariumShell.tsx) | Add action-first home slots/pages and explicit close/handoff navigation; remove the settings-owned bottom Help & settings trigger. Preserve mounted pages, Back navigation and modal focus behavior. |
+| [packages/web/src/TerrariumShell.test.tsx](./packages/web/src/TerrariumShell.test.tsx) | Update static navigation/control assertions for the action-first home and single science trigger rather than the old help/picker structure. |
+| [packages/web/src/App.tsx](./packages/web/src/App.tsx) | Move the existing science trigger from the header to a persistent bottom location owned by App, keeping its ref/fallback across scene replacement and access from legacy scenes. Pass current action-guard information needed by the mounted simulation without remounting on view change. |
+| [packages/web/src/WorldControls2D.tsx](./packages/web/src/WorldControls2D.tsx) | Retain native inspection/roster/settings controls in menu pages, add last-action spatial diagnostics in Advanced, use neutral identities and send guarded typed roster/ownership requests instead of unchecked creature-action closures. |
+| [packages/web/src/Museum.tsx](./packages/web/src/Museum.tsx) | Change the guide's terrain instruction to the actual Draw terrain route; retain science dialog reuse, guide gates, replay confirmation and focus containment. |
+
+**Final-wiring requirement.** This step describes the finished menu, not an early live position button. Prepare it without mounting usable position actions until the steps-4–8 activation boundary.
+
+The home menu order is Draw terrain, Measure position, Entangle moods, then Measure mood — X/Z and retained secondary sections. Draw terrain opens existing terrain controls; choosing a brush enters continuous terrain mode, with an explicit paint-on-canvas handoff. Position opens width and native target controls, plus Arm on canvas. Entanglement opens explicit A/B selectors and a named Apply button, plus its two-click canvas route. Existing pair/sequential/Measure & Release controls remain available under mood actions. Native inspection remains in Creatures; deleting paired members still requires release. Do not add position measurement to the standalone Gaussian or legacy paths as an accidental consequence of shared menu code.
+
+Extend `useSettingsNavigation` with `closeAndHandoff(focusTarget)` and ordinary close with predictable trigger return. Perform handoff only after hidden panel state is committed and focus-trap listeners are removed; then focus the visible instructions/Cancel region. Do not let the menu's initiating pointer-up qualify as a canvas gesture. Native success closes the menu, moves focus to a stable result region/trigger and announces once. Escape belongs first to the top modal, then the popover, then an active creature draft; use handled/default-prevented checks so one key does not cascade through all three. Terrain cancellation is distinct from a physics reset.
+
+Replace the **main-world** bottom picker with Clear terrain, using the same `control('clearTerrain')` path as its menu button. Retain standalone 1D selection because it is a separate experiment, not the removed main-world picker. App owns the only visible What am I seeing? trigger; it calls the existing `openScience`, never settings. Keep the visible trigger available after guide/preset/legacy replacement and use it if the original dialog opener is disconnected.
+
+Show one latest-result line outside the closed menu. Spatial text identifies stable target, x-only or x/y, sampled coordinate(s), sigma and time; mood text identifies basis/outcomes or coordinated preparation/release. Do not use pair subsystem A/B as creature identity. Announce successful sequence changes with a polite live region; periodic snapshots, modal reopening and unchanged receipts must not reannounce. Rejections/failures use transient action feedback and never replace the stored success receipt. Exact probability/norm/seed/draw diagnostics stay in Advanced. No growing action log or persistent spatial marker is added.
+
+### 6. Apply the shared-square layout and reviewed cloud appearance
+
+| File | Operation and reason |
+| --- | --- |
+| [packages/web/src/style.css](./packages/web/src/style.css) | Give both main canvases one largest-fitting square, put explanation/action/result rows outside it, and adapt bar/menu overflow and focus clearance on short/narrow screens. Style the neutral selection cue and result/instruction regions. |
+| [packages/web/src/creatureIdentity.ts](./packages/web/src/creatureIdentity.ts) | Remove the arbitrary-name table/name API; use deterministic `creatureLabel(id)` as `Creature ` plus uppercased ID, including unique extra IDs. Keep labels independent of roster order/RNG. |
+| [packages/web/src/CreatureSummary2D.tsx](./packages/web/src/CreatureSummary2D.tsx) | Use the shared neutral label and existing mood/ownership summary without duplicating the old arbitrary name. |
+| [packages/web/src/render/creatures2d.ts](./packages/web/src/render/creatures2d.ts) | Apply the owner-selected palette from comparison samples and match field background fill; preserve brightness formula, density values, blend order and grid-sized staging. |
+| [packages/web/src/render/density2d.ts](./packages/web/src/render/density2d.ts) | Keep physical mapping/transfer function unchanged; expose a separate main-world background constant if required so a world palette change does not silently recolor legacy Gaussian fixtures. |
+| [packages/web/src/render/creatures2d.test.ts](./packages/web/src/render/creatures2d.test.ts) | Update explicit main-world palette expectations only after sample selection; retain independent-density blending, array-size/alias and input-preservation assertions. |
+| `scripts/cloud-action-visual-fixtures.mjs` | Create reproducible audit-only scene fixtures/contact sheets for palette, face, boundary and layout comparison without adding presets or scripted motion to the shipped app. |
+
+Reuse the existing CSS size-query approach: a flex/min-size-zero available region contains a square wrapper whose side is min(available width, available height). Both canvas layers are absolute fills of that wrapper; explanation text is a sibling row, not unequal padding/inset inside it. Keep the 450 ms transforms on the two layers and reduced-motion shortcut. Do not modify the marginal renderer's content, scaling, coordinate mathematics or average-terrain band. Clear terrain, playback and science help must not overlap each other or a focus outline; use normal-flow wrapping and bounded internal scroll where needed rather than hiding required controls.
+
+In `creatureDecoration.ts`, remove head ellipses, circular selection rings and arbitrary-name labels; keep small eyes/mouth on existing significant-density anchors, clipping/stale suppression, diagnostic mood annotations and static registered-pair links. Use a small corner/bracket cue, not another circle, for the selected cloud. Neutral references remain available in compact text/native controls, not color alone. Anchor caches must be invalidated after a spatial commit so a new high-density state does not reuse a still-qualifying old face position for another 100 ms. Prefer a receipt/revision-triggered cache clear, not an extra per-frame density scan.
+
+Prepare compact, diffuse, split, overlap and wall-adjacent scenes with faces and terrain independently on/off. Compare the current palette and two palette-only candidates using the unchanged transfer function; keep samples static and labels explicit. **Stop for owner selection of palette/face samples before finalizing visual constants.** This is a remaining human evidence gate, not an implementation choice delegated to the assistant. If no sample is readable, reopen the visual design; do not add glow, autoscaling, probability floors or new transfer functions silently.
+
+**Owner sample selection — 2026-10-31 execution checkpoint.** The owner selected **F1 + P1** from the generated comparison gallery: direct dark-ink faces and non-circular brackets, with the twilight background and bright pastel creature palette. Use the sampled constants without changing the density transfer function. Reference gallery: `D:/Temp/psi-spatial-ui-preactivation-2026-10-31/VISUAL_REVIEW.html`; decision and appearance evidence: `D:/Temp/psi-spatial-appearance-2026-10-31`. This resolves the sample-selection stop above, not overall visual/device/accessibility/performance acceptance. Diffuse-face contrast and crowded overlap labels remain explicit limitations. The remainder of steps 4–8 and its activation/browser prerequisites are still pending; this note supersedes historical “visual sample selection remains open” drafting statements only for this choice.
+
+Implement the permitted surprise as a UI reaction record keyed by world lifetime, receipt sequence and target. Trigger only from a newly committed spatial or mood measurement, including actual measurement within release, not preparation, mere factorization or an ordinary snapshot. A sequential pair receipt may mark its two measured targets in the same bounded record. Expiry is 600 ms of wall time with at most one timeout; redraw on expiry while paused. New measurement replaces the record. Reset, world/roster invalidation, target removal, unmount and disabling animations clear/cancel it. Reduced motion and hidden decorations use ordinary static faces plus the text receipt. No new animation loop, physics RNG or React updates per frame. Extend `creatureDesign.test.ts` with identity/anchor/reaction expectations; browser checks verify real timeout cleanup.
+
+### 7. Update science explanations and protect guide/provenance behavior
+
+| File | Operation and reason |
+| --- | --- |
+| [packages/web/src/museumScience.ts](./packages/web/src/museumScience.ts) | Read chronological `lastAction` for latest-action science cards, distinguish spatial axes and mood basis, and avoid presenting an old mood event as the latest operation. |
+| [packages/web/src/museum.test.tsx](./packages/web/src/museum.test.tsx) | Add action chronology, time-zero measurement provenance, x-only conditional-y wording, guide execution guards and unchanged replay-cancel tests. Preserve existing chapter/parser/proof-link checks. |
+| [packages/web/src/content/notebook/museum/measurement.md](./packages/web/src/content/notebook/museum/measurement.md) | Explain main x/y versus marginal x-only finite-resolution updates, click-as-target semantics, sigma, retained-draw failure policy and historical results. Keep legacy coordinate-projection proof limits explicit. |
+| [packages/web/src/content/notebook/museum/marginals.md](./packages/web/src/content/notebook/museum/marginals.md) | Explain a full-state x mask across all y, no measured y and possible conditional change of y density for correlated states. |
+| [packages/web/src/content/notebook/museum/probability.md](./packages/web/src/content/notebook/museum/probability.md) | Replace named-character/head/halo instructions with neutral identities, cloud-body display and inspect-versus-armed-action behavior. |
+
+**Activation prerequisite.** Complete and test these provenance/science changes in the isolated audit integration before final mounted wiring; they are not a follow-up after exposing Measure position.
+
+In `Gaussian2DDemo.tsx`, remove the generic `world.time === 0` restoration of `pristineGaussian`. Only known initialization, preset setup and reset to known Gaussian initials may restore it. Successful spatial measurement sets it false before scene publication even at t=0. Selection, mood actions and terrain clearing cannot restore it. Keep existing evolution/terrain/feedback invalidation. The existing guide helper stays unchanged unless its protected physics setup is found incompatible; its controller reset/setup APIs remain sufficient.
+
+Help describes a detector result at its recorded time, never a current particle/face position. An x-only result supplies no y coordinate and does not imply an unchanged y marginal. Show no successful measurement card for a failed attempt; retain the prior chronological success. Preserve ten chapter IDs, Observe/Understand/Explore structure, MathML rendering and existing pinned Lean references without new proof claims.
+
+Use shared executor guards for guide stages even if disabled menu buttons are bypassed by stale events. Keep actual Play plus ≥20% computed-width growth, the real marginal view, real positive terrain edit, Back/Skip/Finish and confirmation before replay. Cancelling replay leaves amplitudes, terrain, clocks, both random streams, receipts and the active scene intact. Confirmed replacement cancels drafts/reactions before installing the new lifetime. Finish/Skip still yields the deterministic paused one-creature clean scene.
+
+### 8. Update browser regressions and add end-to-end action evidence
+
+| File | Operation and reason |
+| --- | --- |
+| `scripts/spatial-actions-browser-check.mjs` | Create a thin runner for the production-build CDP harness and new action cases. |
+| `scripts/spatial-actions-browser-cases.mjs` | Create pointer/native/keyboard action cases, scheduler preservation, lifetime invalidation, publication-failure and reaction checks. |
+| [scripts/projection-browser-check.mjs](./scripts/projection-browser-check.mjs) | Add the new case entry/visual-fixture registration and update wide-rectangle assertions to equal-square geometry. Preserve full-state, transition, mapping and committed-step checks. Keep audit injection outside shipped builds. |
+| [scripts/creature-design-browser-cases.mjs](./scripts/creature-design-browser-cases.mjs) | Replace arbitrary-name/bottom-picker/head-ring assumptions with neutral identities, menu-native inspection and new decoration expectations. Keep ordinary inspect clicks non-measuring. |
+| [scripts/terrarium-shell-browser-check.mjs](./scripts/terrarium-shell-browser-check.mjs) | Replace bottom settings-help and selected-dropdown assumptions with single science dialog access, bottom terrain clearing and menu-native inspection; retain compact viewport/focus/terrain checks. |
+| [scripts/museum-browser-cases.mjs](./scripts/museum-browser-cases.mjs) | Follow the Draw terrain route, assert the one help trigger/fallback and menu-native selection in the accessibility tree, and add receipt/provenance/replay assertions. |
+| [scripts/world-2d-browser-check.mjs](./scripts/world-2d-browser-check.mjs) | Modify the preparation case to open entanglement, explicitly choose Creature A then Creature B and Apply; assert refusal before both targets are chosen. Preserve pair identity/purity/entropy, measurement, release, deletion guards, spatial continuity and loop lifecycle. Do not restore automatic partner fallback. |
+
+**Integration gate ordering.** Use the isolated audit fixture to verify the complete executor/forms/provenance/science path before final mounted wiring. Then run the normal mounted application's complete browser suite before offering the UI slice for acceptance. A passing isolated fixture is not a substitute for normal mounted-application regressions.
+
+Use existing Vite/CDP/Chrome utilities and locked tooling without installing a browser package. Test-only transforms may register the controller, the shared executor and read-only receipt/publication checkpoints in an external audit build; the normal build must contain none of these globals. Fail loudly if a transform anchor is missing. Fixtures may replace test scenes or inject faults in that build only; a fixture is not evidence of evolved dynamics. Run browser scripts serially because existing drivers share fixed ports.
+
+Required end-to-end cases: x/y in paused/running scenes; x-only then return to 2D; independent/paired targets; exactly one command/receipt and one/two draws; native versus clear canvas target equivalence from identical seeded scenes; clear, empty, overlapping, identical-hill and hidden-density hits; pointer drag, wrong button/pointer, leave/cancel/blur and stale down/up; first entangle target with no physical change, ordered second target and native A/B parity; reset, delete/re-add same ID, ownership edit, view switch, morph, world/preset/guide replacement; no silent target fallback or retry.
+
+Check expected rejection does not pause, sampled failure preserves committed bytes and the prior receipt while reporting retained draws, and a postcommit publication fault cannot execute again during redraw recovery. Use audit-only faults for rare failures and name that limitation. Test menu handoff with real pointer/key events, Tab loops, Escape precedence, focus return after scene replacement, announcements once per result, faces off, reduced motion, expiry while paused and cleanup on unmount. Use fake scheduler unit evidence plus real pending-rAF/accumulator checkpoints in the audit build for scheduling claims.
+
+Capture both views at 1920×1080, 1440×900, 1366×768, 1280×720 and 1024×600 with DPR 1/2; repeat small-screen menu/notebook access at 512×300. Assert equal untransformed square bounds, full-domain mapping, backing dimensions matching actual DPR within pixel rounding, no document overflow, and reachable primary controls/focus. Record actual browser zoom separately; CDP viewport emulation is not evidence of real zoom or a real high-DPR display. Human screen-reader, touch/pen and target-device tasks remain explicit acceptance items.
+
+**Slice gate:** shared interaction, navigation, visual samples and science content pass unit/browser regression checks. Any new acceptance failure is recorded, not removed by weakening a physics or safety assertion.
+
+### 9. Measure action latency, incremental cost and retained memory
+
+| File | Operation and reason |
+| --- | --- |
+| `scripts/performance/spatial-measurement.mjs` | Create a production-bundled core/action latency and bounded-memory audit. Support `--out`, record environment/raw samples, and separate cold work, warm core, handler and next-paint measurements. |
+| [scripts/performance/runtime-2d.mjs](./scripts/performance/runtime-2d.mjs) | Add explicit matched-square sizing, a no-action versus fixed seeded spatial-action script, one-creature scene support and recorded action acknowledgements. Preserve serial before/after windows, cap/discarded-time metrics and all raw samples. |
+| [scripts/performance/summarize-runtime-2d.mjs](./scripts/performance/summarize-runtime-2d.mjs) | Report every matched ratio, median comparison, action/no-action conditions, backing-size differences and uncertainty rather than only favorable aggregates. |
+
+The latency driver bundles the real new core function and uses production UI action handlers through an audit-only build, not a replacement detector. Treat each combination of axes (`x`, `xy`), creature count (1, 2, 4), playback state (paused, running) and sigma (0.2, 0.4, 2) as a separate latency population: **36 conditions**. For each condition and each measured latency category, collect five cold first-action samples in fresh page contexts and at least 200 warmed actions after 20 warmups. Calculate and apply the warm p95 budgets separately to every condition; do not pool conditions for pass/fail. Core timing does not depend directly on roster/playback, but record it alongside the actual handler condition. Keep all cold samples, raw warmed samples and maximums. Label fixture restoration outside timed regions and repeated live-state measurements distinctly; do not turn timing statistics into Vitest assertions.
+
+The owner approved this per-condition audit workload: at least **180 fresh cold contexts and 7,200 warmed handler actions**, plus warmups, across 36 conditions. This is validation cost, not production overhead. Do not reduce or pool the sampling population silently.
+
+Time numerical work, full synchronous execution/publication/draw, and result-to-next-render-opportunity separately. Measure next-paint with browser trace evidence where possible; label double-rAF measurements as paint-opportunity proxies, not exact visible-pixel latency. Attribute long tasks with traces instead of inferring causality from an unrelated slow frame. **Warm numerical-measurement p95 must be ≤16.7 ms, and warm complete synchronous-action p95 must be <50 ms**, applied separately to every condition above. Report cold samples and all maximums separately; there is no new all-samples latency threshold. Investigate any measurement-attributable long task even when p95 passes. A budget miss reopens the synchronous design; do not hide it with pauses, a worker, smaller grid or different dt.
+
+Extend runtime driver options with `--square-side` for an equal CSS-square audit override applied identically to source pairs, and `--spatial-actions none|fixed`. No-action before/after runs use a side that fits both sources and identical DPR/viewport/scene. The fixed script is finite and documented: alternate x and xy on stable roster targets every two wall seconds at sigma 0.4, logging attempted/committed wall time, receipt sequence and draws; never fire overlapping catch-up actions after a stall. Script scheduling lives in the harness, not production. Compare current build with/without this script separately from no-action source comparisons. Also run the new default largest-square layout without the sizing override, retaining its actual cost.
+
+Run five serial 60-second paired windows per scene with alternating before/after order, after the existing five-second warmup. Report all individual throughput ratios and the ratio of median committed-physical-time throughput after/before. Require ≥0.95 for equivalent-size **no-action** comparison; the allowance is not a measured noise estimate. Report elapsed physical time/wall time, per-frame latency, step-cap hits and discarded wall time independently. One/two/four scenes and both views are characterized; historical absolute sustained acceptance remains open regardless of this relative test. If variance prevents a conclusion, record inconclusive rather than choosing a favorable subset.
+
+For retention, run five batches of 200 explicit actions after warmup, clear transient reactions between batches, collect heap/retainer evidence with consistently applied audit-only GC where available, and compare live objects after collection. Require no retained per-action candidate/distribution arrays, no growing receipt/reaction collection and at most one reaction timeout. Distinguish one-time engine caches from retained measurement work; report bytes and object paths rather than inventing a universal heap-byte threshold. A ten-second no-action trace must show zero detector calls. No hover/draw/ordinary-step measurement calculations are allowed.
+
+### 10. Publish evidence and stop for review
+
+| File | Operation and reason |
+| --- | --- |
+| `docs/SPATIAL_ACTIONS_VALIDATION.md` | Create the implementation/evidence report: APIs, full touched-file inventory, commands, measured errors, sigma limitations, seeds/failure policy, browser outcomes, owner visual selection, raw performance locations and open human gates. Do not prefill pass claims. |
+| [docs/ROADMAP.md](./docs/ROADMAP.md) | Add a focused cloud/action/spatial-measurement review entry only after implementation checks, retaining historical 5E records and unresolved sustained gates. Do not relabel all 5E accepted. |
+| [README.md](./README.md) | Update current control/scientific-scope instructions and link the validation report. Keep prior phase descriptions explicitly historical; do not imply older GIFs show the new measurement or neutral-identity design. No new media asset is required by this task. |
+| [design_draft.md](./design_draft.md) | Record section approval and later handoff/evidence links without retroactively claiming that planning approval authorized implementation or closed acceptance. |
+
+These tables are the complete planned file inventory; repeated mentions of a file across steps describe one planned modification. No additional source/config/assets are implicit. New fixture/validation files are shown as literal paths until created; existing-file links resolve from this root draft.
+
+Run these existing commands at each relevant slice boundary and in the final implementation review:
+
+```bash
+npm run test
+npm run typecheck
+npm run build
+npx tsc --project packages/web/tsconfig.world2d.json
+npx tsc --project scripts/performance/tsconfig.json
+```
+
+Run the browser commands serially. The projection driver and its wrappers build isolated audit production UIs; existing standalone drivers may require a separately running dev server (`npm run dev -- --host 127.0.0.1`). Check each driver's expected URL before launching. Chrome uses the existing default executable or `CHROME_PATH`.
+
+```bash
+node scripts/spatial-actions-browser-check.mjs --screenshot
+node scripts/projection-browser-check.mjs
+node scripts/museum-browser-check.mjs --screenshot
+node scripts/creature-design-browser-check.mjs
+node scripts/terrarium-shell-browser-check.mjs
+node scripts/world-2d-browser-check.mjs
+node scripts/two-dimensional-browser-check.mjs
+node scripts/creature-browser-check.mjs
+node scripts/observer-browser-check.mjs --no-screenshots
+```
+
+The following commands are **planned new/extended drivers**, not commands verified in this drafting session. Replace the external example paths with recorded local paths; use a fresh output directory for every run. The fixture driver takes `--out` and writes its comparison sheets there. Performance drivers must reject missing baseline or unsupported flags rather than silently falling back.
+
+```bash
+node scripts/cloud-action-visual-fixtures.mjs --out D:/Temp/psi-cloud-samples
+node scripts/performance/spatial-measurement.mjs --out D:/Temp/psi-spatial-latency
+node scripts/performance/runtime-2d.mjs --out D:/Temp/psi-spatial-matched --compare-before D:/Temp/psi-source-before --scene two-interacting --mode plain --batches 5 --seconds 60 --square-side 480 --spatial-actions none
+node scripts/performance/summarize-runtime-2d.mjs D:/Temp/psi-spatial-matched
+node scripts/performance/runtime-2d.mjs --out D:/Temp/psi-spatial-actions --scene two-interacting --mode plain --batches 5 --seconds 60 --square-side 480 --spatial-actions fixed
+node scripts/performance/runtime-2d.mjs --out D:/Temp/psi-spatial-no-actions --scene two-interacting --mode plain --batches 5 --seconds 60 --square-side 480 --spatial-actions none
+node scripts/performance/runtime-2d.mjs --out D:/Temp/psi-spatial-largest --scene two-interacting --mode plain --batches 5 --seconds 60 --spatial-actions none
+```
+
+Repeat runtime conditions for the driver's independent one/two/four-creature scenes and main 1D/2D views as specified in step 9; extend source-pair view support deliberately rather than bypassing its existing 2D-only guard silently. Report baseline/new snapshot-shape differences explicitly: additive receipt/revision fields prevent a naive whole-snapshot deep equality across versions, so compare protected numerical/mood fields and buffers separately. Existing pixel-byte equivalence across palette changes is likewise not a meaningful visual gate; retain formula/input invariants and reviewed new pixel fixtures instead.
+
+Inspect `git diff --check`, `git diff --stat`, the complete diff and untracked file list. Recheck protected files against the actual-source hashes. Require no unrequested changes, shipped audit globals, secrets, dependencies or generated audit output. Read the final report and edited documentation, verify links and commands, and list exact failed/incomplete checks. Approval requires separate numerical, interaction, visual, accessibility and performance evidence; partial acceptance must name its limits. Do not commit or push. Stop for owner/independent review; no automatic next slice or formal-proof work.
+
+### Resolution record — implementation-readiness round 1
+
+The owner selected IR-01 option A and batch-approved all eight proposed corrections in [goldfish_review_report.md](./goldfish_review_report.md). Applied changes pin conditional normalization and underflow failure, complete world/UI contracts and validation boundaries, define final UI activation, remove the proposed Windows module-name collision, include the world-browser regression repair, clarify both p95 limits, confirm the seed default and specify 36 separate latency populations. Six Major findings and two Nits are addressed by these documentation edits; none was contested, escalated or declined. The [round-1 audit](./implementation_readiness_report.md) remains the historical review record. No independent re-audit, numerical fixture execution, feature validation or implementation authorization is implied. Owner visual-sample selection and other human/device/performance gates remain open.
+
 ## Additional Resources
 
 - [Approved concept and review synthesis](./concepts_brief.md).
 - [Project specification](./docs/PROJECT_SPEC.md), whose historical vision must be read alongside its scientific-scope warning.
 - [Current roadmap](./docs/ROADMAP.md), recording 5E.4 as implemented for review with acceptance still open.
 
-*Drafted with EGM. Opening sections and Technical Plan are approved; Alternatives Considered awaits section approval. No implementation has been performed.*
+*Drafted with EGM. All design sections and the eight round-1 documentation corrections are approved by the owner. Documentation corrections are applied; no feature implementation has been performed. Independent re-audit, visual sample selection and implementation authorization remain separate gates.*

@@ -71,7 +71,10 @@ try {
   check('Population is bounded at four', await evaluate(`button('Add creature').disabled && Math.abs(value('Norm D')-1)<1e-10`));
   await evaluate(`button('Remove selected creature').click()`); await retry(() => evaluate(`document.querySelectorAll('input[name="world-creature"]').length===3`));
   check('Removing selected D deterministically selects remaining A', await evaluate(`document.querySelector('input[value="a"][name="world-creature"]').checked && inspect()===initialA`));
-  await evaluate(`toggle('Show selected creature only');window.soloImage=document.querySelector('canvas').toDataURL();window.beforePaint=inspect();window.paintTime=value('Physical time');document.querySelector('input[value="barrier"][name="terrain-tool"]').click();document.querySelector('canvas').scrollIntoView({block:'center'})`);
+  await evaluate(`toggle('Show selected creature only');document.querySelector('input[value="barrier"][name="terrain-tool"]').click()`); await sleep(100);
+  // The instruction row is outside the largest-fitting square. Capture pixels
+  // after its layout commits, so the before/after use identical backing sizes.
+  await evaluate(`window.soloImage=document.querySelector('canvas').toDataURL();window.beforePaint=inspect();window.paintTime=value('Physical time');document.querySelector('canvas').scrollIntoView({block:'center'})`);
   const p = await evaluate(`point(0,0)`);
   await send('Input.dispatchMouseEvent', { type: 'mousePressed', ...p, button: 'left', clickCount: 1 }); await send('Input.dispatchMouseEvent', { type: 'mouseReleased', ...p, button: 'left', clickCount: 1 });
   await retry(() => evaluate(`value('V maximum')>1.9`));
@@ -84,7 +87,7 @@ try {
   await evaluate(`window.beforeClear=inspect();button('Clear terrain').click()`); await retry(() => evaluate(`value('Terrain ∫|V|')===0`));
   check('Clear terrain preserves creature state/mood/time', await evaluate(`inspect()===beforeClear && value('Physical time')===0`));
   await evaluate(`button('Play').click()`); await retry(() => evaluate(`value('Physical time')>0.15`));
-  await evaluate(`window.liveTime=value('Physical time');document.querySelector('canvas').scrollIntoView({block:'center'})`);
+  await evaluate(`window.liveTime=value('Physical time');document.querySelector('input[value="barrier"][name="terrain-tool"]').click();document.querySelector('canvas').scrollIntoView({block:'center'})`);
   const livePoint = await evaluate(`point(1,1)`);
   await send('Input.dispatchMouseEvent', { type: 'mousePressed', ...livePoint, button: 'left', clickCount: 1 }); await send('Input.dispatchMouseEvent', { type: 'mouseReleased', ...livePoint, button: 'left', clickCount: 1 });
   await retry(() => evaluate(`value('V maximum')>1.8 && value('Physical time')>=liveTime`));
@@ -102,21 +105,26 @@ try {
   await evaluate(`button('2D creature world').click()`); await retry(() => evaluate(`!!document.querySelector('.world-inspector')`));
   await evaluate(`hideDecor()`); await sleep(100);
   check('Returning to the world starts a fresh two-creature world without duplicate loops', await evaluate(`__pending.size===0 && document.querySelectorAll('input[name="world-creature"]').length===2 && value('Physical time')===0`));
-  await evaluate(`button('Entangle moods').click()`); await retry(() => evaluate(`document.body.textContent.includes('Pair pair-1')`));
+  await evaluate(`button('Entangle moods').click()`); await sleep(80);
+  check('Bell preparation refuses before both explicit ordered targets are chosen', await evaluate(`document.querySelector('form button[type="submit"]').disabled&&!document.body.textContent.includes('Pair pair-1')`));
+  await evaluate(`(()=>{const e=document.querySelector('[aria-label="Entanglement first target"]');e.value='a';e.dispatchEvent(new Event('change',{bubbles:true}));})()`); await sleep(50);
+  await evaluate(`(()=>{const e=document.querySelector('[aria-label="Entanglement second target"]');e.value='b';e.dispatchEvent(new Event('change',{bubbles:true}));})()`); await sleep(50);
+  await evaluate(`button('Apply ordered Bell preparation').click()`); await retry(() => evaluate(`document.body.textContent.includes('Pair pair-1')`));
   check('Bell preparation displays shared identity, purity 0.5, entropy 1 and safe deletion', await evaluate(`document.body.textContent.includes('Local purity: 0.500000') && document.body.textContent.includes('Entanglement entropy: 1.000000 bits') && button('Remove selected creature').disabled`));
-  await evaluate(`window.entangledImage=document.querySelector('canvas').toDataURL();window.entangledTime=value('Physical time');button('Measure A').click();button('Measure B').click()`); await sleep(150);
+  await evaluate(`window.entangledImage=document.querySelector('canvas').toDataURL();window.entangledTime=value('Physical time');button('Measure A').click()`); await sleep(80);
+  await evaluate(`button('Measure B').click()`); await sleep(150);
   check('Z outcomes are recorded, correlated, and leave rendered spatial state and time unchanged', await evaluate(`(()=>{const text=document.querySelector('[aria-label="Mood outcome history"]').textContent,m=[...text.matchAll(/measured Z → ([01])/g)].map(m=>m[1]);return m.length===2&&m[0]===m[1]&&value('Physical time')===entangledTime&&document.querySelector('canvas').toDataURL()===entangledImage&&document.body.textContent.includes('Entanglement entropy: 0.000000 bits')})()`));
   await evaluate(`button('Reset evolution').click()`); await sleep(120);
   check('Reset restores Bell pair, maximal mixedness and empty measurement history', await evaluate(`document.body.textContent.includes('Local purity: 0.500000') && !document.querySelector('[aria-label="Mood outcome history"]').textContent.includes('measured')`));
   await evaluate(`(()=>{const select=document.querySelector('[aria-label="Mood measurement basis"]');select.value='X';select.dispatchEvent(new Event('change',{bubbles:true}));})()`); await sleep(100);
-  await evaluate(`button('Measure A').click();button('Measure B').click()`); await sleep(120);
+  await evaluate(`button('Measure A').click()`); await sleep(80); await evaluate(`button('Measure B').click()`); await sleep(120);
   check('X measurements show plus/minus outcomes and correlated partner', await evaluate(`(()=>{const text=document.querySelector('[aria-label="Mood outcome history"]').textContent,m=[...text.matchAll(/measured X → ([+−])/g)].map(m=>m[1]);return m.length===2&&m[0]===m[1]})()`));
   await evaluate(`button('Measure & Release').click()`); await sleep(120);
   check('Global release restores independent pure ownership and removal eligibility', await evaluate(`document.body.textContent.includes('Independent pure state') && document.body.textContent.includes('Local purity: 1.000000') && !button('Remove selected creature').disabled && document.querySelector('canvas').toDataURL()===entangledImage`));
   await evaluate(`button('World: entangled friendship').click()`); await sleep(120);
   check('Friendship preset prepares exactly one named Bell pair without automatic measurement', await evaluate(`document.body.textContent.includes('Pair friendship') && document.body.textContent.includes('Local purity: 0.500000') && document.querySelectorAll('input[name="world-creature"]').length===2 && !document.querySelector('[aria-label="Mood outcome history"]').textContent.includes('measured')`));
   await evaluate(`select('b')`); await sleep(100);
-  check('Partner inspector shares pair identity and purity 0.5', await evaluate(`document.body.textContent.includes('Pair friendship · subsystem B · partner a') && document.body.textContent.includes('Local purity: 0.500000')`));
+  check('Partner inspector shares pair identity and purity 0.5', await evaluate(`document.body.textContent.includes('Pair friendship · subsystem B · partner Creature A') && document.body.textContent.includes('Local purity: 0.500000')`));
   await evaluate(`document.querySelector('input[value="barrier"][name="terrain-tool"]').click();document.querySelector('canvas').scrollIntoView({block:'center'})`);
   const pairedPoint = await evaluate(`point(-1,1)`);
   await send('Input.dispatchMouseEvent', { type:'mousePressed', ...pairedPoint, button:'left', clickCount:1 }); await send('Input.dispatchMouseEvent', { type:'mouseReleased', ...pairedPoint, button:'left', clickCount:1 });

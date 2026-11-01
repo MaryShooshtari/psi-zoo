@@ -202,7 +202,7 @@
 - [Implementation, interaction policy, files, tests, performance and manual review](CREATURE_DESIGN_VALIDATION.md).
   This records the stop boundary before the separately authorized 5E.4 work below.
 
-## Current: Slice 5E.4 — museum onboarding, science and notebook (implemented for review)
+## Retained: Slice 5E.4 — museum onboarding, science and notebook (implemented for review)
 - Explicitly confirmed optional guide: real Play plus ≥20% computed width growth,
   actual same-world marginal view, return to 2D and actual positive terrain edit.
   Next/Back, Skip, Replay, reduced motion, native pointer and keyboard alternatives.
@@ -229,6 +229,29 @@
 - [Architecture, files, scientific scope, tests, exact trying instructions,
   measurements and remaining review](MUSEUM_VALIDATION.md).
   **Stop for independent review; no automatic next phase.**
+
+## Current: Slice 5F — visual and UX redesign (implemented for review)
+- Corrected after owner review: genuine rectangular physical domain matching
+  initial playground aspect, ~128² samples, unchanged dx=dy=20/129 and dt=1/120.
+  Actual propagation, terrain editing and detector outcomes beyond the old x=10
+  edge verified. No geometry/state reset on view changes or ordinary resizing.
+- Brighter fixed nonlinear actual-density rendering, bounded colored overlap,
+  softly sampled clouds and expressive cloud-integrated faces without head rings.
+- Five intention-based menu sections; contextual science at bottom-right, no
+  permanent instructional/chart text or duplicate chart legend. Short auto-expiring
+  confirmations, full accessible receipts and on-demand latest action details.
+- Existing Clear terrain and guarded action architecture retained. Solver,
+  measurement/RNG semantics, dependencies and package versions unchanged.
+- 569 unit tests, typecheck/build and separate world/performance compiles passed;
+  25 actual-domain playground, 91 spatial-action and 38 redesign/projection browser
+  checks passed; desktop/phone/short-landscape screenshots inspected.
+- Bounded two-creature cost comparison favored a near-constant-cell-count
+  rectangle over a >2× larger grid. World height changes with initial aspect;
+  large subsequent aspect changes may letterbox the preserved scene.
+- Sustained/four-creature performance, real-device/AT and human visual acceptance
+  remain open. No expensive runtime matrix rerun or new physics claims.
+- [Latest correction, files, physics, performance and limitations](PLAYGROUND_DOMAIN_VALIDATION.md).
+  [Prior visual redesign record](REDESIGN_5F_VALIDATION.md).
 
 ## Parallel Lean lane
 Completed in the [companion repository](https://github.com/MaryShooshtari/psi-zoo-proofs):

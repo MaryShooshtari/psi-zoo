@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import App, { Simulation1D } from './App';
-import { SettingsPopover, SettingsPage, SETTINGS_SECTIONS } from './TerrariumShell';
+import { SettingsHomeActions, SettingsPopover, SettingsPage, SETTINGS_ACTIONS, SETTINGS_SECTIONS } from './TerrariumShell';
 import { createPsiGrid2D, initializeGaussian2D, probabilityDensity2D } from '@psi-zoo/sim-core';
 import { fillDensityPixels2D, TERRARIUM_SKY_RGB } from './render/density2d';
 import { creatureColor2D, fillCreatureDensityPixels2D } from './render/creatures2d';
@@ -26,12 +26,31 @@ it('keeps advanced controls mounted but hidden behind a labeled dialog trigger',
   expect(html).toContain('Advanced action');
   expect(html).toContain('Close settings');
 });
-it('mounts eight internally navigated sections without a second panel or unmounting controls', () => {
+it('mounts five intention-based internally navigated sections without a second panel or unmounting controls', () => {
   const html = renderToStaticMarkup(<SettingsPopover navigation>{SETTINGS_SECTIONS.map(section => <SettingsPage key={section} section={section}><button>{section} action</button></SettingsPage>)}</SettingsPopover>);
   expect((html.match(/role="dialog"/g) ?? []).length).toBe(1);
-  expect((html.match(/class="settings-page-content" hidden=""/g) ?? []).length).toBe(8);
+  expect((html.match(/class="settings-page-content" hidden=""/g) ?? []).length).toBe(5);
   for (const section of SETTINGS_SECTIONS) expect(html).toContain(`data-settings-link="${section.replace('&', '&amp;')}"`);
   expect(html).toContain('Back to menu');
+});
+it('puts action-first home slots before secondary sections, with no premature SSR target fallback', () => {
+  const html = renderToStaticMarkup(<SettingsPopover navigation homeActions={<SettingsHomeActions />}>{SETTINGS_ACTIONS.map(section => <SettingsPage key={section} section={section}>{section} form</SettingsPage>)}</SettingsPopover>);
+  const positions = SETTINGS_ACTIONS.map(section => html.indexOf(`data-settings-link="${section}"`));
+  expect(positions.every(p => p >= 0)).toBe(true); expect(positions).toEqual([...positions].sort((a, b) => a - b));
+  expect(SETTINGS_SECTIONS).toEqual(['Creatures', 'Terrain', 'Experiments', 'Appearance', 'Science notebook']);
+  expect((html.match(/class="settings-page-content" hidden=""/g) ?? []).length).toBe(3);
+  const normal = renderToStaticMarkup(<App />); expect(normal).toContain('data-settings-link="Measure position"');
+  expect(normal).not.toContain('Help &amp; settings'); expect((normal.match(/What am I seeing\?/g) ?? [])).toHaveLength(1);
+  expect(normal).toContain('class="science-bar"'); expect(normal).not.toContain('aria-label="Selected creature"');
+  expect(normal).not.toContain('aria-label="Creature action targets"');
+});
+it('offers only three quantum actions, without duplicate terrain entry points', () => {
+  const html = renderToStaticMarkup(<SettingsHomeActions disabled />);
+  expect(SETTINGS_ACTIONS).toEqual(['Measure position', 'Entangle moods', 'Measure mood']);
+  expect(html).not.toContain('Draw terrain');
+  expect(html).not.toContain('Paint on canvas');
+  expect(html).toContain('<button disabled="" data-settings-link="Measure position"');
+  expect(html).toContain('<button disabled="" data-settings-link="Entangle moods"');
 });
 it('retains the standalone 1D observation, painting, presets and notebook', () => {
   const html = renderToStaticMarkup(<Simulation1D />);

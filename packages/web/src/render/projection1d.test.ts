@@ -1,4 +1,4 @@
-import { expect, it } from 'vitest';
+import { expect, it, vi } from 'vitest';
 import { createPsiGrid2D } from '@psi-zoo/sim-core';
 import { createProjectionRenderer, marginalDensityScale, projectedX, projectionViewport } from './projection1d';
 
@@ -27,7 +27,7 @@ it('draws linear nonnegative curves at shared heights, selected outline last, an
   const renderer = createProjectionRenderer(g, source, terrain);
   const context = {
     strokeStyle: '', lineWidth: 1, fillStyle: '', globalAlpha: 1,
-    clearRect() {}, fillRect() {}, fillText() {}, setLineDash() {},
+    clearRect() {}, fillRect() {}, fillText: vi.fn(), setLineDash() {},
     beginPath() { points = []; }, moveTo(x: number, y: number) { points.push([x, y]); }, lineTo(x: number, y: number) { points.push([x, y]); },
     closePath() {}, fill() {}, stroke(this: CanvasRenderingContext2D) { paths.push({ points: points.slice(), style: String(this.strokeStyle), width: this.lineWidth }); },
   } as unknown as CanvasRenderingContext2D;
@@ -58,4 +58,6 @@ it('draws linear nonnegative curves at shared heights, selected outline last, an
   revision++; renderer(context, 800, 400, 'b', false, true, .6); expect(copies).toBe(2);
   revision++; renderer(context, 800, 400, 'b', false, false, .6); expect(copies).toBe(2);
   expect(context.globalAlpha).toBe(1);
+  // Faces identify the clouds; no duplicate chart legend or technical paragraphs.
+  expect(context.fillText).not.toHaveBeenCalled();
 });

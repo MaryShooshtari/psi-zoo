@@ -5,7 +5,7 @@ contexts: "scattering"
 ---
 ## Observe
 
-Experiments → Watch scattering explicitly opens the separate paused 2D Gaussian barrier preset; press Play. Compare outgoing regions after the packet reaches the full-height barrier. For qualified quantitative reflection/transmission choose Advanced → 1D simulations and its original scattering demonstration. Its R/T values appear only in the documented separated-packet window, and edits or measurements invalidate the calibrated interpretation.
+In Menu → Terrain choose Barrier, draw across a packet’s path and press Play; the learning path includes a barrier lesson in your existing scene. For a validated separate example, Science notebook → Advanced diagnostics & legacy experiments → Watch scattering explicitly opens the separate paused 2D Gaussian barrier preset; press Play. Compare outgoing regions after the packet reaches the full-height barrier. For qualified quantitative reflection/transmission choose Advanced → 1D simulations and its original scattering demonstration. Its R/T values appear only in the documented separated-packet window, and edits or measurements invalidate the calibrated interpretation.
 
 ## Understand
 

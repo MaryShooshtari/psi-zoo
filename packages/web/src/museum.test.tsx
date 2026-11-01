@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
+import { gaussianProvenanceAfterCommand } from './Gaussian2DDemo';
 import { SimulationPlayback2D } from './simulation2d';
 import { DEFAULT_TERRAIN_SETTINGS } from './TerrainControls';
 import { guideWasCompleted, rememberGuideCompletion, GUIDE_PREFERENCE, hasObservedSpreading, prepareMuseumScene, paintGuideBarrier, qualifyingBarrierStroke } from './museumGuide';
@@ -69,6 +70,43 @@ describe('museum guide and bundled science', () => {
     expect(contextualScience(scene(c), '2d').some(c => c.topic === 'spreading')).toBe(true);
     expect(contextualScience(scene(c, false), '2d').some(c => c.topic === 'spreading')).toBe(false);
     expect(contextualScience(scene(c), '1d')[0]!.topic).toBe('marginals');
+  });
+  it('prioritizes the actual interaction with scientifically bounded short context', () => {
+    const c = make(), s = scene(c);
+    if (s.kind !== '2d') throw Error('Expected 2D fixture');
+    const cards = contextualScience({ ...s, interaction: 'spatial' }, '1d');
+    expect(cards[0]!.title).toBe('Position detector selected');
+    expect(cards[0]!.explanation).toContain('finite-resolution Gaussian');
+    expect(cards[0]!.explanation).toContain('x on the full 2D state');
+    expect(contextualScience({ ...s, interaction: 'entangle' }, '2d')[0]!.explanation).toContain('not spatial entanglement');
+    expect(contextualScience({ ...s, interaction: 'terrain' }, '2d')[0]!.explanation).toContain('without resetting creatures or time');
+  });
+  it('never restores Gaussian provenance merely because a later command happens at time zero', () => {
+    let known = gaussianProvenanceAfterCommand(true, { kind: 'spatial', axes: 'x', targetId: 'a', resolution: .4 });
+    expect(known).toBe(false);
+    for (const command of [{ kind: 'select', targetId: 'a' }, { kind: 'add' }, { kind: 'interactions', settings: { drives: false } }, { kind: 'mood-pair', pairId: 'p', basis: 'Z' }] as const) {
+      known = gaussianProvenanceAfterCommand(known, command); expect(known).toBe(false);
+    }
+    expect(gaussianProvenanceAfterCommand(known, { kind: 'preset', preset: 'independent' })).toBe(true);
+  });
+  it('suppresses free-Gaussian science after a time-zero measurement even with stale optimistic metadata', () => {
+    const c = make(); prepareMuseumScene(c); c.world!.measureSpatial('a', 'x', .4);
+    expect(c.world!.time).toBe(0); expect(contextualScience(scene(c, true), '2d').some(card => card.topic === 'spreading')).toBe(false);
+    c.world!.select('a'); c.clearTerrain(); expect(contextualScience(scene(c, false), '2d').some(card => card.topic === 'spreading')).toBe(false);
+    c.reset(); expect(contextualScience(scene(c, true), '2d').some(card => card.topic === 'spreading')).toBe(true);
+  });
+  it('uses one chronological receipt across mood, position, failure and preparation', () => {
+    const c = make(), w = c.world!, latest = () => contextualScience(scene(c), '1d').filter(card => card.title.startsWith('Last session action:'));
+    w.prepareBellPair('p', 'b', 'a'); w.measureMood('p', 'b', 'X');
+    expect(latest()).toHaveLength(1); expect(latest()[0]!.explanation).toContain('Creature B X→');
+    w.measureSpatial('a', 'x', .4); expect(latest()).toHaveLength(1); expect(latest()[0]!.title).toContain('x-only');
+    expect(latest()[0]!.explanation).toContain('No y is measured'); expect(latest()[0]!.explanation).toContain('correlated y marginal may change');
+    expect(latest()[0]!.explanation).not.toContain(', y=');
+    const before = latest(); w.measureSpatial('missing', 'xy', .4); expect(latest()).toEqual(before);
+    w.measureSpatial('b', 'xy', .4); expect(latest()[0]!.title).toContain('x/y'); expect(latest()[0]!.explanation).toContain(', y=');
+    w.measureAndRelease('p', 'X'); expect(latest()[0]!.title).toContain('Release');
+    w.prepareBellPair('again', 'a', 'b'); expect(latest()[0]!.title).toContain('preparation'); expect(latest()[0]!.explanation).toContain('sampled no measurement outcome');
+    c.reset(); expect(latest()).toEqual([]);
   });
   it('reports signed terrain without inferring tunnelling from an arbitrary shape', () => {
     const c = make(); c.stamp(0, 0, { tool: 'barrier', amplitude: 2, sigma: .7 }); c.stamp(3, 0, { tool: 'well', amplitude: 2, sigma: .7 });

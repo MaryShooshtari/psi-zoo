@@ -49,11 +49,8 @@ export function createProjectionRenderer(g: PsiGrid2D, source: {
     context.clearRect(0, 0, width, height);
     context.fillStyle = '#dce9f3'; context.fillRect(0, 0, width, height);
     context.font = '12px system-ui'; context.fillStyle = '#574b76';
-    context.fillText(`Position density · shared linear scale 0–${scale.toPrecision(3)}`, v.left, 20);
     context.strokeStyle = '#6c789180'; context.lineWidth = 1; context.setLineDash([]);
     context.beginPath(); context.moveTo(v.left, v.baseline); context.lineTo(v.right, v.baseline); context.stroke();
-    context.fillText(`x = ${g.xmin}`, v.left, v.baseline + 18);
-    context.fillText(`${g.xmax}`, v.right - 20, v.baseline + 18);
     const visible = layers.filter(l => !selectedOnly || l.id === selected);
     draw.layers = visible;
     draw.scale = scale;
@@ -76,15 +73,12 @@ export function createProjectionRenderer(g: PsiGrid2D, source: {
       context.lineTo(v.right, v.baseline); context.stroke();
     }
     context.setLineDash([]);
-    visible.forEach((layer, i) => {
-      context.fillStyle = `rgb(${creatureColor2D(layer.id).map(c => Math.round(c * .68)).join(',')})`;
-      context.fillText(`${layer.id.toUpperCase()}${layer.id === selected ? ' · selected' : ''}`, v.left + i * 115, v.top + 14);
-    });
     if (showTerrain) {
       if (revision !== terrain.terrainRevision) {
         field ??= new Float64Array(g.nx * g.ny);
         terrain.copyPotential(field); projectTerrainX(g, field, averagedTerrain); revision = terrain.terrainRevision;
       }
+      if (!averagedTerrain.some(value => value !== 0)) return;
       context.strokeStyle = '#574b7630'; context.lineWidth = 1;
       context.beginPath(); context.moveTo(v.left, v.terrainZero); context.lineTo(v.right, v.terrainZero); context.stroke();
       // Separate signed energy band. Fixed +/-20 scale is the editable terrain
@@ -104,8 +98,7 @@ export function createProjectionRenderer(g: PsiGrid2D, source: {
           segment(zeroX, v.terrainZero, x1, y1, b > 0);
         } else segment(x0, y0, x1, y1, (a === 0 ? b : a) >= 0);
       }
-      context.globalAlpha = 1; context.fillStyle = '#58647d';
-      context.fillText('Average terrain along y · energy ±20 · not a 1D Hamiltonian', v.left, height - 12);
+      context.globalAlpha = 1;
     }
   }
   draw.layers = [] as MarginalLayer[];

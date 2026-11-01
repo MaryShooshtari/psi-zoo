@@ -1,18 +1,48 @@
 import { createPsiGrid2D, initializeGaussian2D, normSquared2D, positionMoments2D, positionMean2D, probabilityDensity2D, projectDensityX, CayleyStepper2D,
   validateQubitState, createBasisQubit, creatureParameters2D,
+  measurePosition2D, PositionMeasurement2DError, type PositionMeasurement2DAxes, type PositionMeasurement2DResult, type PositionMeasurement2DStage,
   composeEffectivePotential2D, createInteractionWorkspace2D, socialPotentialAt2D, validateInteractionSettings2D,
   type PsiGrid2D, type QubitState, type Gaussian2DOptions, type CreatureParameters2D, type InteractionSettings2D, type InteractionSource2D, type InteractionWorkspace2D, validatePotential2D } from '@psi-zoo/sim-core';
 
-import { MoodRegistry2D } from './moodRegistry2d';
+import { MoodRegistry2D, type MoodEvent2D } from './moodRegistry2d';
+import { createSeededRandom } from '../random';
 import type { MoodBasis } from '@psi-zoo/sim-core';
+
+/** Fixed reproducibility constant, not cryptographic randomness. Mood seed is separate. */
+export const DEFAULT_SPATIAL_MEASUREMENT_SEED = 0x53504154;
 export interface CreatureInitial2D {
   readonly id: string; readonly psi: PsiGrid2D; readonly mood: QubitState; readonly parameters: CreatureParameters2D;
 }
 export interface WorldOptions2D {
   readonly creatures: readonly CreatureInitial2D[]; readonly interactions: InteractionSettings2D; readonly maxPopulation?: number;
   readonly measurementSeed?: number;
+  readonly spatialMeasurementSeed?: number;
   readonly bellPairs?: readonly { id: string; creatureAId: string; creatureBId: string }[];
 }
+interface ActionHeader2D { readonly sequence: number; readonly time: number }
+export type SpatialMeasurementReceipt2D = ActionHeader2D
+  & Omit<PositionMeasurement2DResult, 'axes' | 'state'>
+  & { readonly kind: 'spatial-measurement'; readonly targetId: string; readonly spatialSequence: number; readonly spatialDrawCount: number }
+  & ({ readonly axes: 'x' } | { readonly axes: 'xy'; readonly yIndex: number; readonly y: number });
+type PreparationEvent2D = Extract<MoodEvent2D, { type: 'prepare' }>;
+type MeasurementEvent2D = Extract<MoodEvent2D, { type: 'measure' }>;
+type ReleaseEvent2D = Extract<MoodEvent2D, { type: 'release' }>;
+type ReleaseEvents2D = readonly [ReleaseEvent2D] | readonly [MeasurementEvent2D, ReleaseEvent2D];
+type MoodAction2D = ActionHeader2D
+  & { readonly pairId: string; readonly creatureAId: string; readonly creatureBId: string }
+  & (
+    | { readonly kind: 'mood-prepare'; readonly events: readonly [PreparationEvent2D] }
+    | { readonly kind: 'mood-measure'; readonly targetId: string; readonly basis: MoodBasis; readonly events: readonly [MeasurementEvent2D] }
+    | { readonly kind: 'mood-measure-pair'; readonly basis: MoodBasis; readonly events: readonly [MeasurementEvent2D, MeasurementEvent2D] }
+    | { readonly kind: 'mood-release'; readonly basis: MoodBasis; readonly events: ReleaseEvents2D }
+  );
+/** One bounded chronological command receipt; no state/distribution buffers or log. */
+export type WorldAction2D = SpatialMeasurementReceipt2D | MoodAction2D;
+export type SpatialMeasurementCommandResult =
+  | Readonly<{ status: 'committed'; receipt: SpatialMeasurementReceipt2D; drawsConsumed: 1 | 2; spatialDrawCount: number }>
+  | Readonly<{ status: 'rejected'; reason: 'target-missing' | 'invalid-axes' | 'invalid-resolution'; message: string; drawsConsumed: 0; spatialDrawCount: number }>
+  | Readonly<{ status: 'failed'; stage: PositionMeasurement2DStage; message: string; drawsConsumed: number; spatialDrawCount: number }>;
+
 interface OwnedCreature {
   id: string; psi: PsiGrid2D; candidate: PsiGrid2D; initial: Float64Array;
   parameters: CreatureParameters2D;
@@ -29,6 +59,9 @@ export interface WorldSnapshot2D {
   readonly interactions: InteractionSettings2D; readonly creatures: readonly CreatureDiagnostic2D[];
   readonly pairs: ReturnType<MoodRegistry2D['inspectPairs']>;
   readonly moodHistory: MoodRegistry2D['history'];
+  readonly lastAction: WorldAction2D | null;
+  readonly spatialMeasurementCount: number; readonly spatialDrawCount: number; readonly spatialMeasurementSeed: number;
+  readonly rosterRevision: number;
 }
 function copyGrid(g: PsiGrid2D): PsiGrid2D { return { ...g, values: g.values.slice() }; }
 export function initialCreature2D(g: PsiGrid2D, id: string, gaussian: Gaussian2DOptions,
@@ -38,7 +71,7 @@ export function initialCreature2D(g: PsiGrid2D, id: string, gaussian: Gaussian2D
 }
 /** Browser-independent centroid/mood mean-field model, NOT an exact many-body state.
  * No timers, terrain editing or rendering. Seeded randomness occurs only in
- * explicit mood measurement commands, never in stepping. Terrain is borrowed only
+ * explicit spatial/mood measurement commands on separate streams, never in stepping. Terrain is borrowed only
  * for a synchronous whole step; the playback controller remains its sole owner.
  * Each member owns spatial amplitudes, frozen potential and solver; moods have
  * one authoritative registry owner (independent or shared pair). Candidate state
@@ -51,6 +84,13 @@ export class QuantumWorld2D {
   private selectedId = '';
   private clock = 0;
   private readonly moods: MoodRegistry2D;
+  private readonly spatialSeed: number;
+  private spatialRandom: () => number;
+  private spatialDraws = 0;
+  private spatialSuccesses = 0;
+  private actionSequence = 0;
+  private action: WorldAction2D | null = null;
+  private roster = 0;
   // Spatial-only, private cache for the currently committed amplitudes. Mood
   // commands/settings never invalidate spatial moments or expose live buffers.
   private readonly spatialDiagnostics = new Map<string, Readonly<ReturnType<typeof positionMoments2D>>>();
@@ -60,14 +100,21 @@ export class QuantumWorld2D {
     const reference = createPsiGrid2D(geometry);
     if (reference.dx !== geometry.dx || reference.dy !== geometry.dy) throw new RangeError('Invalid world grid geometry');
     this.moods = new MoodRegistry2D(options.measurementSeed);
+    this.spatialSeed = options.spatialMeasurementSeed === undefined ? DEFAULT_SPATIAL_MEASUREMENT_SEED : options.spatialMeasurementSeed;
+    this.spatialRandom = createSeededRandom(this.spatialSeed);
     const max = options.maxPopulation ?? 4;
     if (!Number.isSafeInteger(max) || max < 1 || max > 4 || options.creatures.length < 1 || options.creatures.length > max) throw new RangeError('World population must be in [1,maxPopulation], with maxPopulation in [1,4]');
     this.maxPopulation = max; validateInteractionSettings2D(options.interactions); this.settings = { ...options.interactions };
     for (const c of options.creatures) this.add(c);
     this.selectedId = this.members[0]!.id;
     for (const p of options.bellPairs ?? []) this.prepareBellPair(p.id, p.creatureAId, p.creatureBId);
+    // Constructor Bell preparation is initialization, not a visitor action.
+    // Keep the registry's existing history/reset semantics intact.
+    this.action = null; this.actionSequence = 0;
   }
   get time(): number { return this.clock; }
+  get rosterRevision(): number { return this.roster; }
+  get lastAction(): WorldAction2D | null { return this.action; }
   get selected(): string { return this.selectedId; }
   get ids(): readonly string[] { return this.members.map(c => c.id); }
   select(id: string): void { this.member(id); this.selectedId = id; }
@@ -87,6 +134,7 @@ export class QuantumWorld2D {
       parameters, potential: new Float64Array(g.nx * g.ny), stepper: new CayleyStepper2D(psi), workspace: createInteractionWorkspace2D(g) });
     this.members.sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
     if (!this.selectedId) this.selectedId = c.id;
+    this.roster++;
   }
   /** Deterministic templates; adding never rewinds existing members or world time. */
   addTemplate(): string {
@@ -110,6 +158,7 @@ export class QuantumWorld2D {
     this.spatialMeans.delete(id);
     this.members = this.members.filter(c => c.id !== id);
     if (this.selectedId === id) this.selectedId = this.members[0]!.id;
+    this.roster++;
   }
   /** Independent diagnostic/test copy; rejects paired moods rather than fabricating
    * a pure qubit for a mixed local state. Use spatialState/getSnapshot for pairs. */
@@ -125,6 +174,9 @@ export class QuantumWorld2D {
     this.spatialDiagnostics.clear();
     this.spatialMeans.clear();
     this.clock = 0;
+    this.spatialRandom = createSeededRandom(this.spatialSeed);
+    this.spatialDraws = 0; this.spatialSuccesses = 0;
+    this.action = null; this.actionSequence = 0;
   }
   /** Endpoint diagnostics use committed states, never last-step frozen potentials. */
   getSnapshot(): WorldSnapshot2D {
@@ -136,7 +188,9 @@ export class QuantumWorld2D {
         forceX: force * c.parameters.preferredDirection.x, forceY: force * c.parameters.preferredDirection.y,
         socialAtMean: this.moods.paired(c.id) ? 0 : socialPotentialAt2D(a, sources.filter(s => !this.moods.paired(s.id)), this.settings, a.x, a.y) };
     });
-    return { time: this.clock, selected: this.selectedId, maxPopulation: this.maxPopulation, interactions: { ...this.settings }, creatures, pairs: this.moods.inspectPairs(), moodHistory: this.moods.history };
+    return { time: this.clock, selected: this.selectedId, maxPopulation: this.maxPopulation, interactions: { ...this.settings }, creatures, pairs: this.moods.inspectPairs(), moodHistory: this.moods.history,
+      lastAction: this.action, spatialMeasurementCount: this.spatialSuccesses, spatialDrawCount: this.spatialDraws,
+      spatialMeasurementSeed: this.spatialSeed, rosterRevision: this.roster };
   }
   /** Public phase A/B helper also supports separate potential-construction benchmarks.
    * Reuses owned effective buffers; no spatial/mood advancement, no terrain writes. */
@@ -190,9 +244,75 @@ export class QuantumWorld2D {
   private sources() { return this.members.map(c => this.source(c)); }
   /** Spatial-only diagnostic copy works for both ownership types. */
   spatialState(id: string): PsiGrid2D { return copyGrid(this.member(id).psi); }
-  prepareBellPair(pairId: string, a: string, b: string): void { this.member(a); this.member(b); this.moods.prepareBell(pairId,a,b); }
-  measureMood(pairId: string, creatureId: string, basis: MoodBasis) { return this.moods.measure(pairId,creatureId,basis); }
-  measurePair(pairId: string, basis: MoodBasis) { return this.moods.measureBoth(pairId,basis); }
-  measureAndRelease(pairId: string, basis: MoodBasis): void { this.moods.release(pairId,basis); }
+  /** Synchronous owned-state update between whole steps. No UI, time, terrain,
+   * ownership, saved-initial or scheduler mutation. Failures retain actual draws.
+   */
+  measureSpatial(targetId: string, axes: PositionMeasurement2DAxes, resolution: number): SpatialMeasurementCommandResult {
+    if (axes !== 'x' && axes !== 'xy') return Object.freeze({ status: 'rejected', reason: 'invalid-axes', message: 'axes must be x or xy', drawsConsumed: 0, spatialDrawCount: this.spatialDraws });
+    if (!Number.isFinite(resolution) || resolution <= 0) return Object.freeze({ status: 'rejected', reason: 'invalid-resolution', message: 'resolution must be positive and finite', drawsConsumed: 0, spatialDrawCount: this.spatialDraws });
+    const target = this.members.find(c => c.id === targetId);
+    if (!target) return Object.freeze({ status: 'rejected', reason: 'target-missing', message: `Unknown creature: ${targetId}`, drawsConsumed: 0, spatialDrawCount: this.spatialDraws });
+    const before = this.spatialDraws;
+    let measured: PositionMeasurement2DResult;
+    try {
+      measured = measurePosition2D(target.psi, resolution, axes, () => {
+        this.spatialDraws++;
+        return this.spatialRandom();
+      });
+    } catch (error) {
+      if (!(error instanceof PositionMeasurement2DError)) throw error;
+      return Object.freeze({ status: 'failed', stage: error.stage, message: error.message,
+        drawsConsumed: this.spatialDraws - before, spatialDrawCount: this.spatialDraws });
+    }
+    const drawsConsumed = this.spatialDraws - before;
+    if ((drawsConsumed !== 1 && drawsConsumed !== 2) || drawsConsumed !== (axes === 'x' ? 1 : 2)) throw new Error('Detector violated its successful draw-count contract');
+    const { state, ...measurement } = measured;
+    // All allocations/freezing precede the amplitude copy. Never store state or
+    // work arrays in a receipt, or call a fallible snapshot to fabricate success.
+    const receipt: SpatialMeasurementReceipt2D = Object.freeze({ ...measurement, kind: 'spatial-measurement', targetId,
+      sequence: this.actionSequence + 1, time: this.clock, spatialSequence: this.spatialSuccesses + 1, spatialDrawCount: this.spatialDraws });
+    const result: SpatialMeasurementCommandResult = Object.freeze({ status: 'committed', receipt, drawsConsumed, spatialDrawCount: this.spatialDraws });
+    target.psi.values.set(state.values);
+    this.spatialMeans.delete(targetId); this.spatialDiagnostics.delete(targetId);
+    this.spatialSuccesses = receipt.spatialSequence;
+    this.actionSequence = receipt.sequence; this.action = receipt;
+    return result;
+  }
+  prepareBellPair(pairId: string, a: string, b: string): void {
+    this.member(a); this.member(b); this.moods.prepareBell(pairId, a, b);
+    const event = this.moods.history.at(-1)! as PreparationEvent2D;
+    this.recordMoodAction({ kind: 'mood-prepare', sequence: this.actionSequence + 1, time: this.clock,
+      pairId, creatureAId: a, creatureBId: b, events: Object.freeze([Object.freeze({ ...event })] as const) });
+  }
+  measureMood(pairId: string, creatureId: string, basis: MoodBasis) {
+    const pair = this.pairForReceipt(pairId), event = this.moods.measure(pairId, creatureId, basis);
+    this.recordMoodAction({ ...pair, kind: 'mood-measure', sequence: this.actionSequence + 1, time: this.clock,
+      pairId, targetId: creatureId, basis, events: Object.freeze([Object.freeze({ ...event })] as const) });
+    return event;
+  }
+  measurePair(pairId: string, basis: MoodBasis) {
+    const pair = this.pairForReceipt(pairId), events = this.moods.measureBoth(pairId, basis);
+    this.recordMoodAction({ ...pair, kind: 'mood-measure-pair', sequence: this.actionSequence + 1, time: this.clock,
+      pairId, basis, events: Object.freeze([Object.freeze({ ...events[0] }), Object.freeze({ ...events[1] })] as const) });
+    return events;
+  }
+  measureAndRelease(pairId: string, basis: MoodBasis): void {
+    const pair = this.pairForReceipt(pairId), start = this.moods.history.length;
+    this.moods.release(pairId, basis);
+    // Registry release appends exactly release, or measure then release. Copy
+    // those actual events; do not invent a sampled result for factorization.
+    const events = Object.freeze(this.moods.history.slice(start).map(event => Object.freeze({ ...event }))) as ReleaseEvents2D;
+    this.recordMoodAction({ ...pair, kind: 'mood-release', sequence: this.actionSequence + 1, time: this.clock, pairId, basis, events });
+  }
+  private pairForReceipt(pairId: string) {
+    const pair = this.moods.inspectPairs().find(p => p.id === pairId);
+    if (!pair) throw new RangeError(`Unknown mood pair: ${pairId}`);
+    return { creatureAId: pair.creatureAId, creatureBId: pair.creatureBId };
+  }
+  /** Mood commands keep their existing return/exception and successful-call
+   * semantics; this is bounded publication, not retrofitted mood rollback. */
+  private recordMoodAction(action: MoodAction2D): void {
+    this.action = Object.freeze(action); this.actionSequence = action.sequence;
+  }
   private member(id: string): OwnedCreature { const c = this.members.find(c => c.id === id); if (!c) throw new RangeError(`Unknown creature: ${id}`); return c; }
 }

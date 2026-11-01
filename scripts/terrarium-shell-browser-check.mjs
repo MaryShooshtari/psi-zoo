@@ -26,7 +26,7 @@ try {
   await evaluate(`window.button=t=>[...document.querySelectorAll('button')].find(b=>b.textContent.startsWith(t));window.value=t=>Number([...document.querySelectorAll('.diagnostics span')].find(s=>s.textContent.startsWith(t))?.textContent.split(':')[1]);window.rect=()=>{const r=document.querySelector('canvas').getBoundingClientRect();return [r.x,r.y,r.width,r.height]};window.fits=el=>{const r=el.getBoundingClientRect();return r.width>0&&r.height>0&&r.left>=0&&r.top>=0&&r.right<=innerWidth+1&&r.bottom<=innerHeight+1};`);
   for (const [width, height] of [[1920,1080],[1440,900],[1366,768],[1280,720],[1024,600]]) {
     await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: false }); await sleep(160);
-    check(`${width}×${height}: stationary document, square domain, visible controls`, await evaluate(`document.scrollingElement.scrollHeight===innerHeight && document.scrollingElement.scrollWidth===innerWidth && Math.abs(rect()[2]-rect()[3])<1 && ['.dimension-controls','.settings-trigger','.playback-bar','.selected-creature','.context-help'].every(s=>fits(document.querySelector(s)))`));
+    check(`${width}×${height}: stationary document, square domain, visible controls`, await evaluate(`document.scrollingElement.scrollHeight===innerHeight && document.scrollingElement.scrollWidth===innerWidth && Math.abs(rect()[2]-rect()[3])<1 && ['.dimension-controls','.settings-trigger','.playback-bar','.creature-summary','.museum-trigger'].every(s=>fits(document.querySelector(s)))`));
     await evaluate(`window.before=JSON.stringify(rect());window.image=document.querySelector('canvas').toDataURL();button('Menu').click()`); await sleep(80);
     check(`${width}×${height}: floating settings do not resize or redraw playground`, await evaluate(`before===JSON.stringify(rect()) && image===document.querySelector('canvas').toDataURL() && fits(document.querySelector('.settings-popover')) && document.activeElement.getAttribute('aria-label')==='Close settings' && document.scrollingElement.scrollHeight===innerHeight`));
     await key('Tab', 'Tab', 8);
@@ -41,10 +41,10 @@ try {
   await key('Enter', 'Enter'); await sleep(80);
   check('Enter opens settings from the focused native button', await evaluate(`!document.querySelector('.settings-popover').hidden && document.activeElement.getAttribute('aria-label')==='Close settings'`));
   await key('Escape', 'Escape');
-  await evaluate(`document.querySelector('.context-help').focus()`); await key(' ', 'Space'); await sleep(80);
-  check('Help is keyboard-operable with a stable accessible name', await evaluate(`!document.querySelector('.settings-popover').hidden && document.querySelector('.context-help').getAttribute('aria-label')==='Help and settings'`));
-  await key('Escape', 'Escape');
-  check('Escape from Help returns focus to Help', await evaluate(`document.activeElement===document.querySelector('.context-help')`));
+  await evaluate(`document.querySelector('.museum-trigger').focus()`); await key(' ', 'Space'); await sleep(80);
+  check('The single bottom science trigger opens real contextual science by keyboard, not settings', await evaluate(`!!document.querySelector('.museum-dialog[open]') && document.querySelectorAll('.museum-trigger').length===1 && document.querySelector('.settings-popover').hidden && !document.querySelector('.context-help')`));
+  await key('Escape', 'Escape'); await sleep(80);
+  check('Escape from science returns focus to the persistent science trigger', await evaluate(`document.activeElement===document.querySelector('.museum-trigger')`));
   await evaluate(`window.initial=document.querySelector('canvas').toDataURL();button('Play').click()`); await retry(() => evaluate(`value('Physical time')>.2`));
   await evaluate(`window.openTime=value('Physical time');button('Menu').click()`);
   await retry(() => evaluate(`value('Physical time')>openTime+.1`));
@@ -61,16 +61,18 @@ try {
   await send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: point.x + 20, y: point.y, button: 'left', clickCount: 1 });
   await retry(() => evaluate(`value('V maximum')>1.9`));
   check('Native terrain click/drag still edits only terrain while paused', await evaluate(`value('Terrain revision')>0 && value('Physical time')===0 && Math.abs(value('Selected norm')-1)<1e-10`));
-  await evaluate(`document.querySelector('input[aria-label="Show creature decorations"]').click();window.image=document.querySelector('canvas').toDataURL();const s=document.querySelector('[aria-label="Selected creature"]');s.value='b';s.dispatchEvent(new Event('change',{bubbles:true}))`); await sleep(100);
-  check('Persistent creature selector inspects B without measuring or changing density', await evaluate(`document.querySelector('[name="world-creature"][value="b"]').checked && image===document.querySelector('canvas').toDataURL()`));
+  await evaluate(`document.querySelector('input[aria-label="Show creature decorations"]').click();button('Menu').click();button('Creatures').click()`); await sleep(80);
+  await evaluate(`window.image=document.querySelector('canvas').toDataURL();document.querySelector('[name="world-creature"][value="b"]').click()`); await sleep(100);
+  check('Menu-native creature inspection selects B without measuring or changing density', await evaluate(`document.querySelector('[name="world-creature"][value="b"]').checked && image===document.querySelector('canvas').toDataURL() && !document.querySelector('select[aria-label="Selected creature"]')`));
+  await key('Escape', 'Escape');
   for (const mode of ['1D simulations', '2D Gaussian demo', '2D creature world']) {
     await evaluate(`button('${mode}').click()`); await sleep(200);
     await evaluate(`button('Play').click()`); await retry(() => evaluate(`value('Physical time')>.1`)); await evaluate(`button('Pause').click()`);
     check(`${mode} retains working simulation and no document overflow`, await evaluate(`value('Physical time')>0 && document.scrollingElement.scrollHeight===innerHeight`));
   }
-  // Effective layout at 200% desktop browser zoom (CSS viewport is halved).
+  // Small CSS viewport / DPR emulation only, not actual browser-zoom evidence.
   await send('Emulation.setDeviceMetricsOverride', { width: 512, height: 300, deviceScaleFactor: 2, mobile: false }); await sleep(200);
-  check('200% equivalent small CSS viewport keeps primary controls reachable', await evaluate(`document.scrollingElement.scrollHeight===innerHeight && fits(document.querySelector('.settings-trigger')) && fits(document.querySelector('.context-help')) && fits(document.querySelector('.playback-bar')) && fits(document.querySelector('.dimension-controls'))`));
+  check('Small emulated CSS viewport keeps primary controls reachable', await evaluate(`document.scrollingElement.scrollHeight===innerHeight && fits(document.querySelector('.settings-trigger')) && fits(document.querySelector('.museum-trigger')) && fits(document.querySelector('.playback-bar')) && fits(document.querySelector('.dimension-controls'))`));
   await evaluate(`button('Menu').click();button('Advanced').click()`); await sleep(100);
   check('Zoomed settings scroll internally to final diagnostics', await evaluate(`(()=>{const p=document.querySelector('.settings-popover');p.scrollTop=p.scrollHeight;return fits(p)&&p.scrollTop>0&&p.scrollHeight>p.clientHeight&&document.scrollingElement.scrollTop===0})()`));
   await send('Emulation.setDeviceMetricsOverride', { width: 1366, height: 768, deviceScaleFactor: 1, mobile: false });
