@@ -1,5 +1,6 @@
 {
   "name": "@psi-zoo/web",
+  "description": "Psiways browser playground — React, Canvas2D and a contextual physics notebook.",
   "version": "0.0.0",
   "private": true,
   "type": "module",

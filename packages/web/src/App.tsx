@@ -72,7 +72,7 @@ export default function App() {
     <header className="shell-header"><nav className="dimension-controls controls" aria-label="Terrarium view">
       <button aria-pressed={dimension === 'world2d' && viewMode === '1d'} onClick={() => view('1d')}>1D view</button>
       <button aria-pressed={dimension === 'world2d' && viewMode === '2d'} onClick={() => view('2d')}>2D view</button>
-    </nav><div className="shell-brand">Psi Zoo <span>A quantum terrarium</span></div></header>
+    </nav><div className="shell-brand">Psiways <span>A quantum terrarium</span></div></header>
     {dimension === '1d' ? <Simulation1D helpControl={helpControl} demonstrations={demonstrations} onScene={next => { scene.current = next; }} openChapter={openChapter} /> : <Simulation2D helpControl={helpControl} key={dimension === '2d' ? `${dimension}-${experimentKey}` : `${dimension}-${guideSession}`} worldMode={dimension === 'world2d'} viewMode={viewMode} demonstrations={demonstrations} requestedPage={dimension === 'world2d' ? requestedPage : undefined} initialPreset={dimension === '2d' ? gaussianPreset : undefined} guideSession={guideSession} guideActive={guideActive} finishGuide={finishGuide} onScene={next => { scene.current = next; }} openChapter={openChapter} />}
     {invitation && !guideActive && !lesson && <aside className="guide-invitation" aria-label="First visit invitation"><strong>New to the terrarium?</strong><p>Explore seven short lessons in your current playground. Nothing resets when you begin.</p><button onClick={startLearning}>Start learning path</button><button onClick={() => setInvitation(false)}>Not now</button></aside>}
     {lesson && <LearningJourney step={lesson.step} resumeKey={learningResume} scene={readingScene} baseline={lesson.baseline}

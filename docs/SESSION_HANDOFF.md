@@ -1,4 +1,40 @@
-# Session handoff — Slice 5F visual / UX redesign
+# Session handoff — Psiways branding and README
+
+## Latest owner request — Psiways presentation
+
+The product is now **Psiways**. The application header, browser metadata, package
+descriptions, current notebook branding and README have been updated. Existing
+repository/workspace identifiers (`psi-zoo`, `@psi-zoo/*`), imports, remote URLs,
+Lean namespaces and historical evidence remain intact. No repository rename,
+commit, push, dependency change or solver/UI redesign was performed in this task.
+
+- README rebuilt as a visitor-facing introduction: real rectangular 2D hero,
+  same-state 1D screenshot, a small genuine evolution GIF, features, carefully
+  scoped physics, Mermaid architecture, verified commands and honest status.
+- New media and exact capture provenance: `docs/assets/`. All seven GIF frames
+  decode correctly; screenshots compare the same paused physical state.
+- Math was checked through GitHub's actual Markdown API, then visually inspected
+  with MathJax SVG in Chrome. A standalone equals-sign line had become a Markdown
+  heading; that parsing collision was fixed. All three display equations and
+  inline units now parse and typeset correctly. **The live repository README has
+  not been published or inspected**; no push was authorized.
+- Root checks: **579 tests / 48 files**, typecheck and build passed. Branding/media
+  browser suite: **9 passed**. README: **10 rendering checks** plus a clean
+  runtime/console check, including image decoding, links, commands, anchor
+  navigation, diagram and responsive previews.
+- No verified deployment URL was found (`homepage: null`, `has_pages: false`).
+  README points to local setup, not an invented hosted app.
+- The working implementation includes the preceding seven-step learning/menu
+  work. It was preserved, not expanded or retroactively declared accepted here.
+  Sustained/four-creature, real-device/AT and human acceptance gates remain open.
+- Full record and reproduction: [branding validation](PSIWAYS_BRANDING_VALIDATION.md).
+
+Next: owner review of the README and screenshots, followed by live GitHub visual
+review if/when the owner chooses to publish. No automatic commit or next slice.
+
+---
+
+# Prior session handoff — Slice 5F visual / UX redesign
 
 ## Latest correction — genuine rectangular world and minimal controls
 

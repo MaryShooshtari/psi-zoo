@@ -13,6 +13,8 @@ it('defaults to the 2D world with persistent simulation navigation and playback'
   expect(html).toContain('Advanced / Legacy demonstrations');
   expect(html).toContain('1D simulations');
   expect(html).toContain('2D Gaussian demo');
+  expect(html).toContain('class="shell-brand">Psiways');
+  expect(html).not.toContain('Psi Zoo');
   expect(html).toContain('class="playground unified-playground"');
   expect(html).toContain('class="playback-bar"');
   expect(html).toContain('Time');

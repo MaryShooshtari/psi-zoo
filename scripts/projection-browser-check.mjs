@@ -63,7 +63,7 @@ await build({ root: resolve('packages/web'), configFile: resolve('packages/web/v
   return { code: edit.toString(), map: edit.generateMap({ hires: true }) };
 } }], build: { outDir: join(out, 'ui'), emptyOutDir: true, sourcemap: process.argv.includes('--spatial-latency') } });
 const server = createServer(async (req, res) => {
-  try { const path = join(out, 'ui', req.url.split('?')[0] === '/' ? 'index.html' : req.url.split('?')[0]); res.setHeader('Content-Type', ({ '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css' })[extname(path)] || 'application/octet-stream'); res.end(await readFile(path)); }
+  try { const path = join(out, 'ui', req.url.split('?')[0] === '/' ? 'index.html' : req.url.split('?')[0]); res.setHeader('Content-Type', ({ '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.gif': 'image/gif', '.svg': 'image/svg+xml', '.mjs': 'text/javascript' })[extname(path)] || 'application/octet-stream'); res.end(await readFile(path)); }
   catch { res.writeHead(404); res.end(); }
 });
 await new Promise(r => server.listen(5191, '127.0.0.1', r));
@@ -81,6 +81,7 @@ try {
   const check = (name, result) => { assert.ok(result, name); checks++; console.log('PASS', name); };
   await send('Page.enable'); await send('Runtime.enable');
   await send('Page.addScriptToEvaluateOnNewDocument', { source: `window.__registrations=0;window.__spatialCheck={register(a){window.__actions=a;}};window.__projectionCheck={action(r){window.__lastUIAction=r;},register(c){window.__controller=c;__registrations++;},renderer(f,creatures,potential,decoration){window.__renderProjection=f;window.__renderField=creatures;window.__renderTerrain=potential;window.__renderDecoration=decoration;}};` });
+  if (process.argv.includes('--branding')) await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
   await send('Page.navigate', { url: 'http://127.0.0.1:5191' });
   await retry(() => evaluate(`!!document.querySelector('.world-inspector') && !!__controller?.world`));
   await evaluate(`window.button=t=>[...document.querySelectorAll('button')].find(b=>b.textContent===t);
@@ -99,6 +100,13 @@ try {
   } else if (process.argv.includes('--spatial-actions')) {
     const { checkSpatialActions } = await import('./spatial-actions-browser-cases.mjs');
     await checkSpatialActions({ evaluate, send, check, retry, sleep, out });
+  } else if (process.argv.includes('--branding')) {
+    const { captureBranding } = await import('./capture-psiways-assets.mjs');
+    await captureBranding({ evaluate, send, check, retry, sleep, out });
+  } else if (process.argv.includes('--readme')) {
+    const { checkReadme } = await import('./verify-readme.mjs');
+    await checkReadme({ evaluate, send, check, retry, sleep, out });
+    console.log(`${checks} README rendering checks passed; evidence: ${out}`);
   } else if (process.argv.includes('--learning')) {
     const { checkLearning } = await import('./learning-browser-cases.mjs');
     await checkLearning({ evaluate, send, check, retry, sleep, out });
@@ -179,10 +187,12 @@ try {
     await send('Emulation.setDeviceMetricsOverride', { width: 1366, height: 768, deviceScaleFactor: 1, mobile: false }); await sleep(120);
     const shot = await send('Page.captureScreenshot', { format: 'png' }); await writeFile(join(out, 'projection.png'), Buffer.from(shot.data, 'base64')); console.log('Screenshot:', join(out, 'projection.png'));
   }
+  if (!process.argv.includes('--readme')) {
   await evaluate(`window.__legacyStartRegistrations=__registrations;button('Menu ☰')?.click();button('1D simulations').click()`); await retry(() => evaluate(`!!document.querySelector('.creature-inspector')`));
   check('Legacy entry opens the original standalone 1D Observer, not the marginal', await evaluate(`!document.querySelector('.projection-1d')&&!!button('Observe particle · Creature A')&&document.querySelector('.heading').textContent.includes('Standalone 1D')`));
   await evaluate(`button('2D view').click()`); await retry(() => evaluate(`!!document.querySelector('.world-inspector')`));
   check('Leaving a legacy demo explicitly starts a new terrarium, unlike view switching', await evaluate(`__registrations===__legacyStartRegistrations+1&&__controller.world.time===0&&button('2D view').getAttribute('aria-pressed')==='true'`));
+  }
   check('No runtime or console errors', errors.length === 0);
   console.log(`${checks} production ${process.argv.includes('--museum') ? 'museum and projection' : process.argv.includes('--creature-design') ? 'creature-design and projection' : 'projection'} browser checks passed`);
 } finally { socket?.close(); chrome.kill(); await new Promise(r => server.close(r)); }

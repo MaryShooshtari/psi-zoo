@@ -1,4 +1,4 @@
-# Psi Zoo — Project Handover
+# Psiways — Original project handover
 
 *An interactive terrarium of quantum creatures: a browser game, a pedagogical physics explorable, and a formally verified simulation — one project, three audiences.*
 
@@ -18,7 +18,7 @@
 
 ## 1. What this project is
 
-**Psi Zoo** is a browser-based interactive world in which the creatures are not *decorated* with physics — they *are* the physics. Each creature is a real wavefunction ψ(x, t), simulated honestly with the Schrödinger equation. It drifts, spreads, interferes, and tunnels through walls. Each creature also has a personality: its "mood" is a genuine two-level quantum system (a qubit on the Bloch sphere) that steers its behaviour. A companion Lean 4 repository proves the mathematical core of the simulation.
+**Psiways** is a browser-based interactive world in which the creatures are not *decorated* with physics — they *are* the physics. Each creature is a real wavefunction ψ(x, t), simulated honestly with the Schrödinger equation. It drifts, spreads, interferes, and tunnels through walls. Each creature also has a personality: its "mood" is a genuine two-level quantum system (a qubit on the Bloch sphere) that steers its behaviour. A companion Lean 4 repository proves the mathematical core of the simulation.
 
 The project serves three audiences at once:
 
@@ -223,4 +223,4 @@ The moment slice 1 is green — simulation matching the textbook solution — th
 
 ---
 
-*Psi Zoo is designed so that every working session ends with either a prettier creature or a deeper proof. Keep it that way.*
+*Psiways is designed so that every working session ends with either a prettier creature or a deeper proof. Keep it that way.*

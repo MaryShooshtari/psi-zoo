@@ -1,5 +1,6 @@
 {
   "name": "@psi-zoo/sim-core",
+  "description": "Psiways numerical core — wavefunctions, Cayley evolution, Gaussian measurements and qubits.",
   "version": "0.0.0",
   "private": true,
   "type": "module",

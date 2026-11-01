@@ -230,7 +230,21 @@
   measurements and remaining review](MUSEUM_VALIDATION.md).
   **Stop for independent review; no automatic next phase.**
 
-## Current: Slice 5F — visual and UX redesign (implemented for review)
+## Current presentation — Psiways branding and README (implemented for review)
+- Product-facing name is now **Psiways**; package/repository identifiers, URLs,
+  history and physics implementations remain unchanged.
+- New visitor-facing README with actual 2D/1D captures, a native-decoded real
+  evolution GIF, physics scope, Mermaid architecture, local commands and status.
+- GitHub's Markdown API recognizes all three display equations and inline units;
+  MathJax SVG and Mermaid output inspected in a compatible browser preview.
+  Live published GitHub review remains pending owner publication.
+- 579 tests / 48 files, typecheck/build, 9 branding/media browser checks and
+  10 README rendering checks plus a clean runtime/console check passed.
+- Existing learning/menu work preserved. No claim that prior sustained, device,
+  accessibility or four-creature acceptance gates are closed.
+- [Files, media, math verification and remaining limits](PSIWAYS_BRANDING_VALIDATION.md).
+
+## Retained: Slice 5F — visual and UX redesign (implemented for review)
 - Corrected after owner review: genuine rectangular physical domain matching
   initial playground aspect, ~128² samples, unchanged dx=dy=20/129 and dt=1/120.
   Actual propagation, terrain editing and detector outcomes beyond the old x=10

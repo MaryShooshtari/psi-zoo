@@ -1,0 +1,52 @@
+{
+  "capturedAt": "2026-11-01T18:00:36.639Z",
+  "browser": "Chrome/157.0.8103.26",
+  "viewport": {
+    "width": 1440,
+    "height": 900,
+    "deviceScaleFactor": 1
+  },
+  "observed": {
+    "time": 1.9749999999999954,
+    "playing": false,
+    "creatures": 2,
+    "nx": 174,
+    "ny": 94,
+    "dx": 0.15503875968992248,
+    "dy": 0.15503875968992248,
+    "dt": 0.008333333333333333,
+    "bounds": {
+      "xmin": -13.565891472868216,
+      "xmax": 13.565891472868216,
+      "ymin": -7.364341085271318,
+      "ymax": 7.364341085271318
+    },
+    "norms": [
+      0.9999999999998238,
+      0.9999999999998205
+    ],
+    "positionMeasurements": 0
+  },
+  "sameStateMarginal": true,
+  "animation": {
+    "width": 960,
+    "height": 600,
+    "bytes": 274071,
+    "frames": 7,
+    "durationMs": 3070,
+    "decoded": {
+      "count": 7,
+      "durationMs": 3070
+    },
+    "sampledPhysicalTimes": [
+      0,
+      0.275,
+      0.6000000000000003,
+      0.9416666666666658,
+      1.2583333333333313,
+      1.5749999999999968,
+      1.9416666666666622
+    ],
+    "policy": "Actual browser screenshots, downsampled and palette-quantized. Sampled wall-clock timing plus initial/final holds. No interpolated frames or physics parameter changes."
+  }
+}

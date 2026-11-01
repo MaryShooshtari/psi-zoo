@@ -7,12 +7,12 @@ status: "Exact matrix theorems checked in Lean; TypeScript numerically validated
 
 # Why the wave packet keeps its probability
 
-[Notebook index](README.md) · [Run the simulation](../../README.md#local-development) ·
+[Notebook index](README.md) · [Run the simulation](../../README.md#run-it-locally) ·
 [Detailed numerical results](../FREE_GAUSSIAN_VALIDATION.md)
 
 ## The short explanation
 
-The glowing curve in Psi Zoo is a probability **density**, not a solid object.
+The glowing curve in Psiways is a probability **density**, not a solid object.
 The packet can spread, so its peak can shrink while the total area underneath
 stays the same. On our grid that area is a weighted sum, called the squared norm:
 

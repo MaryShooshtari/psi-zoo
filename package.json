@@ -1,5 +1,6 @@
 {
   "name": "psi-zoo",
+  "description": "Psiways — a playful, scientifically grounded interactive quantum playground.",
   "private": true,
   "version": "0.0.0",
   "type": "module",
